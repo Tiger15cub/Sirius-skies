@@ -8,6 +8,7 @@ export interface IUser extends Document {
   timesinceLastUpdate: Date;
   password: string;
   banned: boolean;
+  hasFL: boolean;
   friends: Friends;
 }
 
@@ -26,6 +27,8 @@ const UserSchema = new Schema<IUser>({
   timesinceLastUpdate: { type: Date, required: true },
   password: { type: String, required: true },
   banned: { type: Boolean, default: false },
+  // hasFullLocker
+  hasFL: { type: Boolean, default: false },
   friends: {
     accepted: {
       type: Array,

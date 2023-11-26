@@ -1,0 +1,14 @@
+{
+  "AthenaCharacter:CID_001_Athena_Commando_F_Default": {
+    "attributes": {
+      "favorite": false,
+      "item_seen": true,
+      "level": 1,
+      "max_level_bonus": 0,
+      "rnd_sel_cnt": 0,
+      "variants": [],
+      "xp": 0
+    },
+    "templateId": "AthenaCharacter:CID_001_Athena_Commando_F_Default"
+  }
+}
