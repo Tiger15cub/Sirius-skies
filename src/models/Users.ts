@@ -11,7 +11,7 @@ export interface IUser extends Document {
   friends: Friends;
 }
 
-interface Friends extends Document {
+interface Friends {
   accepted: Array<Record<string, any>>;
   incoming: Array<Record<string, any>>;
   outgoing: Array<Record<string, any>>;
@@ -28,35 +28,19 @@ const UserSchema = new Schema<IUser>({
   banned: { type: Boolean, default: false },
   friends: {
     accepted: {
-      type: [
-        {
-          type: Schema.Types.Mixed,
-        },
-      ],
+      type: Array,
       default: [],
     },
     incoming: {
-      type: [
-        {
-          type: Schema.Types.Mixed,
-        },
-      ],
+      type: Array,
       default: [],
     },
     outgoing: {
-      type: [
-        {
-          type: Schema.Types.Mixed,
-        },
-      ],
+      type: Array,
       default: [],
     },
     blocked: {
-      type: [
-        {
-          type: Schema.Types.Mixed,
-        },
-      ],
+      type: Array,
       default: [],
     },
   },

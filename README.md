@@ -23,5 +23,6 @@ funky fortnite backend
 15. **Creative**
 16. **Discovery**
 17. **Vbucks on Kill Support**
+18. **24/7 rotating shop**
 
 Send me more features thanks uwu
