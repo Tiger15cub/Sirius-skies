@@ -4,6 +4,7 @@ import { NotFound } from "./interface";
 import Route from "./handlers/Route";
 import Database from "./handlers/Database";
 import log from "./utils/log";
+import XmppServer from "./xmpp/XmppServer";
 
 const app = express();
 
@@ -13,6 +14,8 @@ const PORT = getEnv("PORT") || 5555;
   try {
     await Route.initializeRoutes(app);
     await Database.connect();
+
+    new XmppServer();
 
     app.use((req, res, next) => {
       let text: string = "";

@@ -23,8 +23,8 @@ loadEnvConfig({ path: resolveEnvFilePath() });
  * @returns The value of the environment variable.
  * @throws Error if the environment variable is not set and no fallback is provided.
  */
-export function getEnv(name: string, fallback?: string): string {
-  const value = process.env[name] ?? fallback;
+export function getEnv<T = string>(name: string, fallback?: T): T {
+  const value = (process.env[name] as T | undefined) ?? fallback;
 
   if (value === undefined) {
     throw new Error(`Environment variable ${name} has not been set.`);
