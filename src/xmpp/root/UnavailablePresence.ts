@@ -1,6 +1,7 @@
 import xmlbuilder from "xmlbuilder";
 import Users from "../../models/Users";
 import log from "../../utils/log";
+import { Globals } from "../utils/XmppTypes";
 
 function GeneratePayload(client: any, toFriend: string): string {
   const payload = xmlbuilder
@@ -37,7 +38,9 @@ function GeneratePayload(client: any, toFriend: string): string {
 function sendPayload(client: any, payload: string): Promise<void> {
   return new Promise((resolve, reject) => {
     if (Globals.Clients[client.accountId]) {
-      Globals.Clients[client.accountId].wss.socket.send(payload);
+      Globals.Clients[client.accountId].map((data) =>
+        data.socket?.socket.send(payload)
+      );
       resolve();
     } else {
       reject(new Error("Client not found"));

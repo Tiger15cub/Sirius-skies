@@ -2,6 +2,7 @@ import Users from "../../models/Users";
 import log from "../../utils/log";
 import XmppClient from "../client/XmppClient";
 import { SendUnavailablePresence } from "../root/UnavailablePresence";
+import { Globals } from "./XmppTypes";
 
 export async function RemoveClient(
   client: XmppClient,
@@ -20,7 +21,9 @@ export async function RemoveClient(
             if (Globals.Clients[friend.id])
               await SendUnavailablePresence(
                 client,
-                Globals.Clients[friend.id].wss.jid
+                Globals.Clients[friend.id]
+                  .map((data) => data.socket?.jid as string)
+                  .toString()
               );
           })
         );

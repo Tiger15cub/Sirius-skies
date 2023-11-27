@@ -2,7 +2,9 @@ import xmlbuilder from "xmlbuilder";
 import WebSocket from "ws";
 import xmlparser from "xml-parser";
 import log from "../../utils/log";
+import { Globals } from "../utils/XmppTypes";
 import Users from "../../models/Users";
+import XmppClient from "../client/XmppClient";
 
 function parseMessageContent(content: string | undefined): string[] {
   return Buffer.from(content as string, "base64")
@@ -13,6 +15,7 @@ function parseMessageContent(content: string | undefined): string[] {
 
 export default async function HandleAuth(
   socket: WebSocket,
+  client: XmppClient,
   accountId: string,
   Authenticated: boolean,
   message: xmlparser.Node
@@ -35,11 +38,13 @@ export default async function HandleAuth(
           "cyanBright"
         );
 
-        Globals.Clients[accountId] = {
-          accountId,
-          token: accountId,
-          wss: socket,
-        };
+        Globals.Clients[accountId] = [
+          {
+            accountId,
+            token: token.token,
+            socket: client,
+          },
+        ];
 
         // console.debug(Globals.Clients);
 

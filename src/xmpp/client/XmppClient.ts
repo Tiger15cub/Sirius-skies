@@ -55,6 +55,12 @@ export default class XmppClient extends EventEmitter {
   }
 
   Auth(parsedMessage: xmlparser.Node) {
-    HandleAuth(this.socket, this.accountId, this.Authenticated, parsedMessage);
+    HandleAuth(
+      this.socket,
+      this,
+      this.accountId,
+      this.Authenticated,
+      parsedMessage
+    );
   }
 }
