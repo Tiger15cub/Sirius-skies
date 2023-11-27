@@ -2,6 +2,9 @@ import { Router } from "express";
 import log from "../utils/log";
 import { createCipheriv, randomBytes } from "crypto";
 import Accounts from "../models/Accounts";
+import { Servers } from "../interface";
+import { getEnv } from "../utils";
+import { v4 as uuid } from "uuid";
 
 function generateRandomKey(): Buffer {
   const prefix = "matchmaking";
@@ -9,6 +12,25 @@ function generateRandomKey(): Buffer {
   const randomPart = randomBytes(remainingBytes);
   return Buffer.concat([Buffer.from(prefix), randomPart]);
 }
+
+const serversData: Servers = {
+  eu: [
+    {
+      serverAddress: getEnv("EU_SERVER_ADDRESS"),
+      serverPort: getEnv("EU_SERVER_PORT"),
+      playlist: `Playlist_${getEnv("PLAYLIST")}`,
+      maxPlayers: 100,
+    },
+  ],
+  nae: [
+    {
+      serverAddress: getEnv("NAE_SERVER_ADDRESS"),
+      serverPort: getEnv("NAE_SERVER_PORT"),
+      playlist: `Playlist_${getEnv("PLAYLIST")}`,
+      maxPlayers: 100,
+    },
+  ],
+};
 
 function encryptAES256(data: string, key: Buffer): string {
   const iv = randomBytes(16);
@@ -134,7 +156,63 @@ export default function initRoute(router: Router): void {
       try {
         const { sessionId } = req.params;
 
-        // TODO
+        const matchedServers = serversData.nae
+          .concat(serversData.eu)
+          .filter((server) => server.serverAddress.includes(sessionId));
+
+        if (matchedServers.length > 0) {
+          const server = matchedServers[0];
+
+          log.log(
+            `Matchmaking: ${server.serverAddress}:${server.serverPort}`,
+            "Matchmaking",
+            "cyanBright"
+          );
+
+          return res.status(200).json({
+            id: sessionId,
+            ownerId: uuid().replace(/-/g, "").toUpperCase(),
+            ownerName: "[DS]fortnite-liveeugcec1c2e30ubrcore0a-z8hj-1968",
+            serverName: "[DS]fortnite-liveeugcec1c2e30ubrcore0a-z8hj-1968",
+            serverAddress: server.serverAddress,
+            serverPort: Number(server.serverPort),
+            maxPublicPlayers: 220,
+            openPublicPlayers: 175,
+            maxPrivatePlayers: 0,
+            openPrivatePlayers: 0,
+            attributes: {
+              REGION_s: "EU",
+              GAMEMODE_s: "FORTATHENA",
+              ALLOWBROADCASTING_b: true,
+              SUBREGION_s: "GB",
+              DCID_s: "FORTNITE-LIVEEUGCEC1C2E30UBRCORE0A-14840880",
+              tenant_s: "Fortnite",
+              MATCHMAKINGPOOL_s: "Any",
+              STORMSHIELDDEFENSETYPE_i: 0,
+              HOTFIXVERSION_i: 0,
+              PLAYLISTNAME_s: "Playlist_DefaultSolo",
+              SESSIONKEY_s: uuid().replace(/-/g, "").toUpperCase(),
+              TENANT_s: "Fortnite",
+              BEACONPORT_i: 15009,
+            },
+            publicPlayers: [],
+            privatePlayers: [],
+            totalPlayers: 45,
+            allowJoinInProgress: false,
+            shouldAdvertise: false,
+            isDedicated: false,
+            usesStats: false,
+            allowInvites: false,
+            usesPresence: false,
+            allowJoinViaPresence: true,
+            allowJoinViaPresenceFriendsOnly: false,
+            buildUniqueId: req.cookies["buildUniqueId"] || "0",
+            lastUpdated: new Date().toISOString(),
+            started: false,
+          });
+        }
+
+        log.error("Failed to find server.", "Matchmaking");
       } catch (error) {
         let err: Error = error as Error;
         log.error(`An error occurred: ${err.message}`, "Matchmaking");

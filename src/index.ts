@@ -5,6 +5,7 @@ import Route from "./handlers/Route";
 import Database from "./handlers/Database";
 import log from "./utils/log";
 import XmppServer from "./xmpp/XmppServer";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
@@ -16,6 +17,8 @@ const PORT = getEnv("PORT") || 5555;
     await Database.connect();
 
     new XmppServer();
+
+    app.use(cookieParser());
 
     app.use((req, res, next) => {
       let text: string = "";
