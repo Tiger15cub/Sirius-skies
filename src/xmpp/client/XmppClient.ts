@@ -2,15 +2,9 @@ import { EventEmitter } from "node:events";
 import WebSocket, { RawData } from "ws";
 import { v4 as uuid } from "uuid";
 import xmlparser from "xml-parser";
-import xmlbuilder from "xmlbuilder";
 import HandleOpen from "../root/HandleOpen";
 import log from "../../utils/log";
-
-type MethodHandler = (message: any) => void;
-
-interface MethodHandlers {
-  [key: string]: MethodHandler;
-}
+import HandleAuth from "../root/HandleAuth";
 
 export default class XmppClient extends EventEmitter {
   public jid: string;
@@ -20,7 +14,6 @@ export default class XmppClient extends EventEmitter {
   public ConnectedToParty: boolean;
   private uuid: string;
   public sender?: string;
-  private handlers: MethodHandlers;
 
   constructor(ws: WebSocket) {
     super();
@@ -32,10 +25,6 @@ export default class XmppClient extends EventEmitter {
     this.ConnectedToParty = false;
     this.sender = "";
     this.uuid = uuid();
-
-    this.handlers = {
-      handleopen: this.Open.bind(this),
-    };
 
     this.socket.on("message", async (message: RawData | string) => {
       if (Buffer.isBuffer(message)) message = message.toString();
@@ -54,11 +43,18 @@ export default class XmppClient extends EventEmitter {
         case "open":
           this.Open();
           break;
+        case "auth":
+          this.Auth(root);
+          break;
       }
     });
   }
 
   Open() {
     HandleOpen(this.socket, this.uuid, this.Authenticated);
+  }
+
+  Auth(parsedMessage: xmlparser.Node) {
+    HandleAuth(this.socket, this.accountId, this.Authenticated, parsedMessage);
   }
 }

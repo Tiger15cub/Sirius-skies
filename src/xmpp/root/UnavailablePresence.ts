@@ -4,29 +4,32 @@ import log from "../../utils/log";
 
 function GeneratePayload(client: any, toFriend: string): string {
   const payload = xmlbuilder
-    .create({
-      presence: {
-        "@xmlns": "jabber:client",
-        "@to": toFriend,
-        "@from": client.jid,
-        "@type": "unavailable",
-        status: {
-          "#text": {
-            bHasVoiceSupport: false,
-            bIsJoinable: false,
-            bIsPlaying: false,
-            Properties: {
-              bInPrivate: true,
-            },
-            SessionId: "",
-            Status: "Playing Battle Royale - 1 / 16",
-          },
-        },
-      },
-    })
+    .create("presence")
+    .attribute("xmlns", "jabber:client")
+    .attribute("to", toFriend)
+    .attribute("from", client.jid)
+    .attribute("type", "unavailable")
+    .ele("status")
+    .ele("bHasVoiceSupport")
+    .text("false")
+    .up()
+    .ele("bIsJoinable")
+    .text("false")
+    .up()
+    .ele("bIsPlaying")
+    .text("false")
+    .up()
+    .ele("Properties")
+    .ele("bInPrivate")
+    .text("true")
+    .up()
+    .up()
+    .ele("SessionId")
+    .text("")
+    .ele("Status")
+    .text("Playing Battle Royale - 1 / 16")
     .end()
-    .replace(`<?xml version="1.0"?>`, "")
-    .trim();
+    .toString();
 
   return payload;
 }

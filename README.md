@@ -4,7 +4,7 @@
 
 funky fortnite backend
 
-### Features:
+### Features (Work in Progress):
 
 1. **Gifting**
 2. **Shop Purchasing**
