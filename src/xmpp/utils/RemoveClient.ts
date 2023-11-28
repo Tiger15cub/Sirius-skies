@@ -2,7 +2,7 @@ import Users from "../../models/Users";
 import log from "../../utils/log";
 import XmppClient from "../client/XmppClient";
 import { SendUnavailablePresence } from "../root/UnavailablePresence";
-import { Globals } from "./XmppTypes";
+import { Globals, XmppClients } from "./XmppTypes";
 
 export async function RemoveClient(
   client: XmppClient,
@@ -18,27 +18,26 @@ export async function RemoveClient(
         const { accepted } = user.friends;
         await Promise.all(
           accepted.map(async (friend) => {
-            if (Globals.Clients[friend.id])
-              await SendUnavailablePresence(
-                client,
-                Globals.Clients[friend.id]
-                  .map((data) => data.socket?.jid as string)
-                  .toString()
-              );
+            const friendClients = Globals.Clients[friend.id];
+            if (Array.isArray(friendClients) && friendClients.length > 0) {
+              const jids = friendClients
+                .map((data) => data.socket?.jid as string)
+                .toString();
+              await SendUnavailablePresence(client, jids);
+            }
           })
         );
       }
 
-      if (!client.sender) {
+      if (client.sender) {
         clearInterval(client.sender);
       }
 
-      if (Globals.Clients[client.accountId])
-        delete Globals.Clients[client.accountId];
-
-      if (Globals.Clients[client.accountId])
-        delete Globals.Clients[client.accountId];
-
+      if (Array.isArray(Globals.Clients)) {
+        Globals.Clients = (Globals.Clients as XmppClients[]).filter(
+          (data) => data.accountId !== client.accountId
+        );
+      }
       resolve();
     } catch (error) {
       let err: Error = error as Error;

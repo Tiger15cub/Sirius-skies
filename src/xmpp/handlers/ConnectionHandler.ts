@@ -9,18 +9,7 @@ export async function handleConnection(
 ): Promise<void> {
   const Client = new XmppClient(ws);
 
-  log.log(
-    `${Client.accountId} has connected.`,
-    "handleConnection",
-    "cyanBright"
-  );
-
   ws.on("close", async () => {
     RemoveClient(Client, handleClose);
-    log.log(
-      `${Client.accountId} has lost connection.`,
-      "handleConnection",
-      "cyanBright"
-    );
   });
 }

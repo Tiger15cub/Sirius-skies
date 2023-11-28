@@ -38,9 +38,7 @@ function GeneratePayload(client: any, toFriend: string): string {
 function sendPayload(client: any, payload: string): Promise<void> {
   return new Promise((resolve, reject) => {
     if (Globals.Clients[client.accountId]) {
-      Globals.Clients[client.accountId].map((data) =>
-        data.socket?.socket.send(payload)
-      );
+      Globals.Clients[client.accountId].socket?.socket.send(payload);
       resolve();
     } else {
       reject(new Error("Client not found"));

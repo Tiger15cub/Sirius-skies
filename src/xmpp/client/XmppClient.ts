@@ -6,6 +6,7 @@ import HandleOpen from "../root/HandleOpen";
 import log from "../../utils/log";
 import HandleAuth from "../root/HandleAuth";
 import HandleIQ from "../root/HandleIQ";
+import HandleMessage from "../root/HandleMessage";
 
 export default class XmppClient extends EventEmitter {
   public jid: string;
@@ -50,6 +51,9 @@ export default class XmppClient extends EventEmitter {
         case "iq":
           this.IQ(root);
           break;
+        case "message":
+          this.Message(root);
+          break;
       }
     });
   }
@@ -70,5 +74,9 @@ export default class XmppClient extends EventEmitter {
 
   IQ(parsedMessage: xmlparser.Node) {
     HandleIQ(this.socket, this.accountId, this.jid, parsedMessage);
+  }
+
+  Message(parsedMessage: xmlparser.Node) {
+    HandleMessage(this.socket, this.jid, parsedMessage);
   }
 }

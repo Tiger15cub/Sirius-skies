@@ -1,13 +1,24 @@
 import { Router } from "express";
-import { Globals } from "../xmpp/utils/XmppTypes";
+import { Globals, XmppClients } from "../xmpp/utils/XmppTypes";
 
 export default function initRoute(router: Router): void {
   router.get("/clients", (req, res) => {
-    res.send(
-      JSON.stringify({
-        connected: Object.keys(Globals.Clients).length,
-        clients: Globals.Clients[0].map((data) => data.accountId),
-      })
-    );
+    if (Array.isArray(Globals.Clients) && Globals.Clients.length > 0) {
+      let clients = Globals.Clients.map((data) => data.accountId);
+
+      res.send(
+        JSON.stringify({
+          connected: Globals.Clients.length,
+          clients: clients || [],
+        })
+      );
+    } else {
+      res.send(
+        JSON.stringify({
+          connected: 0,
+          clients: [],
+        })
+      );
+    }
   });
 }

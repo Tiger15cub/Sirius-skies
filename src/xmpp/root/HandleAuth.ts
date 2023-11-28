@@ -2,7 +2,7 @@ import xmlbuilder from "xmlbuilder";
 import WebSocket from "ws";
 import xmlparser from "xml-parser";
 import log from "../../utils/log";
-import { Globals } from "../utils/XmppTypes";
+import { Globals, XmppClients } from "../utils/XmppTypes";
 import Users from "../../models/Users";
 import XmppClient from "../client/XmppClient";
 
@@ -38,6 +38,7 @@ export default async function HandleAuth(
           "cyanBright"
         );
 
+        // @ts-ignore
         Globals.Clients[accountId] = [
           {
             accountId,

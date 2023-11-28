@@ -15,7 +15,7 @@ export interface Globals {
   exchangeCodes: Record<string, any>;
   clientTokens: any[];
   AccessTokens: AccessToken[];
-  Clients: Record<string, XmppClients[]>;
+  Clients: XmppClients[]; // Updated type to XmppClients[]
   MUCs: Record<string, any>;
   parties: any[];
   invites: any[];
@@ -25,7 +25,6 @@ export interface Globals {
 export const exchangeCodes: Globals["exchangeCodes"] = {};
 export const clientTokens: Globals["clientTokens"] = [];
 export const AccessTokens: Globals["AccessTokens"] = [];
-// @ts-ignore
 export const Clients: Globals["Clients"] = [];
 export const MUCs: Globals["MUCs"] = {};
 export const parties: Globals["parties"] = [];
