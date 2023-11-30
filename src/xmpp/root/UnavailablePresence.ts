@@ -1,7 +1,7 @@
 import xmlbuilder from "xmlbuilder";
 import Users from "../../models/Users";
 import log from "../../utils/log";
-import { Globals } from "../utils/XmppTypes";
+import { Globals } from "../helpers/XmppTypes";
 
 function GeneratePayload(client: any, toFriend: string): string {
   const payload = xmlbuilder

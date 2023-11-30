@@ -9,6 +9,34 @@ export default function initRoute(router: Router): void {
 
     log.log(`CurrentSeason: ${season.toString()}`, "Content", "cyanBright");
 
+    let dynamicbackgrounds: any[] = [
+      {
+        stage: `season${season}`,
+        _type: "DynamicBackground",
+        key: "lobby",
+      },
+      {
+        stage: `season${season}`,
+        _type: "DynamicBackground",
+        key: "vault",
+      },
+    ];
+
+    if (season === "11.31" || season === "11.40") {
+      dynamicbackgrounds = [
+        {
+          stage: "winter19",
+          _type: "DynamicBackground",
+          key: "lobby",
+        },
+        {
+          stage: "winter19",
+          _type: "DynamicBackground",
+          key: "vault",
+        },
+      ];
+    }
+
     res.json({
       "jcr:isCheckedOut": true,
       _title: "Fortnite Game",
@@ -63,18 +91,7 @@ export default function initRoute(router: Router): void {
       dynamicbackgrounds: {
         "jcr:isCheckedOut": true,
         backgrounds: {
-          backgrounds: [
-            {
-              stage: `season${season}`,
-              _type: "DynamicBackground",
-              key: "lobby",
-            },
-            {
-              stage: `season${season}`,
-              _type: "DynamicBackground",
-              key: "vault",
-            },
-          ],
+          backgrounds: dynamicbackgrounds,
           _type: "DynamicBackgroundList",
         },
         _title: "dynamicbackgrounds",

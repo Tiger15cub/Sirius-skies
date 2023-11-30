@@ -2,7 +2,7 @@ import xmlparser from "xml-parser";
 import xmlbuilder from "xmlbuilder";
 import WebSocket from "ws";
 import log from "../../utils/log";
-import { Globals } from "../utils/XmppTypes";
+import { Globals } from "../helpers/XmppTypes";
 
 export default async function HandleMessage(
   socket: WebSocket,

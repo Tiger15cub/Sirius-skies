@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { Globals, XmppClients } from "../xmpp/utils/XmppTypes";
+import { Globals, XmppClients } from "../xmpp/helpers/XmppTypes";
 
 export default function initRoute(router: Router): void {
   router.get("/clients", (req, res) => {

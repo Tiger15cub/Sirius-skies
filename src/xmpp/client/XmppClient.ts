@@ -7,15 +7,18 @@ import log from "../../utils/log";
 import HandleAuth from "../root/HandleAuth";
 import HandleIQ from "../root/HandleIQ";
 import HandleMessage from "../root/HandleMessage";
+import HandlePresence from "../root/HandlePresence";
+import HandleClose from "../root/HandleClose";
 
 export default class XmppClient extends EventEmitter {
   public jid: string;
   public socket: WebSocket;
   public accountId: string;
   public Authenticated: boolean;
-  public ConnectedToParty: boolean;
   private uuid: string;
-  public sender?: string;
+  public sender?: NodeJS.Timeout;
+  public displayName: string;
+  public token: string;
 
   constructor(ws: WebSocket) {
     super();
@@ -23,9 +26,9 @@ export default class XmppClient extends EventEmitter {
     this.jid = "";
     this.socket = ws;
     this.accountId = "";
+    this.displayName = "";
+    this.token = "";
     this.Authenticated = false;
-    this.ConnectedToParty = false;
-    this.sender = "";
     this.uuid = uuid();
 
     this.socket.on("message", async (message: RawData | string) => {
@@ -43,47 +46,66 @@ export default class XmppClient extends EventEmitter {
 
       switch (root.name) {
         case "open":
-          console.debug(root.name);
-          this.Open();
+          await this.Open();
           break;
         case "auth":
-          console.debug(root.name);
-          this.Auth(root);
+          await this.Auth(root);
           break;
         case "iq":
-          console.debug(root.name);
-          this.IQ(root);
+          await this.IQ(root);
           break;
         case "message":
-          console.debug(root.name);
-          this.Message(root);
+          await this.Message(root);
           break;
         case "presence":
-          console.debug(root.name);
+          await this.Presence(root);
+          break;
+
+        default:
           break;
       }
     });
+
+    this.socket.on("close", async () => {
+      await this.Close();
+    });
   }
 
-  Open() {
-    HandleOpen(this.socket, this.uuid, this.Authenticated);
+  async Open() {
+    await HandleOpen(this.socket, this.uuid, this.Authenticated);
   }
 
-  Auth(parsedMessage: xmlparser.Node) {
-    HandleAuth(
+  async Auth(parsedMessage: xmlparser.Node) {
+    await HandleAuth(
       this.socket,
       this,
       this.accountId,
+      this.displayName,
       this.Authenticated,
-      parsedMessage
+      parsedMessage,
+      this.token
     );
   }
 
-  IQ(parsedMessage: xmlparser.Node) {
-    HandleIQ(this.socket, this.accountId, this.jid, parsedMessage);
+  async IQ(parsedMessage: xmlparser.Node) {
+    await HandleIQ(this.socket, this.accountId, this.jid, parsedMessage);
   }
 
-  Message(parsedMessage: xmlparser.Node) {
-    HandleMessage(this.socket, this.jid, parsedMessage);
+  async Message(parsedMessage: xmlparser.Node) {
+    await HandleMessage(this.socket, this.jid, parsedMessage);
+  }
+
+  async Presence(parsedMessage: xmlparser.Node) {
+    await HandlePresence(
+      this.socket,
+      parsedMessage,
+      this.accountId,
+      this.jid,
+      this.sender as NodeJS.Timeout
+    );
+  }
+
+  async Close() {
+    await HandleClose(this.socket);
   }
 }

@@ -12,7 +12,7 @@ const rest = new REST({ version: "10" }).setToken(getEnv("TOKEN"));
     log.log(
       "Started refreshing application (/) commands.",
       "Deploy",
-      "blueBright"
+      "greenBright"
     );
 
     const currentUser = (await rest.get(Routes.user())) as APIUser;
@@ -27,7 +27,7 @@ const rest = new REST({ version: "10" }).setToken(getEnv("TOKEN"));
     log.log(
       "Successfully reloaded application (/) commands.",
       "Deploy",
-      "blueBright"
+      "greenBright"
     );
   } catch (error) {
     log.error(`Failed to deploy commands: ${error}`, "Deploy");

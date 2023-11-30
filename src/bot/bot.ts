@@ -16,7 +16,7 @@ const client = new Client({
 });
 
 client.on("ready", (bot) => {
-  log.log(`${bot.user.displayName} is online.`, "Bot", "magentaBright");
+  log.log(`${bot.user.displayName} is online.`, "Bot", "greenBright");
   bot.application.commands.create(registerData.data as any);
   bot.application.commands.create(changePassword.data as any);
 });

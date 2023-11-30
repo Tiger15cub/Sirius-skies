@@ -7,7 +7,7 @@ import Accounts from "../models/Accounts";
 import { getEnv, sendErrorResponse } from "../utils";
 import { DecodedToken, VerificationResponse } from "../interface";
 import log from "../utils/log";
-import { Globals } from "../xmpp/utils/XmppTypes";
+import { Globals } from "../xmpp/helpers/XmppTypes";
 
 export default function initRoute(router: Router): void {
   router.delete("/account/api/oauth/sessions/kill", (req, res) => {

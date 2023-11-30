@@ -10,3 +10,6 @@ export * from "./CommonCoreProfile";
 // export * from "./AccessToken";
 // export * from "./Client";
 export * from "./Servers";
+export * from "./ActiveEvents";
+export * from "./EquipResult";
+export * from "./UpdateQuery";

@@ -1,5 +1,5 @@
 import WebSocket from "ws";
-import { RemoveClient } from "../utils/RemoveClient";
+import { RemoveClient } from "../helpers/RemoveClient";
 import XmppClient from "../client/XmppClient";
 
 export async function handleConnection(ws: WebSocket): Promise<void> {

@@ -7,8 +7,13 @@ export interface AccessToken {
 
 export interface XmppClients extends AccessToken {
   accountId: string;
+  displayName?: string;
   token: string;
   socket?: XmppClient;
+}
+
+export interface MUCs {
+  members: [];
 }
 
 export interface Globals {

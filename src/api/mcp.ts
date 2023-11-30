@@ -5,6 +5,8 @@ import Accounts from "../models/Accounts";
 import ProfileAthena from "../common/mcp/ProfileAthena";
 import ProfileCommonCore from "../common/mcp/ProfileCommonCore";
 import { CommonCoreData, CommonCoreProfile } from "../interface";
+import EquipBattleRoyaleCustomization from "../common/mcp/EquipBattleRoyaleCustomization";
+import SetCosmeticLockerSlot from "../common/mcp/SetCosmeticLockerSlot";
 
 export default function initRoute(router: Router): void {
   router.post(
@@ -51,6 +53,53 @@ export default function initRoute(router: Router): void {
   );
 
   router.post(
+    [
+      "/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCustomization",
+      "/fortnite/api/game/v2/profile/:accountId/client/SetCosmeticLockerSlot",
+    ],
+    async (req, res) => {
+      const { accountId } = req.params;
+      const {
+        rvn,
+        profileId,
+        slotName,
+        itemToSlot,
+        indexWithinSlot,
+        variantUpdates,
+        slotIndex,
+        category,
+      } = req.body;
+
+      if (slotName !== undefined) {
+        return res.json(
+          await EquipBattleRoyaleCustomization(
+            Accounts,
+            accountId,
+            profileId as string,
+            slotName as string,
+            itemToSlot as string,
+            indexWithinSlot as string,
+            variantUpdates as string,
+            rvn as any
+          )
+        );
+      } else {
+        return res.json(
+          await SetCosmeticLockerSlot(
+            Accounts,
+            Users,
+            accountId,
+            category as string,
+            itemToSlot as string,
+            slotIndex as any,
+            rvn as any
+          )
+        );
+      }
+    }
+  );
+
+  router.post(
     "/fortnite/api/game/v2/profile/:accountId/client/ClaimMfaEnabled",
     async (req, res) => {
       const { accountId } = req.params;
@@ -80,6 +129,36 @@ export default function initRoute(router: Router): void {
           "MFA is already enabled on your account."
         );
       }
+    }
+  );
+
+  router.post(
+    "/fortnite/api/game/v2/profile/:accountId/client/MarkItemSeen",
+    async (req, res) => {
+      const { accountId } = req.params;
+      const { rvn, profileId } = req.query;
+
+      const userAgent = req.headers["user-agent"];
+      let season = getSeason(userAgent);
+
+      return res
+        .status(201)
+        .json(createDefaultResponse([], profileId, (rvn as any) + 1));
+    }
+  );
+
+  router.post(
+    "/fortnite/api/game/v2/profile/:accountId/client/ClientQuestLogin",
+    async (req, res) => {
+      const { accountId } = req.params;
+      const { rvn, profileId } = req.query;
+
+      const userAgent = req.headers["user-agent"];
+      let season = getSeason(userAgent);
+
+      return res
+        .status(201)
+        .json(createDefaultResponse([], profileId, (rvn as any) + 1));
     }
   );
 }

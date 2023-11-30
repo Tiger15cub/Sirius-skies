@@ -1,6 +1,6 @@
 import WebSocket from "ws";
 import xmlbuilder from "xmlbuilder";
-import SendFeatures from "../utils/SendFeatures";
+import SendFeatures from "../helpers/SendFeatures";
 
 export default function HandleOpen(
   socket: WebSocket,

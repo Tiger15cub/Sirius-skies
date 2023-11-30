@@ -2,67 +2,69 @@ import xmlbuilder from "xmlbuilder";
 import WebSocket from "ws";
 import xmlparser from "xml-parser";
 import log from "../../utils/log";
-import { Globals, XmppClients } from "../utils/XmppTypes";
+import { Globals, XmppClients } from "../helpers/XmppTypes";
 import Users from "../../models/Users";
 import XmppClient from "../client/XmppClient";
 import { ApplicationCommandOptionWithChoicesAndAutocompleteMixin } from "discord.js";
 
-function parseMessageContent(content: string | undefined): string[] {
+export function parseMessageContent(content: string | undefined): string[] {
   return Buffer.from(content as string, "base64")
     .toString()
-    .split("\u0000")
-    .splice(1);
+    .split("\u0000");
 }
 
 export default async function HandleAuth(
   socket: WebSocket,
   client: XmppClient,
   accountId: string,
+  displayName: string,
   Authenticated: boolean,
-  message: xmlparser.Node
+  message: xmlparser.Node,
+  token: string
 ): Promise<void> {
   return new Promise(async (resolve, reject) => {
     try {
       const parsedMessage = parseMessageContent(message.content);
-      const token = Globals.AccessTokens.find(
-        (data) => data.accountId === parsedMessage[0]
+
+      const AccessTokens = Globals.AccessTokens.find(
+        (data) => data.accountId === parsedMessage[1]
       );
 
-      if (!token) {
-        return log.error(`Token not found.`, "HandleAuth");
+      if (!AccessTokens) {
+        return log.error(`Token does not exist.`, "HandleAuth");
       }
 
       const user = await Users.findOne({
-        accountId: token.accountId,
-      });
+        accountId: AccessTokens.accountId,
+      }).lean();
 
-      if (!user) {
-        return log.error("Failed to find user.", "HandleAuth");
-      }
+      if (!user) return log.error("User not found.", "HandleAuth");
 
       accountId = user.accountId;
+      displayName = user.username;
+      token = parsedMessage[2];
 
       if (
-        token.token === parsedMessage[1] &&
-        token.accountId === parsedMessage[0]
+        parsedMessage &&
+        accountId &&
+        displayName &&
+        token &&
+        parsedMessage.length === 3
       ) {
-        accountId = parsedMessage[0];
         Authenticated = true;
 
         log.log(
-          `An XMPP Client with the accountId ${accountId} has logged in.`,
+          `An XMPP Client with the username ${displayName} has logged in.`,
           "HandleAuth",
-          "cyanBright"
+          "blueBright"
         );
 
-        // @ts-ignore
-        Globals.Clients[accountId] = [
-          {
-            accountId,
-            token: token.token,
-            socket: client,
-          },
-        ];
+        Globals.Clients.push({
+          accountId,
+          displayName,
+          token,
+          socket: client,
+        });
 
         socket.send(
           xmlbuilder
@@ -78,11 +80,14 @@ export default async function HandleAuth(
             .ele("not-authorized")
             .ele("text")
             .attribute("xml:lang", "eng")
-            .text("Password not verified")
+            .text("Password not verified.")
             .end()
             .toString()
         );
-        log.error("Password not verified.", "HandleAuth");
+        log.error(
+          `Password not verified: ${AccessTokens.token}:${parsedMessage[1]}`,
+          "HandleAuth"
+        );
       }
     } catch (error) {
       let err: Error = error as Error;
