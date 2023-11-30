@@ -23,8 +23,6 @@ export default async function HandleIQ(
             }`;
 
           jid = to;
-          console.debug(jid);
-          console.debug(id);
 
           socket.send(
             xmlbuilder
@@ -65,7 +63,6 @@ export default async function HandleIQ(
               .attribute("type", "result")
               .toString()
           );
-          console.debug(id);
           break;
       }
 

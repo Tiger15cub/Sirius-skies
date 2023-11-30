@@ -1,227 +1,199 @@
 import { Router } from "express";
-import fs from "node:fs";
-import path from "node:path";
-import util from "node:util";
-import log from "../utils/log";
-import Users from "../models/Users";
-
-const readdir = util.promisify(fs.readdir);
-const readFile = util.promisify(fs.readFile);
-const writeFile = util.promisify(fs.writeFile);
-
-async function getRequestBody(req: any): Promise<string> {
-  return new Promise((resolve, reject) => {
-    let data = "";
-
-    req.on("data", (chunk: any) => {
-      data += chunk;
-    });
-
-    req.on("end", () => {
-      resolve(data);
-    });
-
-    req.on("error", (err: any) => {
-      reject(err);
-    });
-  });
-}
+import fs from "fs";
+import path from "path";
+import logger from "../utils/log";
 
 export default function initRoute(router: Router): void {
-  router.get("/fortnite/api/cloudstorage/system", async (req, res) => {
-    res.contentType("application/json");
+  router.get("/fortnite/api/cloudstorage/system", (req, res) => {
+    res.setHeader("content-type", "application/json");
+    res.json([
+      {
+        uniqueFilename: "DefaultGame.ini",
+        filename: "DefaultGame.ini",
+        hash: "603E6907398C7E74E25C0AE8EC3A03FFAC7C9BB4",
+        hash256:
+          "973124FFC4A03E66D6A4458E587D5D6146F71FC57F359C8D516E0B12A50AB0D9",
+        length: fs.readFileSync(
+          path.join(
+            __dirname,
+            "..",
+            "common",
+            "resources",
+            "cloudstorage",
+            "DefaultGame.ini"
+          )
+        ).length,
+        contentType: "text/plain",
+        uploaded: "9999-9999-9999",
+        storageType: "S3",
+        doNotCache: false,
+      },
+      {
+        uniqueFilename: "DefaultEngine.ini",
+        filename: "DefaultEngine.ini",
+        hash: "603E6907398C7E74E25C0AE8EC3A03FFAC7C9BB4",
+        hash256:
+          "973124FFC4A03E66D6A4458E587D5D6146F71FC57F359C8D516E0B12A50AB0D9",
+        length: fs.readFileSync(
+          path.join(
+            __dirname,
+            "..",
+            "common",
+            "resources",
+            "cloudstorage",
+            "DefaultEngine.ini"
+          )
+        ).length,
+        contentType: "text/plain",
+        uploaded: "9999-9999-9999",
+        storageType: "S3",
+        doNotCache: false,
+      },
+      {
+        uniqueFilename: "DefaultRuntimeOptions.ini",
+        filename: "DefaultRuntimeOptions.ini",
+        hash: "603E6907398C7E74E25C0AE8EC3A03FFAC7C9BB4",
+        hash256:
+          "973124FFC4A03E66D6A4458E587D5D6146F71FC57F359C8D516E0B12A50AB0D9",
+        length: fs.readFileSync(
+          path.join(
+            __dirname,
+            "..",
+            "common",
+            "resources",
+            "cloudstorage",
+            "DefaultRuntimeOptions.ini"
+          )
+        ).length,
+        contentType: "text/plain",
+        uploaded: "9999-9999-9999",
+        storageType: "S3",
+        doNotCache: false,
+      },
+      {
+        uniqueFilename: "DefaultInput.ini",
+        filename: "DefaultInput.ini",
+        hash: "603E6907398C7E74E25C0AE8EC3A03FFAC7C9BB4",
+        hash256:
+          "973124FFC4A03E66D6A4458E587D5D6146F71FC57F359C8D516E0B12A50AB0D9",
+        length: fs.readFileSync(
+          path.join(
+            __dirname,
+            "..",
+            "common",
+            "resources",
+            "cloudstorage",
+            "DefaultInput.ini"
+          )
+        ).length,
+        contentType: "text/plain",
+        uploaded: "9999-9999-9999",
+        storageType: "S3",
+        doNotCache: false,
+      },
+    ]);
+    res.status(200);
+  });
 
-    const files: any[] = [];
-    const cloudstorageDirPath = path.join(
-      __dirname,
-      "..",
-      "common",
-      "resources",
-      "cloudstorage"
-    );
+  router.get("/fortnite/api/cloudstorage/system/config", (req, res) => {
+    res.setHeader("content-type", "application/json");
+    res.json({
+      lastUpdated: new Date().toISOString(),
+      disableV2: true,
+      isAuthenticated: true,
+      enumerateFilesPath: "/api/cloudstorage/system",
+      enableMigration: false,
+      enableWrites: false,
+      epicAppName: "Live",
+      transports: {
+        McpProxyTransport: {
+          name: "McpProxyTransport",
+          type: "ProxyStreamingFile",
+          appName: "fortnite",
+          isEnabled: false,
+          isRequired: true,
+          isPrimary: true,
+          timeoutSeconds: 30,
+          priority: 10,
+        },
+        McpSignatoryTransport: {
+          name: "McpSignatoryTransport",
+          type: "ProxySignatory",
+          appName: "fortnite",
+          isEnabled: false,
+          isRequired: false,
+          isPrimary: false,
+          timeoutSeconds: 30,
+          priority: 20,
+        },
+        DssDirectTransport: {
+          name: "DssDirectTransport",
+          type: "DirectDss",
+          appName: "fortnite",
+          isEnabled: true,
+          isRequired: false,
+          isPrimary: false,
+          timeoutSeconds: 30,
+          priority: 30,
+        },
+      },
+    });
+    res.status(200);
+  });
 
+  router.all("/fortnite/api/cloudstorage/system/:file", (req, res) => {
+    const file = req.params.file;
     try {
-      const fileNames = await readdir(cloudstorageDirPath);
-
-      for (const fileName of fileNames) {
-        if (path.extname(fileName) === ".ini") {
-          const filePath = path.join(cloudstorageDirPath, fileName);
-          const fileInfo = fs.statSync(filePath);
-
-          files.push({
-            uniqueFileName: path.basename(filePath),
-            filename: path.basename(filePath),
-            hash: "603E6907398C7E74E25C0AE8EC3A03FFAC7C9BB4",
-            hash256:
-              "973124FFC4A03E66D6A4458E587D5D6146F71FC57F359C8D516E0B12A50AB0D9",
-            length: fileInfo.size,
-            contentType: "text/plain",
-            uploaded: "9999-9999-9999",
-            storageType: "S3",
-            doNotCache: false,
-          });
-        }
-      }
-
-      res.json(files);
-    } catch (error) {
-      let err = error as Error;
-      log.error(
-        `Failed to get CloudStorage: ${err.message}`,
-        "cloudstorage:system"
+      res.sendFile(
+        path.join(__dirname, "..", "common", "resources", "cloudstorage", file)
       );
-      res.status(500).send("Internal Server Error");
+      res.status(200);
+    } catch (err) {
+      console.log(err);
+      res.status(200);
     }
   });
 
   router.get(
-    "/fortnite/api/cloudstorage/system/:filename",
-    async (req, res) => {
-      res.contentType("application/octet-stream");
-
-      const filename = req.params.filename;
-      const filePath = path.join(
-        __dirname,
-        "..",
-        "common",
-        "resources",
-        "cloudstorage"
-      );
-
+    "/fortnite/api/cloudstorage/user/:accountId/:filename",
+    (req, res) => {
       try {
-        const exists = await fs.promises
-          .access(filePath)
-          .then(() => true)
-          .catch(() => false);
+        const filePath = path.join(
+          __dirname,
+          "..",
+          "common",
+          "resources",
+          "cloudstorage",
+          req.params.filename
+        );
+        const fileStream = fs.readFileSync(filePath);
 
-        if (exists) {
-          const fileContents = await readFile(filePath, "utf-8");
-          res.type("text/plain").send(fileContents);
-        } else {
-          res.status(404).send("File not found");
-        }
+        res.contentType("application/octet-stream");
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename="${req.params.filename}"`
+        );
+        res.send(fileStream);
       } catch (error) {
         let err = error as Error;
-        log.error(
-          `Failed to get CloudStorage: ${err.message}`,
-          `cloudstorage:system:${filename}`
-        );
-        res.status(500).send("Internal Server Error");
+        console.error(err.message, "CloudStorage");
+        res.status(500).json({ error: "Internal Server Error" });
       }
     }
   );
 
-  router.get("/fortnite/api/cloudstorage/user/:id/:file", async (req, res) => {
+  router.get("/fortnite/api/cloudstorage/user/:id/:file", (req, res) => {
     res.contentType("application/octet-stream");
-
-    const id = req.params.id;
-    const file = req.params.file;
-    const filePath = path.join(
-      __dirname,
-      "FunkyV2",
-      "ClientSettings",
-      `ClientSettings-${id}.sav`
-    );
-
-    try {
-      const exists = await fs.promises
-        .access(filePath)
-        .then(() => true)
-        .catch(() => false);
-
-      if (exists) {
-        const fileContent = await readFile(filePath);
-        res.type("application/octet-stream").send(fileContent);
-      } else {
-        res.status(204).send();
-      }
-    } catch (error) {
-      console.error(error);
-      res.status(500).send("Internal Server Error");
-    }
+    res.status(204).send();
   });
 
-  router.put("/fortnite/api/cloudstorage/user/:id/:file", async (req, res) => {
+  router.put("/fortnite/api/cloudstorage/user/:id/:file", (req, res) => {
     res.contentType("application/octet-stream");
-
-    try {
-      if (
-        req.headers["content-length"] &&
-        parseInt(req.headers["content-length"] as string, 10) >= 400000
-      ) {
-        console.log("Request body too large!");
-        res.status(403).send("Forbidden");
-        return;
-      }
-
-      const requestBody = await getRequestBody(req);
-      const folderPath = path.join(__dirname, "FunkyV2", "Cloudstorage");
-
-      if (!fs.existsSync(folderPath)) {
-        fs.mkdirSync(folderPath, { recursive: true });
-      }
-
-      const user = await Users.findOne({ accountId: req.params.id });
-
-      if (user) {
-        const filePath = path.join(
-          folderPath,
-          `ClientSettings-${req.params.id}.Sav`
-        );
-        await writeFile(filePath, requestBody, { encoding: "latin1" });
-        res.status(204).send();
-      } else {
-        res.status(204).send();
-      }
-    } catch (error) {
-      console.error(error);
-      res.status(500).send("Internal Server Error");
-    }
+    res.status(204).send();
   });
 
-  router.get("/fortnite/api/cloudstorage/user/:id", async (req, res) => {
+  router.get("/fortnite/api/cloudstorage/user/:id", (req, res) => {
     res.contentType("application/json");
-
-    const id = req.params.id;
-    const filePath = path.join(
-      __dirname,
-      "FunkyV2",
-      "ClientSettings",
-      `ClientSettings-${id}.sav`
-    );
-
-    const exists = await fs.promises
-      .access(filePath)
-      .then(() => true)
-      .catch(() => false);
-
-    try {
-      if (exists) {
-        const fileContents = await readFile(filePath, "utf8");
-        const fileInfo = await fs.promises.stat(filePath);
-
-        res.json([
-          {
-            uniqueFilename: "ClientSettings.Sav",
-            filename: "ClientSettings.Sav",
-            hash: "603E6907398C7E74E25C0AE8EC3A03FFAC7C9BB4",
-            hash256:
-              "973124FFC4A03E66D6A4458E587D5D6146F71FC57F359C8D516E0B12A50AB0D9",
-            length: fileContents.length,
-            contentType: "application/octet-stream",
-            uploaded: fileInfo.ctime,
-            storageType: "S3",
-            storageIds: {},
-            accountId: id,
-            doNotCache: false,
-          },
-        ]);
-      } else {
-        res.json([]);
-      }
-    } catch (error) {
-      console.error(error);
-      res.status(500).send("Internal Server Error");
-    }
+    res.status(204).json([]);
   });
 }

@@ -15,18 +15,8 @@ export default class XmppServer {
         "cyanBright"
       )
     );
-    this.wss.on("connection", (ws) =>
-      handleConnection(ws, this.handleClose.bind(this))
-    );
+    this.wss.on("connection", (ws) => handleConnection(ws));
 
     this.wss.on("error", (ws) => {});
-  }
-
-  private handleClose(clientId: string): void {
-    log.log(
-      `XMPP Connection closed for client with ID: ${clientId}`,
-      "XmppServer",
-      "redBright"
-    );
   }
 }

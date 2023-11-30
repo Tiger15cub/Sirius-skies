@@ -4,10 +4,7 @@ import XmppClient from "../client/XmppClient";
 import { SendUnavailablePresence } from "../root/UnavailablePresence";
 import { Globals, XmppClients } from "./XmppTypes";
 
-export async function RemoveClient(
-  client: XmppClient,
-  handleClose: (clientId: string) => void
-): Promise<void> {
+export async function RemoveClient(client: XmppClient): Promise<void> {
   return new Promise(async (resolve, reject) => {
     try {
       const user = await Users.findOne({

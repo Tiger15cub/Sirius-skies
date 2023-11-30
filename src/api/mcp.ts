@@ -9,19 +9,15 @@ import { CommonCoreData, CommonCoreProfile } from "../interface";
 export default function initRoute(router: Router): void {
   router.post(
     [
-      "/fortnite/api/game/v2/profile/:accountId/:wildcat/QueryProfile",
-      "/fortnite/api/game/v2/profile/:accountId/:wildcat/SetHardcoreModifier",
+      "/fortnite/api/game/v2/profile/:accountId/client/QueryProfile",
+      "/fortnite/api/game/v2/profile/:accountId/client/SetHardcoreModifier",
     ],
     async (req, res) => {
-      const { accountId, wildcat } = req.params;
+      const { accountId } = req.params;
       const { rvn, profileId } = req.query;
 
       const userAgent = req.headers["user-agent"];
       let season = getSeason(userAgent);
-
-      if (wildcat === "dedicated_server") {
-        return res.json(204).json({});
-      }
 
       switch (profileId) {
         case "athena":
@@ -55,14 +51,10 @@ export default function initRoute(router: Router): void {
   );
 
   router.post(
-    "/fortnite/api/game/v2/profile/:accountId/:wildcat/ClaimMfaEnabled",
+    "/fortnite/api/game/v2/profile/:accountId/client/ClaimMfaEnabled",
     async (req, res) => {
-      const { accountId, wildcat } = req.params;
+      const { accountId } = req.params;
       const { profileId } = req.query;
-
-      if (wildcat === "dedicated_server") {
-        return res.json(204).json({});
-      }
 
       const CommonCore = await ProfileCommonCore(
         Accounts,

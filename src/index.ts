@@ -13,12 +13,14 @@ const PORT = getEnv("PORT") || 5555;
 
 (async () => {
   try {
+    app.use(cookieParser());
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: false }));
+
     await Route.initializeRoutes(app);
     await Database.connect();
 
     new XmppServer();
-
-    app.use(cookieParser());
 
     app.use((req, res, next) => {
       let text: string = "";

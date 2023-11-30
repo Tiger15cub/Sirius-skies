@@ -26,3 +26,13 @@ funky fortnite backend
 18. **24/7 rotating shop**
 
 Send me more features thanks uwu
+
+### Known Bugs
+
+- failing to logging in.
+- query profile error
+- getting logged at select game mode
+- cloudstorage not working at times
+- ClientQuestLogin error
+- XMPP not connecting at times
+- Not auto logging you in after first login.

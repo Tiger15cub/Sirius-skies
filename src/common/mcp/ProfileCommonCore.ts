@@ -91,7 +91,7 @@ export default async function ProfileCommonCore(
       responseVersion: 1,
     };
 
-    const commonCore = require("../resources/mcp/Common_Core.json.json");
+    const commonCore = require("../resources/mcp/Common_Core.json");
     commonCoreData.profileChanges[0].profile.items = {
       ...commonCoreData.profileChanges[0].profile.items,
       ...commonCore,

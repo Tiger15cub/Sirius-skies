@@ -43,16 +43,23 @@ export default class XmppClient extends EventEmitter {
 
       switch (root.name) {
         case "open":
+          console.debug(root.name);
           this.Open();
           break;
         case "auth":
+          console.debug(root.name);
           this.Auth(root);
           break;
         case "iq":
+          console.debug(root.name);
           this.IQ(root);
           break;
         case "message":
+          console.debug(root.name);
           this.Message(root);
+          break;
+        case "presence":
+          console.debug(root.name);
           break;
       }
     });
