@@ -7,9 +7,7 @@ export default function initRoute(router: Router): void {
     const userAgent = req.headers["user-agent"];
     const season = getSeason(userAgent);
 
-    log.log(`CurrentSeason: ${season.toString()}`, "Content", "cyanBright");
-
-    let dynamicbackgrounds: any[] = [
+    let backgrounds: any[] = [
       {
         stage: `season${season}`,
         _type: "DynamicBackground",
@@ -23,14 +21,14 @@ export default function initRoute(router: Router): void {
     ];
 
     if (season === "11.31" || season === "11.40") {
-      dynamicbackgrounds = [
+      backgrounds = [
         {
-          stage: "winter19",
+          stage: "Winter19",
           _type: "DynamicBackground",
           key: "lobby",
         },
         {
-          stage: "winter19",
+          stage: "Winter19",
           _type: "DynamicBackground",
           key: "vault",
         },
@@ -91,7 +89,7 @@ export default function initRoute(router: Router): void {
       dynamicbackgrounds: {
         "jcr:isCheckedOut": true,
         backgrounds: {
-          backgrounds: dynamicbackgrounds,
+          backgrounds,
           _type: "DynamicBackgroundList",
         },
         _title: "dynamicbackgrounds",

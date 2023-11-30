@@ -11,8 +11,6 @@ export default function initRoute(router: Router): void {
 
     let season = getSeason(userAgent);
 
-    log.log(`CurrentSeason: ${season}`, "Timeline", "cyanBright");
-
     const now = new Date();
     const resetTime = new Date(now);
     resetTime.setUTCHours(0, 0, 0, 0); // Reset at 00:00 UTC
@@ -49,6 +47,8 @@ export default function initRoute(router: Router): void {
         },
       ];
     }
+
+    console.debug(JSON.stringify(activeEvents));
 
     res.status(204).json({
       channels: {
