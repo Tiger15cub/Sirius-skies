@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType } from "discord.js";
+import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 
 export const registerData = {
   data: {
@@ -54,5 +54,22 @@ export const changeUsername = {
         required: true,
       },
     ],
+  },
+};
+
+export const fullLocker = {
+  data: {
+    name: "full-locker",
+    description: "Give a user full locker.",
+    options: [
+      {
+        name: "user",
+        type: ApplicationCommandOptionType.User,
+        description: "The user you want to give full locker to",
+        required: true,
+      },
+    ],
+    defaultMemberPermissions: "ModerateMembers",
+    dmPermission: false,
   },
 };

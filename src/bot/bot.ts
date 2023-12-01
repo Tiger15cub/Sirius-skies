@@ -1,10 +1,11 @@
-import { Client, GatewayIntentBits } from "discord.js";
+import { Client, GatewayIntentBits, PermissionFlagsBits } from "discord.js";
 import log from "../utils/log";
 import registerCommand from "./commands/register";
 import changePasswordCommand from "./commands/change-password";
 import changeUsernameCommand from "./commands/change-username";
+import fullLockerCommand from "./commands/full-locker";
 import { getEnv } from "../utils";
-import { registerData, changePassword } from "./data";
+import { registerData, changePassword, fullLocker } from "./data";
 
 const client = new Client({
   intents: [
@@ -19,6 +20,7 @@ client.on("ready", (bot) => {
   log.log(`${bot.user.displayName} is online.`, "Bot", "greenBright");
   bot.application.commands.create(registerData.data as any);
   bot.application.commands.create(changePassword.data as any);
+  bot.application.commands.create(fullLocker.data as any);
 });
 
 client.on("interactionCreate", (interaction) => {
@@ -37,6 +39,10 @@ client.on("interactionCreate", (interaction) => {
 
     case "change-username":
       changeUsernameCommand(interaction);
+      break;
+
+    case "full-locker":
+      fullLockerCommand(interaction);
       break;
 
     default:

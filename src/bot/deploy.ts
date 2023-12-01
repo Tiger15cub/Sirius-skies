@@ -1,9 +1,19 @@
 import { REST, Routes, APIUser } from "discord.js";
-import { changePassword, changeUsername, registerData } from "./data";
+import {
+  changePassword,
+  changeUsername,
+  fullLocker,
+  registerData,
+} from "./data";
 import { getEnv } from "../utils";
 import log from "../utils/log";
 
-const commands = [registerData.data, changePassword.data, changeUsername.data];
+const commands = [
+  registerData.data,
+  changePassword.data,
+  changeUsername.data,
+  fullLocker.data,
+];
 
 const rest = new REST({ version: "10" }).setToken(getEnv("TOKEN"));
 

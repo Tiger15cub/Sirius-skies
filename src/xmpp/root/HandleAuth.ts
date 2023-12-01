@@ -6,6 +6,7 @@ import { Globals, XmppClients } from "../helpers/XmppTypes";
 import Users from "../../models/Users";
 import XmppClient from "../client/XmppClient";
 import { ApplicationCommandOptionWithChoicesAndAutocompleteMixin } from "discord.js";
+import Accounts from "../../models/Accounts";
 
 export function parseMessageContent(content: string | undefined): string[] {
   return Buffer.from(content as string, "base64")
@@ -38,7 +39,12 @@ export default async function HandleAuth(
         accountId: AccessTokens.accountId,
       }).lean();
 
-      if (!user) return log.error("User not found.", "HandleAuth");
+      const account = await Accounts.findOne({
+        accountId: AccessTokens.accountId,
+      }).lean();
+
+      if (!user || !account)
+        return log.error("User or Account not found.", "HandleAuth");
 
       accountId = user.accountId;
       displayName = user.username;
@@ -58,6 +64,8 @@ export default async function HandleAuth(
           "HandleAuth",
           "blueBright"
         );
+
+        await Accounts.updateOne({ accessToken: AccessTokens });
 
         Globals.Clients.push({
           accountId,
