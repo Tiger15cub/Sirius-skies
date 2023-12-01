@@ -6,9 +6,11 @@ export default async function SetCosmeticLockerSlot(
   Account: any,
   User: any,
   accountId: string,
-  slotName: string,
+  category: string,
   itemToSlot: string,
   slotIndex: number,
+  variantUpdates: string,
+  lockerItem: string,
   rvn: number
 ): Promise<SetCosmeticLockerSlotResult | { errorCode: string }> {
   try {
@@ -16,7 +18,9 @@ export default async function SetCosmeticLockerSlot(
       Account.findOne({ accountId }).lean(),
       User.findOne({ accountId }).lean(),
     ]);
+
     if (!account || !user) {
+      console.debug("Account or User not found");
       return {
         errorCode:
           "errors.com.funkyv2.backend.common.mcp.account_or_user.not_found",
@@ -25,59 +29,80 @@ export default async function SetCosmeticLockerSlot(
       };
     }
 
-    const updateQuery: SetCosmeticLockerSlotUpdateQuery = {
-      $set: {
-        profilerevision: account.profilerevision + 1,
-        baseRevision: account.baseRevision + 1,
-      },
-    };
+    if (category === undefined)
+      return {
+        errorCode: "errors.com.funkyv2.backend.common.mcp.category.undefined",
+        message: "Category is undefined.",
+        profileId: "athena",
+      };
 
-    if (!updateQuery) return { errorCode: "" };
+    await Account.updateOne(
+      { accountId },
+      { [`profilerevision`]: account.profilerevision + 1 }
+    );
 
-    if (slotName === "ItemWrap" || slotName === "Dance") {
-      if (slotIndex !== -1) {
-        if (itemToSlot === "") {
-          updateQuery.$set[`${slotName.toLowerCase()}.items.${slotIndex}`] = "";
-        } else {
-          updateQuery.$set[`${slotName.toLowerCase()}.items.${slotIndex}`] = `${
-            itemToSlot.split(":")[0]
-          }:${itemToSlot.split(":")[1].toLowerCase()}`;
-        }
-      }
-    } else {
-      if (itemToSlot === "") {
-        updateQuery.$set[`${slotName.toLowerCase()}.items`] = `${
-          itemToSlot.split(":")[0]
-        }:${itemToSlot.split(":")[1].toLowerCase()}`;
-      }
+    switch (category) {
+      case "ItemWrap":
+      case "Dance":
+        console.debug(category);
+        if (itemToSlot === "" || itemToSlot == "")
+          await Account.updateOne(
+            { accountId },
+            { [`${category.toString().toLowerCase()}.items`]: `` }
+          );
+        else
+          await Account.updateOne(
+            { accountId },
+            {
+              [`${category.toString().toLowerCase()}.items.${slotIndex}`]: `${
+                itemToSlot.split(":")[0]
+              }:${itemToSlot.split(":")[1]}`,
+            }
+          );
+        break;
+
+      default:
+        console.debug(category);
+        await Account.updateOne(
+          { accountId },
+          {
+            [`${category.toString().toLowerCase()}.items`]: `${
+              itemToSlot.split(":")[0]
+            }:${itemToSlot.split(":")[1].toLowerCase()}`,
+          }
+        );
     }
 
-    await Account.updateOne({ accountId }, updateQuery);
-
-    const updatedProfile = [
-      {
-        changeType: "statModified",
-        name: `favorite_${slotName.toLowerCase()}`,
-        value: itemToSlot,
-      },
-    ];
+    if (variantUpdates.length != 0)
+      await Account.updateOne(
+        { accountId },
+        {
+          [`${category.toString().toLowerCase()}.activeVariants`]:
+            variantUpdates,
+        }
+      );
 
     const [newAccount] = await Promise.all([
       Account.findOne({ accountId }).lean(),
     ]);
 
-    if (!newAccount) {
+    if (!newAccount)
       return {
-        errorCode: "errors.com.funkyv2.backend.common.mcp.account.not_found",
-        message: "Account not found.",
+        errorCode: "errors.com.funkyv2.backend.common.mcp.newAccount.not_found",
+        message: "NewAccountData not found.",
         profileId: "athena",
       };
-    }
 
     return {
       profileId: "athena",
-      profileChangesBaseRevision: rvn,
-      profileChanges: updatedProfile,
+      profileChangesBaseRevision: newAccount.profilerevision,
+      profileChanges: [
+        {
+          changeType: "statModified",
+          name: `favorite_${category.toString().toLowerCase()}`,
+          value: itemToSlot,
+        },
+      ],
       profileCommandRevision: newAccount.profilerevision,
       serverTime: new Date(),
       responseVersion: 1,
@@ -86,7 +111,7 @@ export default async function SetCosmeticLockerSlot(
     const err: Error = error as Error;
     log.error(
       `Error in setCosmeticLockerSlot: ${err.message}`,
-      "setCosmeticLockerSlot"
+      "SetCosmeticLockerSlot"
     );
     throw error;
   }

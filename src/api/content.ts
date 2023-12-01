@@ -7,33 +7,56 @@ export default function initRoute(router: Router): void {
     const userAgent = req.headers["user-agent"];
     const season = getSeason(userAgent);
 
+    if (!season) {
+      return 2;
+    }
+
     let backgrounds: any[] = [
       {
-        stage: `season${season}`,
+        stage: `season${season.season}`,
         _type: "DynamicBackground",
         key: "lobby",
       },
       {
-        stage: `season${season}`,
+        stage: `season${season.season}`,
         _type: "DynamicBackground",
         key: "vault",
       },
     ];
 
-    if (season === "11.31" || season === "11.40") {
-      backgrounds = [
-        {
-          stage: "Winter19",
-          _type: "DynamicBackground",
-          key: "lobby",
-        },
-        {
-          stage: "Winter19",
-          _type: "DynamicBackground",
-          key: "vault",
-        },
-      ];
+    switch (season.buildUpdate) {
+      case "10":
+        backgrounds = [
+          {
+            stage: "seasonx",
+            _type: "DynamicBackground",
+            key: "lobby",
+          },
+          {
+            stage: "seasonx",
+            _type: "DynamicBackground",
+            key: "vault",
+          },
+        ];
+        break;
+      case "11.31":
+      case "11.40":
+        backgrounds = [
+          {
+            stage: "winter19",
+            _type: "DynamicBackground",
+            key: "lobby",
+          },
+          {
+            stage: "winter19",
+            _type: "DynamicBackground",
+            key: "vault",
+          },
+        ];
+        break;
     }
+
+    console.debug(backgrounds);
 
     res.json({
       "jcr:isCheckedOut": true,

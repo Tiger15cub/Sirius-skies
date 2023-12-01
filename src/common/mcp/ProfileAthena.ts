@@ -41,7 +41,7 @@ export default async function ProfileAthena(
 
     await Promise.all([
       initializeField("Season", [
-        { season: 17, book_level: 1, book_xp: 0, book_purchased: false },
+        { season, book_level: 1, book_xp: 0, book_purchased: false },
       ]),
       initializeField("stats", {
         solos: { wins: 0, kills: 0, matchplayed: 0 },
@@ -55,7 +55,7 @@ export default async function ProfileAthena(
     let level: number = 1;
     let hasPurchasedBP: boolean = false;
     let XP: number = 0;
-    const selectedSeason: number = 17;
+    const selectedSeason: string | number = season;
 
     if (selectedSeason === season) {
       athena.Season.forEach((e: SeasonData) => {
@@ -269,13 +269,13 @@ export default async function ProfileAthena(
       responseVersion: 1,
     };
 
-    fs.writeFileSync(`${__dirname}/test.json`, JSON.stringify(AthenaData));
+    fs.writeFileSync(`${__dirname}/athena.json`, JSON.stringify(AthenaData));
 
     if (user.hasFL) {
-      const AllCosmeticsAthena = require("../resources/mcp/AllCosmetics.json");
-      athena.profileChanges[0].profile.items = {
-        ...athena.profileChanges[0].profile.items,
-        AllCosmeticsAthena,
+      const athena = require("../resources/mcp/AllCosmetics.json");
+      AthenaData.profileChanges[0].profile.items = {
+        ...AthenaData.profileChanges[0].profile.items,
+        ...athena,
       };
     } else {
       const athena = require("../resources/mcp/Athena.json");

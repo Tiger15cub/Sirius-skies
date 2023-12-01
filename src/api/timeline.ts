@@ -1,9 +1,6 @@
 import { Router } from "express";
-import fs from "fs";
-import path from "path";
 import { getSeason } from "../utils";
 import { ActiveEvents } from "../interface";
-import log from "../utils/log";
 
 export default function initRoute(router: Router): void {
   router.get("/fortnite/api/calendar/v1/timeline", (req, res) => {
@@ -15,6 +12,10 @@ export default function initRoute(router: Router): void {
     const resetTime = new Date(now);
     resetTime.setUTCHours(0, 0, 0, 0); // Reset at 00:00 UTC
 
+    if (!season) {
+      return 2;
+    }
+
     const timeUntilReset =
       resetTime > now
         ? resetTime.getTime() - now.getTime()
@@ -22,35 +23,39 @@ export default function initRoute(router: Router): void {
 
     let activeEvents: ActiveEvents[] = [
       {
-        eventType: `EventFlag.LobbySeason${season}`,
+        eventType: `EventFlag.LobbySeason${season.season}`,
         activeUntil: "9999-12-31T23:59:59.999Z",
         activeSince: "2020-01-01T23:59:59.999Z",
       },
     ];
 
-    if (season === "11.31" || season === "11.40") {
+    if (season.buildUpdate === "11.31" || season.buildUpdate === "11.40") {
       activeEvents = [
+        {
+          eventType: `EventFlag.LobbySeason${season.season}`,
+          activeUntil: "9999-12-31T23:59:59.999Z",
+          activeSince: "2020-01-01T23:59:59.999Z",
+        },
         {
           eventType: "EventFlag.Winterfest.Tree",
           activeUntil: "9999-01-01T00:00:00.000Z",
-          activeSince: "9999-01-01T00:00:00.000Z",
+          activeSince: "2020-01-01T23:59:59.999Z",
         },
         {
           eventType: "EventFlag.LTE_WinterFest",
           activeUntil: "9999-01-01T00:00:00.000Z",
-          activeSince: "9999-01-01T00:00:00.000Z",
+          activeSince: "2020-01-01T23:59:59.999Z",
         },
         {
           eventType: "EventFlag.LTE_WinterFest2019",
           activeUntil: "9999-01-01T00:00:00.000Z",
-          activeSince: "9999-01-01T00:00:00.000Z",
+          activeSince: "2020-01-01T23:59:59.999Z",
         },
       ];
     }
 
     console.debug(JSON.stringify(activeEvents));
-
-    res.status(204).json({
+    res.json({
       channels: {
         "client-matchmaking": {
           states: [],
@@ -60,12 +65,12 @@ export default function initRoute(router: Router): void {
           states: [
             {
               validFrom: "0001-01-01T00:00:00.000Z",
-              activeEvents,
+              activeEvents: activeEvents,
               state: {
                 activeStorefronts: [],
                 eventNamedWeights: {},
-                seasonNumber: season,
-                seasonTemplateId: `AthenaSeason:athenaseason${season}`,
+                seasonNumber: season.season,
+                seasonTemplateId: `AthenaSeason:athenaseason${season.season}`,
                 matchXpBonusPoints: 0,
                 seasonBegin: "2020-01-01T00:00:00Z",
                 seasonEnd: "9999-01-01T00:00:00Z",
@@ -73,16 +78,13 @@ export default function initRoute(router: Router): void {
                 weeklyStoreEnd: new Date(
                   now.getTime() + timeUntilReset
                 ).toISOString(),
-                stwEventStoreEnd: new Date(
-                  now.getTime() + timeUntilReset
-                ).toISOString(),
-                stwWeeklyStoreEnd: new Date(
-                  now.getTime() + timeUntilReset
-                ).toISOString(),
+                stwEventStoreEnd: "9999-01-01T00:00:00.000Z",
+                stwWeeklyStoreEnd: "9999-01-01T00:00:00.000Z",
                 sectionStoreEnds: {
                   Featured: new Date(
                     now.getTime() + timeUntilReset
                   ).toISOString(),
+                  Daily: new Date(now.getTime() + timeUntilReset).toISOString(),
                 },
                 dailyStoreEnd: new Date(
                   now.getTime() + timeUntilReset

@@ -30,7 +30,7 @@ export default function initRoute(router: Router): void {
             accountId,
             profileId,
             false,
-            season,
+            season?.season as number,
             rvn
           );
           return res.json(athenaProfile);
@@ -60,27 +60,27 @@ export default function initRoute(router: Router): void {
     async (req, res) => {
       const { accountId } = req.params;
       const {
-        rvn,
         profileId,
         slotName,
         itemToSlot,
         indexWithinSlot,
-        variantUpdates,
-        slotIndex,
         category,
+        variantUpdates,
+        rvn,
+        slotIndex,
       } = req.body;
 
-      if (slotName !== undefined) {
+      if (req.body.slotName !== undefined) {
         return res.json(
           await EquipBattleRoyaleCustomization(
             Accounts,
             accountId,
-            profileId as string,
-            slotName as string,
-            itemToSlot as string,
-            indexWithinSlot as string,
-            variantUpdates as string,
-            rvn as any
+            profileId,
+            slotName,
+            itemToSlot,
+            indexWithinSlot,
+            variantUpdates,
+            rvn
           )
         );
       } else {
@@ -89,9 +89,11 @@ export default function initRoute(router: Router): void {
             Accounts,
             Users,
             accountId,
-            category as string,
-            itemToSlot as string,
-            slotIndex as any,
+            profileId,
+            category,
+            itemToSlot,
+            slotIndex,
+            variantUpdates,
             rvn as any
           )
         );

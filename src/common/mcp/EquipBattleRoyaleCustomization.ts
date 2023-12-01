@@ -23,12 +23,23 @@ export default async function equipBattleRoyaleCustomization(
       };
     }
 
-    const category = slotName.toLowerCase();
-    const itemField = `${category}.items`;
+    const itemField = `${slotName.toString().toLowerCase()}.items`;
 
     const updateQuery: UpdateQuery = {
       $inc: { profilerevision: 1 },
     };
+
+    let slotNames: any[] = [
+      "Character",
+      "Backpack",
+      "Pickaxe",
+      "Glider",
+      "SkyDiveContrail",
+      "MusicPack",
+      "LoadingScreen",
+    ];
+
+    console.log(itemField);
 
     if (slotName === "ItemWrap" || slotName === "Dance") {
       updateQuery[itemField] =
@@ -39,18 +50,40 @@ export default async function equipBattleRoyaleCustomization(
                 itemToSlot.split(":")[1]
               }`,
             };
+      console.log(itemField);
     } else {
+      if (!slotNames.includes(slotName)) return { errorCode: "", message: "" };
+
+      if (slotName == "Pickaxe" || slotName == "Glider") {
+        if (!itemToSlot)
+          return {
+            errorCode: "errors.com.epicgames.fortnite.id_invalid",
+            message: `${slotName} can not be empty.`,
+            profileId: "athena",
+          };
+      }
+
+      console.log(slotName);
+
       updateQuery[itemField] =
         itemToSlot === ""
           ? ""
           : `${itemToSlot.split(":")[0]}:${itemToSlot
               .split(":")[1]
               .toLowerCase()}`;
+      console.log(itemField);
     }
 
+    console.log(itemField);
+    console.log(variantUpdates);
+
     if (variantUpdates.length !== 0) {
-      updateQuery[`${category}.activeVariants`] = variantUpdates;
+      updateQuery[`${slotName.toString().toLowerCase()}.activeVariants`] =
+        variantUpdates;
     }
+
+    console.log(itemField);
+    console.log(variantUpdates);
 
     await Account.updateOne({ accountId }, updateQuery);
 
@@ -71,7 +104,7 @@ export default async function equipBattleRoyaleCustomization(
       profileChanges: [
         {
           changeType: "statModified",
-          name: `favorite_${category}`,
+          name: `favorite_${slotName.toLowerCase()}`,
           value: itemToSlot,
         },
       ],

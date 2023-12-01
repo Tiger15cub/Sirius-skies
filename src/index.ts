@@ -20,7 +20,9 @@ const PORT = getEnv("PORT") || 5555;
     await Route.initializeRoutes(app);
     await Database.connect();
 
-    new XmppServer();
+    if (getEnv("isXmppEnabled") === "true") new XmppServer();
+    else if (getEnv("isXmppEnabled") === "false") {
+    }
 
     app.use((req, res, next) => {
       let text: string = "";

@@ -13,3 +13,5 @@ export * from "./Servers";
 export * from "./ActiveEvents";
 export * from "./EquipResult";
 export * from "./UpdateQuery";
+export * from "./SeasonInfo";
+export * from "./UserAgentInfo";
