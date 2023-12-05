@@ -1,10 +1,12 @@
 import { Router } from "express";
 import log from "../utils/log";
-import { createCipheriv, randomBytes } from "crypto";
+import { createCipheriv, randomBytes, createDecipheriv } from "crypto";
 import Accounts from "../models/Accounts";
 import { Servers } from "../interface";
 import { getEnv } from "../utils";
+import path from "node:path";
 import { v4 as uuid } from "uuid";
+import fs from "node:fs";
 
 function generateRandomKey(): Buffer {
   const prefix = "matchmaking";
@@ -12,25 +14,6 @@ function generateRandomKey(): Buffer {
   const randomPart = randomBytes(remainingBytes);
   return Buffer.concat([Buffer.from(prefix), randomPart]);
 }
-
-const serversData: Servers = {
-  eu: [
-    {
-      serverAddress: getEnv("EU_SERVER_ADDRESS"),
-      serverPort: getEnv("EU_SERVER_PORT"),
-      playlist: `Playlist_${getEnv("PLAYLIST")}`,
-      maxPlayers: 100,
-    },
-  ],
-  nae: [
-    {
-      serverAddress: getEnv("NAE_SERVER_ADDRESS"),
-      serverPort: getEnv("NAE_SERVER_PORT"),
-      playlist: `Playlist_${getEnv("PLAYLIST")}`,
-      maxPlayers: 100,
-    },
-  ],
-};
 
 function encryptAES256(data: string, key: Buffer): string {
   const iv = randomBytes(16);
@@ -40,6 +23,18 @@ function encryptAES256(data: string, key: Buffer): string {
   encrypted += cipher.final("hex");
 
   return iv.toString("hex") + encrypted;
+}
+
+function decryptAES256(encryptedData: string, key: Buffer): string {
+  const iv = Buffer.from(encryptedData.slice(0, 32), "hex");
+  const encryptedText = encryptedData.slice(32);
+
+  const decipher = createDecipheriv("aes-256-ctr", key, iv);
+
+  let decrypted = decipher.update(encryptedText, "hex", "utf8");
+  decrypted += decipher.final("utf8");
+
+  return decrypted;
 }
 
 export default function initRoute(router: Router): void {
@@ -59,7 +54,14 @@ export default function initRoute(router: Router): void {
           return res.status(404).json({ error: "Account not found." });
         }
 
-        console.debug(account.banned);
+        const serversPath = path.join(
+          __dirname,
+          "..",
+          "..",
+          "servers",
+          "Servers.json"
+        );
+        const servers = require(serversPath);
 
         if (account.banned) {
           return res.status(200).json({});
@@ -70,16 +72,39 @@ export default function initRoute(router: Router): void {
         }
 
         const bucketIds = bucketId.split(":");
-        console.debug(bucketIds);
         if (bucketIds.length < 4) {
           return res.status(200).json({});
         }
 
-        res.cookie("currentbuildUniqueId", bucketIds[0]);
+        res.cookie("currentBuildUniqueId", bucketIds[0]);
+        res.cookie("playlist", bucketIds[3]);
+        res.cookie("region", bucketIds[2]);
 
         const currentBucketId = bucketIds[0];
         const playlist = bucketIds[3];
         const region = bucketIds[2];
+
+        let isPlaylistValid: boolean = false;
+        let customKey = req.query["player.option.customKey"];
+        let subRegions = req.query["player.subregions"] as string[];
+        let platform = req.query["player.platform"];
+
+        if (customKey !== undefined && typeof customKey === "string") {
+          // TODO: Do custom key
+        }
+
+        servers.forEach((server: any) => {
+          if (playlist.toLowerCase() === server.playlist.toLowerCase()) {
+            isPlaylistValid = true;
+          }
+        });
+
+        if (!isPlaylistValid) {
+          return res.status(401).json({
+            error:
+              "This playlist is not currently being hosted or is not available in your region.",
+          });
+        }
 
         log.log(
           `Current BucketId: ${currentBucketId}:${region}:${playlist}`,
@@ -87,26 +112,43 @@ export default function initRoute(router: Router): void {
           "cyanBright"
         );
 
-        const key = generateRandomKey();
+        const encryptionKey = generateRandomKey();
 
         return res.status(200).json({
           serviceUrl: "ws://127.0.0.1:8090",
           ticketType: "mms-player",
-          payload: "account",
+          payload: JSON.stringify({
+            playerId: accountId,
+            partyPlayerIds: [accountId],
+            bucketId: bucketIds + ":PC:public:1",
+            attributes: {
+              "player.userAgent": req.headers["user-agent"],
+              "player.preferredSubregion": subRegions?.toString().split(",")[0],
+              "player.option.spectator": "false",
+              "player.inputTypes": "",
+              "player.revision": "1",
+              "player.teamFormat": "fun",
+            },
+            expireAt: new Date(
+              new Date().getTime() + 32 * 60 * 60 * 1000
+            ).toISOString(),
+            nonce: uuid(),
+          }),
           signature: encryptAES256(
             JSON.stringify({
               accountId,
               buildId: currentBucketId,
               playlist,
               region,
+              customKey: customKey ?? "NONE",
               accessToken,
               timestamp: new Date().toISOString(),
             }),
-            key
+            encryptionKey
           ),
         });
       } catch (error) {
-        let err: Error = error as Error;
+        const err: Error = error as Error;
         log.error(`An error occurred: ${err.message}`, "Matchmaking");
         return res.status(500).send("Internal Server Error");
       }
@@ -114,7 +156,7 @@ export default function initRoute(router: Router): void {
   );
 
   router.post(
-    "/fortnite/api/matchmaking/session/:wildcard/join",
+    "/fortnite/api/matchmaking/session/:sessionId/join",
     (req, res) => {
       res.status(204).send();
     }
@@ -153,71 +195,90 @@ export default function initRoute(router: Router): void {
   router.get(
     "/fortnite/api/matchmaking/session/:sessionId",
     async (req, res) => {
+      const { sessionId } = req.params;
+
+      const serversPath = path.join(
+        __dirname,
+        "..",
+        "..",
+        "servers",
+        "Servers.json"
+      );
+      const servers = require(serversPath);
+
+      let serverAddress: string = "";
+      let serverPort: number = Number("");
+
       try {
-        const { sessionId } = req.params;
+        const playlist = req.cookies["playlist"];
+        const region = req.cookies["region"];
 
-        const matchedServers = serversData.nae
-          .concat(serversData.eu)
-          .filter((server) => server.serverAddress.includes(sessionId));
+        let matchingServerFound: boolean = false;
 
-        if (matchedServers.length > 0) {
-          const server = matchedServers[0];
+        servers.forEach((server: any) => {
+          if (
+            playlist.toLowerCase() === server.playlist.toLowerCase() &&
+            region.toLowerCase() === server.region.toLowerCase()
+          ) {
+            serverAddress = server.serverAddress;
+            serverPort = Number(server.serverPort);
+            matchingServerFound = true;
+          }
+        });
 
-          log.log(
-            `Matchmaking: ${server.serverAddress}:${server.serverPort}`,
-            "Matchmaking",
-            "cyanBright"
+        if (!matchingServerFound) {
+          log.error(
+            "Server not found for the given playlist and region.",
+            "Matchmaking"
           );
-
-          return res.status(200).json({
-            id: sessionId,
-            ownerId: uuid().replace(/-/g, "").toUpperCase(),
-            ownerName: "[DS]fortnite-liveeugcec1c2e30ubrcore0a-z8hj-1968",
-            serverName: "[DS]fortnite-liveeugcec1c2e30ubrcore0a-z8hj-1968",
-            serverAddress: server.serverAddress,
-            serverPort: Number(server.serverPort),
-            maxPublicPlayers: 220,
-            openPublicPlayers: 175,
-            maxPrivatePlayers: 0,
-            openPrivatePlayers: 0,
-            attributes: {
-              REGION_s: "EU",
-              GAMEMODE_s: "FORTATHENA",
-              ALLOWBROADCASTING_b: true,
-              SUBREGION_s: "GB",
-              DCID_s: "FORTNITE-LIVEEUGCEC1C2E30UBRCORE0A-14840880",
-              tenant_s: "Fortnite",
-              MATCHMAKINGPOOL_s: "Any",
-              STORMSHIELDDEFENSETYPE_i: 0,
-              HOTFIXVERSION_i: 0,
-              PLAYLISTNAME_s: "Playlist_DefaultSolo",
-              SESSIONKEY_s: uuid().replace(/-/g, "").toUpperCase(),
-              TENANT_s: "Fortnite",
-              BEACONPORT_i: 15009,
-            },
-            publicPlayers: [],
-            privatePlayers: [],
-            totalPlayers: 45,
-            allowJoinInProgress: false,
-            shouldAdvertise: false,
-            isDedicated: false,
-            usesStats: false,
-            allowInvites: false,
-            usesPresence: false,
-            allowJoinViaPresence: true,
-            allowJoinViaPresenceFriendsOnly: false,
-            buildUniqueId: req.cookies["buildUniqueId"] || "0",
-            lastUpdated: new Date().toISOString(),
-            started: false,
-          });
         }
-
-        log.error("Failed to find server.", "Matchmaking");
       } catch (error) {
         let err: Error = error as Error;
-        log.error(`An error occurred: ${err.message}`, "Matchmaking");
-        return res.status(500).send();
+        log.error(`An error occured: ${err.message}`, "Matchmaking");
+        return res.status(500).json({ error: "Internal Server Error" });
       }
+
+      res.status(204).json({
+        id: sessionId,
+        ownerId: uuid().replace(/-/gi, "").toUpperCase(),
+        ownerName: "[DS]fortnite-liveeugcec1c2e30ubrcore0a-z8hj-1968",
+        serverName: "[DS]fortnite-liveeugcec1c2e30ubrcore0a-z8hj-1968",
+        serverAddress: serverAddress,
+        serverPort: serverPort,
+        maxPublicPlayers: 220,
+        openPublicPlayers: 175,
+        maxPrivatePlayers: 0,
+        openPrivatePlayers: 0,
+        attributes: {
+          REGION_s: "EU",
+          GAMEMODE_s: "FORTATHENA",
+          ALLOWBROADCASTING_b: true,
+          SUBREGION_s: "GB",
+          DCID_s: "FORTNITE-LIVEEUGCEC1C2E30UBRCORE0A-14840880",
+          tenant_s: "Fortnite",
+          MATCHMAKINGPOOL_s: "Any",
+          STORMSHIELDDEFENSETYPE_i: 0,
+          HOTFIXVERSION_i: 0,
+          PLAYLISTNAME_s: "Playlist_DefaultSolo",
+          SESSIONKEY_s: uuid().replace(/-/gi, "").toUpperCase(),
+          TENANT_s: "Fortnite",
+          BEACONPORT_i: 15009,
+        },
+        publicPlayers: [],
+        privatePlayers: [],
+        totalPlayers: 45,
+        allowJoinInProgress: false,
+        shouldAdvertise: false,
+        isDedicated: false,
+        usesStats: false,
+        allowInvites: false,
+        usesPresence: false,
+        allowJoinViaPresence: true,
+        allowJoinViaPresenceFriendsOnly: false,
+        buildUniqueId: req.cookies["currentbuildUniqueId"] || "0",
+        lastUpdated: new Date().toISOString(),
+        started: false,
+      });
     }
   );
 }

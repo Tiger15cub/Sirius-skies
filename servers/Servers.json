@@ -1,0 +1,14 @@
+[
+  {
+    "playlist": "Playlist_DefaultSolo",
+    "serverAddress": "127.0.0.1",
+    "serverPort": "8888",
+    "region": "EU"
+  },
+  {
+    "playlist": "Playlist_DefaultSolo",
+    "serverAddress": "127.0.0.1",
+    "serverPort": "7777",
+    "region": "NAE"
+  }
+]

@@ -5,8 +5,11 @@ import Accounts from "../models/Accounts";
 import ProfileAthena from "../common/mcp/ProfileAthena";
 import ProfileCommonCore from "../common/mcp/ProfileCommonCore";
 import { CommonCoreData, CommonCoreProfile } from "../interface";
-import EquipBattleRoyaleCustomization from "../common/mcp/EquipBattleRoyaleCustomization";
-import SetCosmeticLockerSlot from "../common/mcp/SetCosmeticLockerSlot";
+import {
+  EquipBattleRoyaleCustomization,
+  SetCosmeticLockerSlot,
+} from "../common/mcp/Equip";
+import log from "../utils/log";
 
 export default function initRoute(router: Router): void {
   router.post(
@@ -54,49 +57,52 @@ export default function initRoute(router: Router): void {
 
   router.post(
     [
-      "/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCustomization",
-      "/fortnite/api/game/v2/profile/:accountId/client/SetCosmeticLockerSlot",
+      "/fortnite/api/game/v2/profile/:accountId/*/EquipBattleRoyaleCustomization",
+      "/fortnite/api/game/v2/profile/:accountId/*/SetCosmeticLockerSlot",
     ],
     async (req, res) => {
-      const { accountId } = req.params;
-      const {
-        profileId,
-        slotName,
-        itemToSlot,
-        indexWithinSlot,
-        category,
-        variantUpdates,
-        rvn,
-        slotIndex,
-      } = req.body;
+      try {
+        const { accountId } = req.params;
+        const {
+          profileId,
+          slotName,
+          itemToSlot,
+          indexWithinSlot,
+          category,
+          variantUpdates,
+          rvn,
+          slotIndex,
+        } = req.body;
 
-      if (req.body.slotName !== undefined) {
-        return res.json(
-          await EquipBattleRoyaleCustomization(
-            Accounts,
-            accountId,
-            profileId,
-            slotName,
-            itemToSlot,
-            indexWithinSlot,
-            variantUpdates,
-            rvn
-          )
-        );
-      } else {
-        return res.json(
-          await SetCosmeticLockerSlot(
-            Accounts,
-            Users,
-            accountId,
-            profileId,
-            category,
-            itemToSlot,
-            slotIndex,
-            variantUpdates,
-            rvn as any
-          )
-        );
+        if (req.body.slotName !== undefined) {
+          return res.json(
+            await EquipBattleRoyaleCustomization(
+              accountId,
+              profileId,
+              slotName,
+              itemToSlot,
+              indexWithinSlot,
+              variantUpdates,
+              rvn
+            )
+          );
+        } else {
+          return res.json(
+            await SetCosmeticLockerSlot(
+              accountId,
+              profileId,
+              category,
+              itemToSlot,
+              slotIndex,
+              variantUpdates,
+              rvn as any
+            )
+          );
+        }
+      } catch (error) {
+        let err = error as Error;
+        log.error(`Error updating profile: ${err.message}`, "MCP");
+        res.status(500).json({ error: "Internal Server Error" });
       }
     }
   );

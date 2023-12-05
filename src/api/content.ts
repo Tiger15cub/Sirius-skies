@@ -56,8 +56,6 @@ export default function initRoute(router: Router): void {
         break;
     }
 
-    console.debug(backgrounds);
-
     res.json({
       "jcr:isCheckedOut": true,
       _title: "Fortnite Game",

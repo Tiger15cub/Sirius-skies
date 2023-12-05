@@ -4,8 +4,6 @@ export function getSeason(userAgent: string | undefined): SeasonInfo | null {
   try {
     if (!userAgent) return null;
 
-    console.log(userAgent.split("-")[1]?.split("+")[0]);
-
     const getBuildID = (): string | undefined =>
       userAgent.split("-")[3]?.split(",")[0] ||
       userAgent.split("-")[1]?.split("+")[0];

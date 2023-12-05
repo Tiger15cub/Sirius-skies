@@ -29,10 +29,9 @@ Send me more features thanks uwu
 
 ### Known Bugs
 
-- failing to logging in.
-- query profile error
-- getting logged at select game mode
-- cloudstorage not working at times
-- ClientQuestLogin error
+- failing to logging in (11.31).
+- query profile error (11.31)
+- getting logged at select game mode (11.31)
+- cloudstorage not working at times (11.31)
 - XMPP not connecting at times
 - Not auto logging you in after first login.

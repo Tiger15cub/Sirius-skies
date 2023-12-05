@@ -54,7 +54,6 @@ export default function initRoute(router: Router): void {
       ];
     }
 
-    console.debug(JSON.stringify(activeEvents));
     res.json({
       channels: {
         "client-matchmaking": {

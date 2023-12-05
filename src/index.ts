@@ -6,6 +6,7 @@ import Database from "./handlers/Database";
 import log from "./utils/log";
 import XmppServer from "./xmpp/XmppServer";
 import cookieParser from "cookie-parser";
+import Matchmaker from "./matchmaker/Matchmaker";
 
 const app = express();
 
@@ -22,6 +23,10 @@ const PORT = getEnv("PORT") || 5555;
 
     if (getEnv("isXmppEnabled") === "true") new XmppServer();
     else if (getEnv("isXmppEnabled") === "false") {
+    }
+
+    if (getEnv("isMatchmakerEnabled") === "true") new Matchmaker().start();
+    else if (getEnv("isMatchmakerEnabled") === "false") {
     }
 
     app.use((req, res, next) => {
