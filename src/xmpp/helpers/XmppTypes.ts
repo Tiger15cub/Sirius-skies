@@ -27,14 +27,14 @@ export interface Globals {
   pings: any[];
 }
 
-export const exchangeCodes: Globals["exchangeCodes"] = {};
-export const clientTokens: Globals["clientTokens"] = [];
-export const AccessTokens: Globals["AccessTokens"] = [];
-export const Clients: Globals["Clients"] = [];
-export const MUCs: Globals["MUCs"] = {};
-export const parties: Globals["parties"] = [];
-export const invites: Globals["invites"] = [];
-export const pings: Globals["pings"] = [];
+export let exchangeCodes: Globals["exchangeCodes"] = {};
+export let clientTokens: Globals["clientTokens"] = [];
+export let AccessTokens: Globals["AccessTokens"] = [];
+export let Clients: Globals["Clients"] = [];
+export let MUCs: Globals["MUCs"] = {};
+export let parties: Globals["parties"] = [];
+export let invites: Globals["invites"] = [];
+export let pings: Globals["pings"] = [];
 
 export const Globals: Globals = {
   exchangeCodes,
