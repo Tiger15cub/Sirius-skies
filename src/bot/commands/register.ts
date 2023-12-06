@@ -24,7 +24,7 @@ export default async function execute(interaction: any) {
       .setDescription("You have already registered an account.")
       .setColor("#F01414")
       .setFooter({
-        text: "FunkyV2",
+        text: "Sirius",
         iconURL:
           "https://media.discordapp.net/attachments/1168987546643083266/1179414939060940861/fe0a0428f7b2db2154cf9ced998e9617.png",
       })
@@ -39,7 +39,7 @@ export default async function execute(interaction: any) {
       .setDescription(`You can only use this command in <#${channelId}>`)
       .setColor("#F01414")
       .setFooter({
-        text: "FunkyV2",
+        text: "Sirius",
         iconURL:
           "https://media.discordapp.net/attachments/1168987546643083266/1179414939060940861/fe0a0428f7b2db2154cf9ced998e9617.png",
       })
@@ -56,7 +56,7 @@ export default async function execute(interaction: any) {
       .setDescription("The provided email or username is already in use.")
       .setColor("#F01414")
       .setFooter({
-        text: "FunkyV2",
+        text: "Sirius",
         iconURL:
           "https://media.discordapp.net/attachments/1168987546643083266/1179414939060940861/fe0a0428f7b2db2154cf9ced998e9617.png",
       })
@@ -120,7 +120,7 @@ export default async function execute(interaction: any) {
         }
       )
       .setFooter({
-        text: "FunkyV2",
+        text: "Sirius",
         iconURL:
           "https://media.discordapp.net/attachments/1168987546643083266/1179414939060940861/fe0a0428f7b2db2154cf9ced998e9617.png",
       })
@@ -138,7 +138,7 @@ export default async function execute(interaction: any) {
         inline: false,
       })
       .setFooter({
-        text: "FunkyV2",
+        text: "Sirius",
         iconURL:
           "https://media.discordapp.net/attachments/1168987546643083266/1179414939060940861/fe0a0428f7b2db2154cf9ced998e9617.png",
       })
@@ -154,7 +154,7 @@ export default async function execute(interaction: any) {
       .setDescription("Failed to register account, please try again.")
       .setColor("#F01414")
       .setFooter({
-        text: "FunkyV2",
+        text: "Sirius",
         iconURL:
           "https://media.discordapp.net/attachments/1168987546643083266/1179414939060940861/fe0a0428f7b2db2154cf9ced998e9617.png",
       })

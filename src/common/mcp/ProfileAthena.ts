@@ -22,7 +22,7 @@ export default async function ProfileAthena(
     if (!athena || !user) {
       return {
         errorCode:
-          "errors.com.funkyv2.backend.common.mcp.account_or_user.not_found",
+          "errors.com.sirius.backend.common.mcp.account_or_user.not_found",
         message: "Account or User not found.",
       };
     }
@@ -166,7 +166,7 @@ export default async function ProfileAthena(
                   use_count: 0,
                   banner_icon_template: athena.Banner.banner_icon,
                   banner_color_template: athena.Banner.banner_color,
-                  locker_name: "FunkyV2",
+                  locker_name: "Sirius",
                   item_seen: false,
                   favorite: false,
                 },

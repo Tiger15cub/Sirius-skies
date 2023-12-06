@@ -12,7 +12,7 @@ async function createEmbed(
     .setDescription(description)
     .setColor(color)
     .setFooter({
-      text: "FunkyV2",
+      text: "Sirius",
       iconURL:
         "https://media.discordapp.net/attachments/1168987546643083266/1179414939060940861/fe0a0428f7b2db2154cf9ced998e9617.png",
     })

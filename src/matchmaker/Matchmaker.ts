@@ -82,7 +82,6 @@ export default class Matchmaker {
 
   private setup() {
     this.socket.on("connection", (socket) => {
-      console.debug("New Connection");
       this.handleConnection(socket).catch((error) =>
         log.error(`Error handling connection: ${error}`, "Matchmaker")
       );

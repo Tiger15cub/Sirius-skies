@@ -1,31 +1,42 @@
-# The Last Dance 2.0
+# Sirius
 
-## FunkyV2
+## Getting Started
 
-funky fortnite backend
+To get started with `Sirius`, follow these steps:
 
-### Features (Work in Progress):
+1. **Clone the repository:**
 
-1. **Gifting**
-2. **Shop Purchasing**
-3. **Universal Matchmaker**
-4. **BattlePass Purchasing**
-5. **Proper FullLocker System**
-6. **Leveling**
-7. **Quests**
-8. **Friending & Parties (Party V1 and 2)**
-9. **VoiceChat**
-10. **Dashboard**
-11. **HWID Banning**
-12. **Reporting System**
-13. **Banning System**
-14. **Proper XMPP**
-15. **Creative**
-16. **Discovery**
-17. **Vbucks on Kill Support**
-18. **24/7 rotating shop**
+   ```bash
+   git clone https://github.com/Skiesuwu/Sirius.git
+   ```
 
-Send me more features thanks uwu
+2. **Install Node.js:**
+   Install the latest version of [Node.js](https://nodejs.org/).
+
+3. **Setting up Environment:**
+
+   - Rename `.env.example` to `.env`
+   - Edit `CLIENT_SECRET` in the `.env` file and enter your backend client secret.
+
+4. **Install Dependencies:**
+   Open your command prompt and run:
+
+   ```bash
+   npm install
+   ```
+
+5. **Build Sirius:**
+   Run the command:
+
+   ```bash
+   npm run build
+   ```
+
+6. **Start Sirius:**
+   To start Sirius, run:
+   ```bash
+   node .
+   ```
 
 ### Known Bugs
 

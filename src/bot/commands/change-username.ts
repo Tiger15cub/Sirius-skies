@@ -19,7 +19,7 @@ export default async function execute(interaction: any) {
       .setDescription("Unable to find your account, Please try again.")
       .setColor("#FF0000")
       .setFooter({
-        text: "FunkyV2",
+        text: "Sirius",
         iconURL:
           "https://media.discordapp.net/attachments/1168987546643083266/1179414939060940861/fe0a0428f7b2db2154cf9ced998e9617.png",
       })
@@ -40,7 +40,7 @@ export default async function execute(interaction: any) {
       )
       .setColor("#FF0000")
       .setFooter({
-        text: "FunkyV2",
+        text: "Sirius",
         iconURL:
           "https://media.discordapp.net/attachments/1168987546643083266/1179414939060940861/fe0a0428f7b2db2154cf9ced998e9617.png",
       })
@@ -55,7 +55,7 @@ export default async function execute(interaction: any) {
       .setDescription(`You can only use this command in <#${channelId}>`)
       .setColor("#F01414")
       .setFooter({
-        text: "FunkyV2",
+        text: "Sirius",
         iconURL:
           "https://media.discordapp.net/attachments/1168987546643083266/1179414939060940861/fe0a0428f7b2db2154cf9ced998e9617.png",
       })
@@ -72,7 +72,7 @@ export default async function execute(interaction: any) {
       .setDescription("Successfully changed your account's username.")
       .setColor("#2B2D31")
       .setFooter({
-        text: "FunkyV2",
+        text: "Sirius",
         iconURL:
           "https://media.discordapp.net/attachments/1168987546643083266/1179414939060940861/fe0a0428f7b2db2154cf9ced998e9617.png",
       })

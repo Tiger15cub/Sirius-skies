@@ -2,7 +2,6 @@ import { Router } from "express";
 import log from "../utils/log";
 import { createCipheriv, randomBytes, createDecipheriv } from "crypto";
 import Accounts from "../models/Accounts";
-import { Servers } from "../interface";
 import { getEnv } from "../utils";
 import path from "node:path";
 import { v4 as uuid } from "uuid";

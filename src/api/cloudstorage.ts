@@ -114,7 +114,7 @@ export default function initRoute(router: Router): void {
     const file = req.params.file;
     const filePath = path.join(
       process.env.LOCALAPPDATA as string,
-      "FunkyV2",
+      "Sirius",
       "ClientSettings",
       `ClientSettings-${id}.sav`
     );
@@ -148,7 +148,7 @@ export default function initRoute(router: Router): void {
       const requestBody = await getRequestBody(req);
       const folderPath = path.join(
         process.env.LOCALAPPDATA as string,
-        "FunkyV2",
+        "Sirius",
         "Cloudstorage"
       );
 
@@ -180,7 +180,7 @@ export default function initRoute(router: Router): void {
     const id = req.params.id;
     const filePath = path.join(
       process.env.LOCALAPPDATA as string,
-      "FunkyV2",
+      "Sirius",
       "ClientSettings",
       `ClientSettings-${id}.sav`
     );

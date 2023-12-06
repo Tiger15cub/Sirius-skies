@@ -36,7 +36,7 @@ const PORT = getEnv("PORT") || 5555;
 
       text = JSON.stringify({
         status: 404,
-        errorCode: "errors.com.funkyv2.backend.route.not_found",
+        errorCode: "errors.com.sirius.backend.route.not_found",
         errorMessage:
           "Sorry, the resource you were trying to find could not be found.",
         numericErrorCode: 1004,
