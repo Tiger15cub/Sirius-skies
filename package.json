@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node .",
     "dev": "nodemon --config nodemon.json src/index.ts",
-    "build": "tsc && npm run copy-json",
-    "copy-json": "copyfiles -u 1 src/**/*.json dist"
+    "build": "tsc && npm run copy-files",
+    "copy-files": "copyfiles -u 1 src/**/*.{json,ini} dist"
   },
   "repository": {
     "type": "git",

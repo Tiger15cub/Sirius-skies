@@ -43,6 +43,7 @@ async function initializeShop(): Promise<void> {
     const items: Item[] = JSON.parse(fs.readFileSync(shopItemsPath, "utf-8"));
 
     log.log("Generating now shop.", "InitializeShop", "blue");
+    await generateItems();
     await shop.generateShopConfig(items);
   });
 
