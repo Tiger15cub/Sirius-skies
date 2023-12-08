@@ -1,5 +1,6 @@
 import Account from "../../models/Accounts";
 import User from "../../models/Users";
+import log from "../../utils/log";
 import logger from "../../utils/log";
 
 async function updateAccountProfile(accountId: string, update: any) {
@@ -27,66 +28,61 @@ export async function EquipBattleRoyaleCustomization(
     const account = await getAccount(accountId);
 
     if (!account) {
-      return {};
+      return {
+        error: "Account not found.",
+      };
     }
 
     await updateAccountProfile(accountId, {
       $inc: { profilerevision: 1 },
     });
 
-    const category = slotName.toLowerCase();
-    const categoryItemsKey =
-      category === "itemwrap" || category === "dance"
-        ? "items"
-        : `items.${indexWithinSlot}`;
+    const category = slotName;
+    const categoryLowerCase = category.toString().toLowerCase();
 
-    if (itemToSlot === "") {
-      await updateAccountProfile(accountId, {
-        $set: { [`${category}.${categoryItemsKey}`]: "" },
-      });
-    } else {
-      const itemKey = itemToSlot.split(":")[0];
-      const itemValue = itemToSlot.split(":")[1].toLowerCase();
+    const updateObj: { [key: string]: any } = {
+      [`${categoryLowerCase}.items`]: itemToSlot
+        ? `${itemToSlot.split(":")[0]}:${itemToSlot
+            .split(":")[1]
+            .toLowerCase()}`
+        : "",
+    };
 
-      await updateAccountProfile(accountId, {
-        $set: {
-          [`${category}.${categoryItemsKey}`]: `${itemKey}:${itemValue}`,
-        },
-      });
+    if (variantUpdates?.length !== 0) {
+      updateObj[`${categoryLowerCase}.activeVariants`] = variantUpdates;
     }
 
-    if (variantUpdates.length !== 0) {
-      await updateAccountProfile(accountId, {
-        $set: { [`${category}.activeVariants`]: variantUpdates },
-      });
+    await Account.updateOne({ accountId }, { $set: updateObj });
+
+    const newAccountData = await getAccount(accountId);
+
+    if (!newAccountData) {
+      return {
+        error: "Failed to get updated account data.",
+      };
     }
 
-    const newAccountProfile = await getAccount(accountId);
-
-    if (!newAccountProfile) {
-      return {};
-    }
-
-    const responseData = {
-      profileRevision: newAccountProfile.profilerevision,
+    return {
+      profileRevision: newAccountData.profilerevision,
       profileId: "athena",
-      profileChangesBaseRevision: newAccountProfile.profilerevision,
+      profileChangesBaseRevision: newAccountData.profilerevision,
       profileChanges: [
         {
           changeType: "statModified",
-          name: `favorite_${category}`,
+          name: `favorite_${categoryLowerCase}`,
           value: itemToSlot,
         },
       ],
-      profileCommandRevision: newAccountProfile.profilerevision,
+      profileCommandRevision: newAccountData.profilerevision,
       serverTime: new Date(),
       responseVersion: 2,
     };
-
-    return responseData;
   } catch (error) {
-    let err: Error = error as Error;
-    logger.error(err.message, "EquipBattleRoyaleCustomization");
+    log.error(`An error occurred: ${error}`, "EquipBattleRoyaleCustomization");
+
+    return {
+      error: "An unexpected error occurred while processing the request.",
+    };
   }
 }
 
