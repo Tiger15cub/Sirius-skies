@@ -1,0 +1,87 @@
+{
+  "name": "BRSeason8",
+  "catalogEntries": [
+    {
+      "devName": "BR.Season8.BattleBundle.01",
+      "offerId": "4F7D3A92B8E6C1E5D0A9B6C8F2D4E3A1",
+      "fulfillmentIds": null,
+      "dailyLimit": -1,
+      "weeklyLimit": -1,
+      "monthlyLimit": -1,
+      "categories": [],
+      "prices": [
+        {
+          "currencyType": "MtxCurrency",
+          "currencySubType": "",
+          "regularPrice": 4700,
+          "finalPrice": 2800,
+          "saleExpiration": "9999-12-31T23:59:59.999Z",
+          "basePrice": 2800
+        }
+      ],
+      "meta": null,
+      "matchFilter": "",
+      "filterWeight": 0,
+      "appStoreId": ["", "", "", "", "", "", "", "", "", ""],
+      "requirements": [
+        {
+          "requirementType": "DenyOnFulfillment",
+          "requiredId": "battlepass8",
+          "minQuantity": 1
+        }
+      ],
+      "offerType": "StaticPrice",
+      "giftInfo": null,
+      "refundable": false,
+      "metaInfo": [],
+      "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_BR_Season8_BattlePassWithLevels.DA_BR_Season8_BattlePassWithLevels",
+      "itemGrants": [],
+      "sortPriority": 0,
+      "catalogGroupPriority": 0,
+      "title": "Battle Bundle",
+      "shortDescription": "Battle Pass + 25 tiers!",
+      "description": "Season 8 \n\nInstantly get these items \u003cBold\u003evalued at over 10,000 V-Bucks\u003c/\u003e.\n  • \u003cItemName\u003eBlackheart\u003c/\u003e Progressive Outfit\n  • \u003cItemName\u003eHybrid\u003c/\u003e Progressive Outfit\n  • \u003cItemName\u003eSidewinder\u003c/\u003e Outfit\n  • \u003cItemName\u003eTropical Camo\u003c/\u003e Wrap\n  • \u003cItemName\u003eWoodsy\u003c/\u003e Pet\n  • \u003cItemName\u003eSky Serpents\u003c/\u003e Glider\n  • \u003cItemName\u003eCobra\u003c/\u003e Back Bling\n  • \u003cItemName\u003eFlying Standard\u003c/\u003e Contrail\n  • 300 V-Bucks\n  • 1 Music Track\n  • \u003cBold\u003e70% Bonus\u003c/\u003e Season Match XP\n  • \u003cBold\u003e20% Bonus\u003c/\u003e Season Friend Match XP\n  • \u003cBold\u003eExtra Weekly Challenges\u003c/\u003e\n  • and more!\n\nPlay to level up your Battle Pass, unlocking \u003cBold\u003eover 75 rewards\u003c/\u003e (typically takes 75 to 150 hours of play).\n  • \u003cBold\u003e4 more Outfits\u003c/\u003e\n  • \u003cBold\u003e1,000 V-Bucks\u003c/\u003e\n  • 6 Emotes\n  • 5 Wraps\n  • 3 Gliders\n  • 3 Back Blings\n  • 4 Harvesting Tools\n  • 4 Contrails\n  • 1 Pet\n  • 12 Sprays\n  • 2 Music Tracks\n  • and so much more!\nWant it all faster? You can use V-Bucks to buy tiers any time!"
+    },
+    {
+      "devName": "BR.Season8.BattlePass.01",
+      "offerId": "battlepass8",
+      "fulfillmentIds": null,
+      "dailyLimit": -1,
+      "weeklyLimit": -1,
+      "monthlyLimit": -1,
+      "categories": [],
+      "prices": [
+        {
+          "currencyType": "MtxCurrency",
+          "currencySubType": "",
+          "regularPrice": 950,
+          "finalPrice": 950,
+          "saleExpiration": "9999-12-31T23:59:59.999Z",
+          "basePrice": 950
+        }
+      ],
+      "meta": null,
+      "matchFilter": "",
+      "filterWeight": 0,
+      "appStoreId": ["", "", "", "", "", "", "", "", "", ""],
+      "requirements": [
+        {
+          "requirementType": "DenyOnFulfillment",
+          "requiredId": "battlepass8",
+          "minQuantity": 1
+        }
+      ],
+      "offerType": "StaticPrice",
+      "giftInfo": null,
+      "refundable": false,
+      "metaInfo": [],
+      "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_BR_Season8_BattlePass.DA_BR_Season8_BattlePass",
+      "itemGrants": [],
+      "sortPriority": 0,
+      "catalogGroupPriority": 0,
+      "title": "Battle Pass",
+      "shortDescription": "Season8",
+      "description": "Season 8 \n\nInstantly get these items \u003cBold\u003evalued at over 3,500 V-Bucks\u003c/\u003e.\n  • \u003cItemName\u003eBlackheart\u003c/\u003e Progressive Outfit\n  • \u003cItemName\u003eHybrid\u003c/\u003e Progressive Outfit\n  • \u003cBold\u003e50% Bonus\u003c/\u003e Season Match XP\n  • \u003cBold\u003e10% Bonus\u003c/\u003e Season Friend Match XP\n  • \u003cBold\u003eExtra Weekly Challenges\u003c/\u003e\n\nPlay to level up your Battle Pass, unlocking \u003cBold\u003eover 100 rewards\u003c/\u003e (typically takes 75 to 150 hours of play).\n  • \u003cItemName\u003eSidewinder\u003c/\u003e and \u003cBold\u003e4 more Outfits\u003c/\u003e\n  • \u003cBold\u003e1,300 V-Bucks\u003c/\u003e\n  • 7 Emotes\n  • 6 Wraps\n  • 2 Pets\n  • 5 Harvesting Tools\n  • 4 Gliders\n  • 4 Back Blings\n  • 5 Contrails\n  • 14 Sprays\n  • 3 Music Tracks\n  • 1 Toy\n  • 20 Loading Screens\n  • and so much more!\nWant it all faster? You can use V-Bucks to buy tiers any time!"
+    }
+  ]
+}

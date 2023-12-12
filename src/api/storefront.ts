@@ -21,6 +21,15 @@ export default function initRoute(router: Router) {
       "shop.json"
     );
 
+    const BattlePasses = [
+      "Season10BattlePass",
+      "Season9BattlePass",
+      "Season8BattlePass",
+      "Season7BattlePass",
+      "Season6BattlePass",
+      "Season5BattlePass",
+    ];
+
     try {
       const Data = json(shop);
 
@@ -36,6 +45,24 @@ export default function initRoute(router: Router) {
 
       let weeklyPriority: number = 0;
       let dailyPriority: number = 0;
+
+      for (const battlepass of BattlePasses) {
+        const filePath = path.join(
+          __dirname,
+          "..",
+          "common",
+          "resources",
+          "storefront",
+          "battlepasses",
+          `${battlepass}.json`
+        );
+
+        const BattlePassData = json(filePath);
+
+        for (const entry of BattlePassData) {
+          storefront.storefronts.push(entry);
+        }
+      }
 
       Object.keys(Data.catalogItems).forEach((storefrontName) => {
         const shopItemType = Data.catalogItems[storefrontName];
