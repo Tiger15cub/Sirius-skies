@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import log from "../../utils/log";
 import { AthenaData, SeasonData } from "../../interface";
+import Accounts from "../../models/Accounts";
 
 export default async function ProfileAthena(
   User: any,
@@ -41,7 +42,12 @@ export default async function ProfileAthena(
 
     await Promise.all([
       initializeField("Season", [
-        { season, book_level: 1, book_xp: 0, book_purchased: false },
+        {
+          seasonNumber: season,
+          book_level: 1,
+          book_xp: 0,
+          book_purchased: false,
+        },
       ]),
       initializeField("stats", {
         solos: { wins: 0, kills: 0, matchplayed: 0 },
