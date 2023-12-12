@@ -18,7 +18,11 @@ export default async function Schedule(maxAttempts?: number): Promise<void> {
       hasLoggedSchedulingMessage = true;
     }
 
-    if (currentDateTime) {
+    if (
+      currentDateTime.hour === 17 &&
+      currentDateTime.minute === 59 &&
+      currentDateTime.second >= 59
+    ) {
       const savedData: SavedData = {
         weekly: [],
         weeklyFields: [],
