@@ -1,9 +1,8 @@
 import { Router } from "express";
-import { Globals, XmppClients } from "../xmpp/helpers/XmppTypes";
+import { Globals } from "../xmpp/types/XmppTypes";
 
 export default function initRoute(router: Router): void {
   router.get("/clients", (req, res) => {
-    console.debug(JSON.stringify(Globals.Clients));
     if (Array.isArray(Globals.Clients)) {
       let clients = Globals.Clients.map((data) => data.accountId);
 

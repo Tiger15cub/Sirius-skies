@@ -10,7 +10,7 @@ const envSuffix = (): string =>
 
 const resolveEnvFilePath = (): string => {
   const envFileSuffix = envSuffix();
-  return resolvePath(process.cwd(), envFileSuffix);
+  return resolvePath(process.cwd(), "config", envFileSuffix);
 };
 
 loadEnvConfig({ path: resolveEnvFilePath() });

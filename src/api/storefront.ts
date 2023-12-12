@@ -41,7 +41,9 @@ export default function initRoute(router: Router) {
         const shopItemType = Data.catalogItems[storefrontName];
 
         shopItemType.forEach((item: ShopItem) => {
-          const entryPriority = item.name.toLowerCase().includes("weekly")
+          const entryPriority = item.name
+            .toLowerCase()
+            .includes("brweeklystorefront")
             ? ++weeklyPriority
             : ++dailyPriority;
 
@@ -136,8 +138,13 @@ export default function initRoute(router: Router) {
                   catalogGroupPriority: entryPriority,
                 };
 
+                const targetStorefrontIndex = item.name
+                  .toLowerCase()
+                  .includes("brweeklystorefront")
+                  ? 1
+                  : 0;
                 storefront.storefronts[
-                  item.name.toLowerCase().includes("weekly") ? 1 : 0
+                  targetStorefrontIndex
                 ].catalogEntries.push(storefrontEntry);
               }
             }
@@ -148,11 +155,6 @@ export default function initRoute(router: Router) {
           }
         });
       });
-      // Data.catalogItems.forEach((shopItemType: ShopItem[]) => {
-      //   shopItemType.forEach((item: ShopItem) => {
-
-      // });
-
       if (storefront) {
         res.status(200).json(storefront);
       } else {

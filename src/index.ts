@@ -4,11 +4,10 @@ import { NotFound } from "./interface";
 import Route from "./handlers/Route";
 import Database from "./handlers/Database";
 import log from "./utils/log";
-import XmppServer from "./xmpp/XmppServer";
+import { init } from "./xmpp/XmppServer";
 import cookieParser from "cookie-parser";
 import Matchmaker from "./matchmaker/Matchmaker";
 import Schedule from "./utils/storefront/ScheduleStorefront";
-import { DateTime } from "luxon";
 
 const app = express();
 
@@ -23,7 +22,7 @@ const PORT = getEnv("PORT") || 5555;
     await Route.initializeRoutes(app);
     await Database.connect();
 
-    if (getEnv("isXmppEnabled") === "true") new XmppServer();
+    if (getEnv("isXmppEnabled") === "true") init();
     else if (getEnv("isXmppEnabled") === "false") {
     }
 

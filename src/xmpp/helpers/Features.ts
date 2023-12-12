@@ -1,11 +1,11 @@
 import WebSocket from "ws";
 import xmlbuilder from "xmlbuilder";
 
-export default function SendFeatures(
-  Authenticated: boolean,
+export function SendFeatures(
+  isAuthenticated: boolean,
   socket: WebSocket
 ): void {
-  if (Authenticated) {
+  if (isAuthenticated) {
     socket.send(
       xmlbuilder
         .create("stream:features")

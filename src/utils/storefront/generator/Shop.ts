@@ -102,12 +102,15 @@ export default class Shop {
     }
 
     randomShopItem.lastUpdatedDate = DateTime.local().toISODate();
-    console.debug(randomShopItem.name);
 
     const updatedContent = JSON.stringify(Items, null, 2);
     fs.writeFileSync(FilePath, updatedContent);
 
-    console.debug(randomShopItem.rarity);
+    log.log(
+      `Generated item '${randomShopItem.name}'`,
+      "GenerateShopItem",
+      "green"
+    );
 
     let itemPrice = "0";
 
@@ -124,17 +127,17 @@ export default class Shop {
     }
 
     shopFields.push({
-      name: randomShopItem.name || "Failed",
+      name: randomShopItem.name || "Failed: Item Name Missing",
       value: `Vbucks: ${itemPrice}\nItem: ${selectedItemType}`,
     });
 
     shopCollection.push({
       id: Math.random().toString(36).substring(2),
-      item: randomShopItem.item || "Failed",
-      name: randomShopItem.name || "Failed",
-      items: randomShopItem.items || "Failed",
+      item: randomShopItem.item || "Failed: Item Type Missing",
+      name: randomShopItem.name || "Failed: Item Name Missing",
+      items: randomShopItem.items || "Failed: Item Details Missing",
       price: parseInt(itemPrice || "9999", 10),
-      rarity: randomShopItem.rarity,
+      rarity: randomShopItem.rarity || "Failed: Rarity Missing",
     });
   }
 
@@ -142,7 +145,8 @@ export default class Shop {
     savedData: SavedData,
     amount: number
   ): Promise<void> {
-    for (let i = 0; i < amount; i++) {
+    const maxIterations = Math.min(amount, 7); // Use 7 as the maximum number of iterations
+    for (let i = 0; i < maxIterations; i++) {
       this.generateShopItem(
         savedData,
         savedData.weekly,
@@ -151,6 +155,9 @@ export default class Shop {
         this.rarityProbabilities
       );
       await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (i === 4) {
+        break;
+      }
     }
   }
 
@@ -158,6 +165,9 @@ export default class Shop {
     savedData: SavedData,
     amount: number
   ): Promise<void> {
+    const maxItems = 5;
+    amount = Math.min(amount, maxItems);
+
     for (let i = 0; i < amount; i++) {
       this.generateShopItem(
         savedData,
@@ -173,7 +183,9 @@ export default class Shop {
   private static async regenerateBundle(
     savedData: SavedData,
     attempts: number,
-    maxAttempts: number
+    maxAttempts: number,
+    minWeeklyItems: number,
+    maxWeeklyItems: number
   ): Promise<boolean> {
     if (attempts >= maxAttempts) {
       log.error(
@@ -257,24 +269,35 @@ export default class Shop {
 
     const random = Math.random();
 
-    const weekly = Math.floor(random * (4 - 2 + 1)) + 2;
+    const minWeeklyItems = 10;
+    const maxWeeklyItems = 15;
+
+    const weekly =
+      Math.floor(random * (maxWeeklyItems - minWeeklyItems + 1)) +
+      minWeeklyItems;
     const daily = Math.floor(random * (7 - 5 + 1)) + 5;
 
     if (this.isSpecialShop()) {
       // TODO
     } else {
-      if (await this.regenerateBundle(savedData, attempts, maxAttempts)) {
-        console.log("balls");
+      if (
+        await this.regenerateBundle(
+          savedData,
+          attempts,
+          maxAttempts,
+          minWeeklyItems,
+          maxWeeklyItems
+        )
+      ) {
         log.log("Bundle generated successfully.", "Initialize", "blue");
       } else {
-        console.log("balls 2");
         await this.generateWeekly(savedData, weekly);
         await this.generateDaily(savedData, daily);
       }
     }
 
     try {
-      const date = DateTime.utc();
+      const date = DateTime.utc().setZone("GMT");
 
       const generate = {
         expiration: date

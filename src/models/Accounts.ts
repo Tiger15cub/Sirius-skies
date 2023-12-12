@@ -1,8 +1,8 @@
-import { Document, Schema, SchemaTypes, model } from "mongoose";
+import { Document, Schema, model } from "mongoose";
 
 interface Character {
-  items: string | { type: any; activeVariants: any[] };
-  activeVariants: any;
+  items: string;
+  activeVariants: any[];
 }
 
 interface Backpack {
@@ -117,7 +117,7 @@ const accountsSchema = new Schema<AccountsModel>({
   accountId: { type: String, required: true },
   character: {
     items: {
-      type: SchemaTypes.Mixed,
+      type: String,
       default: "",
     },
     activeVariants: {

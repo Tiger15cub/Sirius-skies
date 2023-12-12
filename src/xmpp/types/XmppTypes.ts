@@ -1,4 +1,4 @@
-import XmppClient from "../client/XmppClient";
+import { v4 as uuid } from "uuid";
 
 export interface AccessToken {
   accountId: string;
@@ -9,22 +9,30 @@ export interface XmppClients extends AccessToken {
   accountId: string;
   displayName?: string;
   token: string;
-  socket?: XmppClient;
 }
 
 export interface MUCs {
   members: [];
 }
 
+export let UUID: string = uuid();
+export let accountId: string = "";
+export let isAuthenticated: boolean = false;
+export let token: string = "";
+
 export interface Globals {
   exchangeCodes: Record<string, any>;
   clientTokens: any[];
   AccessTokens: AccessToken[];
-  Clients: XmppClients[]; // Updated type to XmppClients[]
+  Clients: XmppClients[];
   MUCs: Record<string, any>;
   parties: any[];
   invites: any[];
   pings: any[];
+  UUID: string;
+  isAuthenticated: boolean;
+  accountId: string;
+  token: string;
 }
 
 export let exchangeCodes: Globals["exchangeCodes"] = {};
@@ -45,4 +53,8 @@ export const Globals: Globals = {
   parties,
   invites,
   pings,
+  UUID,
+  isAuthenticated,
+  accountId,
+  token,
 };

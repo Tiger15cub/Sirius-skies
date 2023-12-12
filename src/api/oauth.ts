@@ -7,7 +7,7 @@ import Accounts from "../models/Accounts";
 import { getEnv, sendErrorResponse } from "../utils";
 import { DecodedToken, VerificationResponse } from "../interface";
 import log from "../utils/log";
-import { Globals } from "../xmpp/helpers/XmppTypes";
+import { Globals } from "../xmpp/types/XmppTypes";
 
 export default function initRoute(router: Router): void {
   router.delete("/account/api/oauth/sessions/kill", (req, res) => {
@@ -85,8 +85,6 @@ export default function initRoute(router: Router): void {
           Globals.clientTokens.splice(clientToken, 1);
         }
 
-        console.debug(clientTokens);
-
         clientToken = jwt.sign(
           {
             p: crypto.randomBytes(128).toString("base64"),
@@ -159,9 +157,9 @@ export default function initRoute(router: Router): void {
           (data) => data.accountId === accountId
         );
 
-        if (Client) {
-          Client.socket?.socket.close();
-        }
+        // if (Client) {
+        //   Client.socket?.socket.close();
+        // }
       }
 
       Globals.AccessTokens.push({

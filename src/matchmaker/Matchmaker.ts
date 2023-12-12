@@ -8,7 +8,7 @@ import Waiting from "./root/Waiting";
 import Queued from "./root/Queued";
 import SessionAssignment from "./root/SessionAssignment";
 import Join from "./root/Join";
-import { Globals } from "../xmpp/helpers/XmppTypes";
+import { Globals } from "../xmpp/types/XmppTypes";
 
 function generateUuidAsync(): Promise<string> {
   return new Promise((resolve, reject) => {

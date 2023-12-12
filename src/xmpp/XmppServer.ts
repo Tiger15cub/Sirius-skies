@@ -1,22 +1,15 @@
-import { Server as WebSocketServer, WebSocket } from "ws";
+import { Server } from "ws";
 import { getEnv } from "../utils";
-import log from "../utils/log";
-import { handleConnection } from "./handlers";
+import { Connection } from "./Connection";
 
-export default class XmppServer {
-  private wss: WebSocketServer;
+const PORT = getEnv<number>("XMPP_PORT") || 5433;
 
-  constructor() {
-    const port = getEnv<number>("XMPP_PORT") || 5433;
-    this.wss = new WebSocketServer({ port }, () =>
-      log.log(
-        `Xmpp Listening on ws://127.0.0.1:${port}`,
-        "XmppServer",
-        "cyanBright"
-      )
-    );
-    this.wss.on("connection", (ws) => handleConnection(ws));
+function init(): void {
+  const WebSocket = new Server({ port: PORT });
 
-    this.wss.on("error", (ws) => {});
-  }
+  WebSocket.on("connection", async (socket) => {
+    Connection(socket);
+  });
 }
+
+export { init };

@@ -2,7 +2,7 @@ import { EmbedBuilder } from "discord.js";
 import Users from "../../models/Users";
 import bcrypt from "bcrypt";
 import log from "../../utils/log";
-import { Globals } from "../../xmpp/helpers/XmppTypes";
+import { Globals } from "../../xmpp/types/XmppTypes";
 import { getEnv } from "../../utils";
 
 export default async function execute(interaction: any) {
