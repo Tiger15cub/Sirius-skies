@@ -19,6 +19,7 @@ interface Prices {
     epic: number;
     icon: number;
     dark: number;
+    frozen: number;
   };
   gliders: {
     uncommon: number;
@@ -27,6 +28,8 @@ interface Prices {
     legendary: number;
     icon: number;
     dc: number;
+    dark: number;
+    frozen: number;
   };
   wraps: {
     uncommon: number;
@@ -64,6 +67,7 @@ const Prices: Prices = {
     epic: 1200,
     icon: 500,
     dark: 1200,
+    frozen: 1000,
   },
   gliders: {
     uncommon: 500,
@@ -72,6 +76,8 @@ const Prices: Prices = {
     legendary: 1500,
     icon: 500,
     dc: 1200,
+    dark: 500,
+    frozen: 1000,
   },
   wraps: {
     uncommon: 300,

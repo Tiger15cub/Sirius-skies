@@ -119,8 +119,10 @@ export default class Shop {
         [key: string]: number;
       };
 
-      if (categoryPrices) {
+      if (categoryPrices && categoryPrices[randomShopItem.rarity]) {
         itemPrice = categoryPrices[randomShopItem.rarity].toString();
+      } else {
+        throw new Error("Invalid category or rarity");
       }
     } catch (error) {
       log.error(`Error getting item price: ${error}`, "GenerateShopItem");

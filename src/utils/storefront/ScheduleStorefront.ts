@@ -2,6 +2,7 @@ import { DateTime } from "luxon";
 import log from "../log";
 import Shop from "./generator/Shop";
 import { SavedData } from "./types/ShopTypes";
+import { SendWebhook } from "../discord/SendWebhook";
 
 export default async function Schedule(maxAttempts?: number): Promise<void> {
   let attempts = 0;
@@ -17,11 +18,7 @@ export default async function Schedule(maxAttempts?: number): Promise<void> {
       hasLoggedSchedulingMessage = true;
     }
 
-    if (
-      currentDateTime.hour === 17 &&
-      currentDateTime.minute === 59 &&
-      currentDateTime.second >= 59
-    ) {
+    if (currentDateTime) {
       const savedData: SavedData = {
         weekly: [],
         weeklyFields: [],
@@ -31,6 +28,8 @@ export default async function Schedule(maxAttempts?: number): Promise<void> {
 
       await new Promise((resolve) => setTimeout(resolve, 10000));
       await Shop.Initialize(savedData);
+
+      SendWebhook(savedData);
 
       break;
     } else {
