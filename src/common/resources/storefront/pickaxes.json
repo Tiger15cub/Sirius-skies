@@ -1,0 +1,16 @@
+[
+  {
+    "item": "AthenaPickaxe:BoltonPickaxe",
+    "name": "Close Shave",
+    "description": "A stylish pickaxe with bolt on tips.",
+    "items": [],
+    "rarity": "rare"
+  },
+  {
+    "item": "AthenaPickaxe:HappyPickaxe",
+    "name": "Lucky",
+    "description": "A sturdy pickaxe with a great attitude.",
+    "items": [],
+    "rarity": "uncommon"
+  }
+]

@@ -1,0 +1,23 @@
+[
+  {
+    "item": "AthenaDance:EID_AirHorn",
+    "name": "Air Horn",
+    "description": "Subtle.",
+    "items": [],
+    "rarity": "uncommon"
+  },
+  {
+    "item": "AthenaDance:EID_Accolades",
+    "name": "Accolades",
+    "description": "Soak it all in.",
+    "items": [],
+    "rarity": "rare"
+  },
+  {
+    "item": "AthenaDance:EID_BlackMondayMale2",
+    "name": "Martial Arts Master",
+    "description": "Master the art of battle.",
+    "items": [],
+    "rarity": "dc"
+  }
+]

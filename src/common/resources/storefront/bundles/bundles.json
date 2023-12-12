@@ -1,0 +1,114 @@
+[
+  {
+    "BRDailyStorefront": [],
+    "BRWeeklyStorefront": [
+      {
+        "item": "AthenaCharacter:CID_132_Athena_Commando_M_Venus",
+        "name": "Flytrap",
+        "description": "Deviously inescapable.",
+        "items": [
+          {
+            "item": "AthenaBackpack:BID_601_Venus",
+            "name": "Flytrapper"
+          }
+        ],
+        "categories": [],
+        "rarity": "legendary"
+      },
+      {
+        "item": "AthenaPickaxe:Pickaxe_ID_056_Venus",
+        "name": "Tendril",
+        "description": "Rooted in fierce competition.",
+        "items": [],
+        "categories": ["Panel 1"],
+        "rarity": "rare"
+      },
+      {
+        "item": "AthenaGlider:Glider_ID_039_Venus",
+        "name": "Venus Flyer",
+        "description": "Pretty fly.",
+        "items": [],
+        "categories": ["Panel 1"],
+        "rarity": "epic"
+      }
+    ]
+  },
+  {
+    "BRDailyStorefront": [],
+    "BRWeeklyStorefront": [
+      {
+        "item": "AthenaCharacter:CID_426_Athena_Commando_F_DemonHunter",
+        "name": "Callisto",
+        "description": "Demons, creeps, and monsters beware.",
+        "items": [
+          {
+            "item": "AthenaBackpack:BID_280_DemonHunterFemale",
+            "name": "Hexxed"
+          }
+        ],
+        "categories": [],
+        "rarity": "rare"
+      },
+      {
+        "item": "AthenaCharacter:CID_427_Athena_Commando_M_DemonHunter",
+        "name": "Asmodeus",
+        "description": "Stare down your enemies.",
+        "items": [
+          {
+            "item": "AthenaBackpack:BID_281_DemonHunterMale",
+            "name": "Ocular"
+          }
+        ],
+        "categories": [],
+        "rarity": "rare"
+      },
+      {
+        "item": "AthenaPickaxe:Pickaxe_ID_216_DemonHunter1H",
+        "name": "Foul Play",
+        "description": "Nailed it!",
+        "items": [],
+        "categories": ["Panel 1"],
+        "rarity": "rare"
+      },
+      {
+        "item": "AthenaGlider:Glider_ID_152_DemonHunter",
+        "name": "Batso",
+        "description": "Be afraid, be slightly afraid!",
+        "items": [],
+        "categories": ["Panel 1"],
+        "rarity": "rare"
+      }
+    ]
+  },
+  {
+    "BRDailyStorefront": [],
+    "BRWeeklyStorefront": [
+      {
+        "item": "AthenaCharacter:CID_362_Athena_Commando_F_BandageNinja",
+        "name": "Kuno",
+        "description": "Master the art of deception.",
+        "items": [
+          {
+            "item": "AthenaBackpack:BID_226_BandageNinjaFemale",
+            "name": "Dual Kama"
+          }
+        ],
+        "categories": ["Panel 1"],
+        "rarity": "epic"
+      },
+      {
+        "item": "AthenaCharacter:CID_361_Athena_Commando_M_BandageNinja",
+        "name": "Kenji",
+        "description": "Strike from the shadows.",
+        "items": [
+          {
+            "item": "AthenaBackpack:BID_225_BandageNinjaMale",
+            "name": "Katana & Kunai"
+          }
+        ],
+        "categories": ["Panel 1"],
+        "rarity": "epic"
+      }
+    ]
+  }
+]

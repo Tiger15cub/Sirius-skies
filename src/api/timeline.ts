@@ -1,10 +1,27 @@
 import { Router } from "express";
 import { getSeason } from "../utils";
 import { ActiveEvents } from "../interface";
+import fs from "node:fs";
+import path from "node:path";
+import { DateTime } from "luxon";
 
 export default function initRoute(router: Router): void {
   router.get("/fortnite/api/calendar/v1/timeline", (req, res) => {
     const userAgent = req.headers["user-agent"];
+
+    const Data = JSON.parse(
+      fs.readFileSync(
+        path.join(
+          __dirname,
+          "..",
+          "common",
+          "resources",
+          "storefront",
+          "shop.json"
+        ),
+        "utf-8"
+      )
+    );
 
     let season = getSeason(userAgent);
 
@@ -54,11 +71,13 @@ export default function initRoute(router: Router): void {
       ];
     }
 
+    let a: string = "";
+
     res.json({
       channels: {
         "client-matchmaking": {
           states: [],
-          cacheExpire: "9999-01-01T00:00:00.000Z",
+          cacheExpire: Data.expiration.toString(),
         },
         "client-events": {
           states: [
@@ -74,29 +93,19 @@ export default function initRoute(router: Router): void {
                 seasonBegin: "2020-01-01T00:00:00Z",
                 seasonEnd: "9999-01-01T00:00:00Z",
                 seasonDisplayedEnd: "9999-01-01T00:00:00Z",
-                weeklyStoreEnd: new Date(
-                  now.getTime() + timeUntilReset
-                ).toISOString(),
+                weeklyStoreEnd: Data.expiration.toString(),
                 stwEventStoreEnd: "9999-01-01T00:00:00.000Z",
                 stwWeeklyStoreEnd: "9999-01-01T00:00:00.000Z",
-                sectionStoreEnds: {
-                  Featured: new Date(
-                    now.getTime() + timeUntilReset
-                  ).toISOString(),
-                  Daily: new Date(now.getTime() + timeUntilReset).toISOString(),
-                },
-                dailyStoreEnd: new Date(
-                  now.getTime() + timeUntilReset
-                ).toISOString(),
+                dailyStoreEnd: Data.expiration.toString(),
               },
             },
           ],
-          cacheExpire: new Date(now.getTime() + timeUntilReset).toISOString(),
+          cacheExpire: Data.expiration.toString(),
         },
       },
       eventsTimeOffsetHrs: 0,
       cacheIntervalMins: 10,
-      currentTime: new Date().toISOString(),
+      currentTime: DateTime.utc().toISO(),
     });
   });
 }

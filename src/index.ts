@@ -7,6 +7,8 @@ import log from "./utils/log";
 import XmppServer from "./xmpp/XmppServer";
 import cookieParser from "cookie-parser";
 import Matchmaker from "./matchmaker/Matchmaker";
+import Schedule from "./utils/storefront/ScheduleStorefront";
+import { DateTime } from "luxon";
 
 const app = express();
 
@@ -58,6 +60,8 @@ const PORT = getEnv("PORT") || 5555;
     app.listen(PORT, () => {
       log.log(`Listening on http://127.0.0.1:${PORT}`, "Server", "blueBright");
     });
+
+    await Schedule();
   } catch (error) {
     let err = error as Error;
     console.error(`Error initializing routes: ${err.message}`);

@@ -1,0 +1,44 @@
+[
+  {
+    "item": "AthenaGlider:Glider_ID_006_WinterCamo",
+    "name": "Snow Squall",
+    "description": "Unleash winter's icy wrath.",
+    "items": [],
+    "rarity": "uncommon"
+  },
+  {
+    "item": "AthenaGlider:Glider_ID_010_Storm",
+    "name": "Cloud Strike",
+    "description": "Forecasting storms all week.",
+    "items": [],
+    "rarity": "epic"
+  },
+  {
+    "item": "AthenaGlider:Glider_ID_011_JollyRoger",
+    "name": "Jolly Roger",
+    "description": "Avast!",
+    "items": [],
+    "rarity": "uncommon"
+  },
+  {
+    "item": "AthenaGlider:Glider_ID_012_TeddyBear",
+    "name": "Bear Force One",
+    "description": "It's so fluffy!",
+    "items": [],
+    "rarity": "epic"
+  },
+  {
+    "item": "AthenaGlider:Glider_ID_013_PSBlue",
+    "name": "Blue Streak",
+    "description": "Like a bolt from the blue!",
+    "items": [],
+    "rarity": "rare"
+  },
+  {
+    "item": "AthenaGlider:Glider_ID_014_Dragon",
+    "name": "Royale Dragon",
+    "description": "Ride the dragon!",
+    "items": [],
+    "rarity": "legendary"
+  }
+]
