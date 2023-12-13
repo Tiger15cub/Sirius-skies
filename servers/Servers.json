@@ -10,5 +10,44 @@
     "serverAddress": "127.0.0.1",
     "serverPort": "7777",
     "region": "NAE"
+  },
+
+  {
+    "playlist": "Playlist_DefaultDuo",
+    "serverAddress": "127.0.0.1",
+    "serverPort": "8888",
+    "region": "EU"
+  },
+  {
+    "playlist": "Playlist_DefaultDuo",
+    "serverAddress": "127.0.0.1",
+    "serverPort": "7777",
+    "region": "NAE"
+  },
+
+  {
+    "playlist": "Playlist_Trios",
+    "serverAddress": "127.0.0.1",
+    "serverPort": "8888",
+    "region": "EU"
+  },
+  {
+    "playlist": "Playlist_Trios",
+    "serverAddress": "127.0.0.1",
+    "serverPort": "7777",
+    "region": "NAE"
+  },
+
+  {
+    "playlist": "Playlist_DefaultSquad",
+    "serverAddress": "127.0.0.1",
+    "serverPort": "8888",
+    "region": "EU"
+  },
+  {
+    "playlist": "Playlist_DefaultSquad",
+    "serverAddress": "127.0.0.1",
+    "serverPort": "7777",
+    "region": "NAE"
   }
 ]

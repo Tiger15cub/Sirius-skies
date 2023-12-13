@@ -1,9 +1,9 @@
 import fs from "node:fs";
-import log from "../../utils/log";
-import { AthenaData, SeasonData } from "../../interface";
-import Accounts from "../../models/Accounts";
+import log from "../../../../utils/log";
+import { AthenaData, SeasonData } from "../../../../interface";
+import Accounts from "../../../../models/Accounts";
 
-export default async function ProfileAthena(
+export default async function Athena(
   User: any,
   Account: any,
   accountId: string,
@@ -278,13 +278,13 @@ export default async function ProfileAthena(
     fs.writeFileSync(`${__dirname}/athena.json`, JSON.stringify(AthenaData));
 
     if (user.hasFL) {
-      const athena = require("../resources/mcp/AllCosmetics.json");
+      const athena = require("../../../resources/mcp/AllCosmetics.json");
       AthenaData.profileChanges[0].profile.items = {
         ...AthenaData.profileChanges[0].profile.items,
         ...athena,
       };
     } else {
-      const athena = require("../resources/mcp/Athena.json");
+      const athena = require("../../../resources/mcp/Athena.json");
       let isEnabled: boolean = false;
 
       AthenaData.profileChanges[0].profile.items = {
@@ -308,7 +308,7 @@ export default async function ProfileAthena(
       }
 
       if (client) {
-        const defaultAthena = require("../resources/mcp/DefaultAthena.json");
+        const defaultAthena = require("../../../resources/mcp/DefaultAthena.json");
 
         AthenaData.profileChanges[0].profile.items = {
           ...AthenaData.profileChanges[0].profile.items,

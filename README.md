@@ -1,5 +1,7 @@
 # Sirius
 
+![Sirius Banner](assets/SiriusBanner.png)
+
 ## Getting Started
 
 To get started with `Sirius`, follow these steps:
@@ -38,12 +40,3 @@ To get started with `Sirius`, follow these steps:
    ```bash
    node .
    ```
-
-### Known Bugs
-
-- failing to logging in (11.31).
-- query profile error (11.31)
-- getting logged at select game mode (11.31)
-- cloudstorage not working at times (11.31)
-- XMPP not connecting at times
-- Not auto logging you in after first login.

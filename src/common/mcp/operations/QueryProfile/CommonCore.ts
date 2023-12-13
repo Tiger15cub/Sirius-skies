@@ -1,7 +1,7 @@
 import fs from "node:fs";
-import log from "../../utils/log";
-import { CommonCoreData, CommonCoreProfile } from "../../interface";
-import { getDefaultCommonCoreData, mapPurchasesData } from "../../utils";
+import log from "../../../../utils/log";
+import { CommonCoreData, CommonCoreProfile } from "../../../../interface";
+import { getDefaultCommonCoreData, mapPurchasesData } from "../../../../utils";
 
 export default async function ProfileCommonCore(
   Account: any,
@@ -91,7 +91,7 @@ export default async function ProfileCommonCore(
       responseVersion: 1,
     };
 
-    const commonCore = require("../resources/mcp/Common_Core.json");
+    const commonCore = require("../../../resources/mcp/Common_Core.json");
     commonCoreData.profileChanges[0].profile.items = {
       ...commonCoreData.profileChanges[0].profile.items,
       ...commonCore,
