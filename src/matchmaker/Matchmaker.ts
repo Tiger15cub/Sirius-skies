@@ -8,23 +8,10 @@ import Waiting from "./root/Waiting";
 import Queued from "./root/Queued";
 import SessionAssignment from "./root/SessionAssignment";
 import Join from "./root/Join";
-import { Globals } from "../xmpp/types/XmppTypes";
-
-function generateUuidAsync(): Promise<string> {
-  return new Promise((resolve, reject) => {
-    try {
-      const newUuid = uuid();
-      resolve(newUuid);
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
 
 export default class Matchmaker {
   private clients: number = 0;
   private socket: Server;
-  private uuidPromises: [Promise<string>, Promise<string>, Promise<string>];
 
   private ticketId: string;
   private matchId: string;
@@ -42,12 +29,6 @@ export default class Matchmaker {
     const server = this.express.listen(getEnv("MATCHMAKER_PORT"));
     this.socket = new Server({ noServer: true });
 
-    this.uuidPromises = [
-      generateUuidAsync(),
-      generateUuidAsync(),
-      generateUuidAsync(),
-    ];
-
     server.on("upgrade", (request, socket, head) => {
       this.socket.handleUpgrade(request, socket, head, (ws) => {
         this.socket.emit("connection", ws, request);
@@ -56,28 +37,18 @@ export default class Matchmaker {
   }
 
   start() {
-    Promise.all(this.uuidPromises)
-      .then(([ticketId, matchId, sessionId]) => {
-        this.ticketId = ticketId;
-        this.matchId = matchId;
-        this.sessionId = sessionId;
+    this.setup();
+    log.log(
+      `Matchmaker listening on ws://127.0.0.1:${getEnv("MATCHMAKER_PORT")}`,
+      "Matchmaker",
+      "blueBright"
+    );
 
-        this.setup();
-        log.log(
-          `Matchmaker listening on ws://127.0.0.1:${getEnv("MATCHMAKER_PORT")}`,
-          "Matchmaker",
-          "blueBright"
-        );
-
-        this.express.get("/clients", (req, res) => {
-          res.json({
-            clients: this.clients,
-          });
-        });
-      })
-      .catch((error) =>
-        log.error(`Error initializing server: ${error}`, "Matchmaker")
-      );
+    this.express.get("/clients", (req, res) => {
+      res.json({
+        clients: this.clients,
+      });
+    });
   }
 
   private setup() {
