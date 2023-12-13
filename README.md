@@ -1,4 +1,8 @@
-![Sirius Banner](assets/SiriusBanner.png)
+<div style="text-align:center;">
+  <img src="assets/SiriusBanner.png" alt="Sirius Banner" style="display:block; margin:auto;">
+</div>
+  
+</div>
 
 # Sirius
 
