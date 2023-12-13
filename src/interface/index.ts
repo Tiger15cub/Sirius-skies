@@ -18,3 +18,4 @@ export * from "./Item";
 export * from "./Storefront";
 export * from "./CreativeDiscoverySurface";
 export * from "./Discovery";
+export * from "./VivoxTokenClaims";
