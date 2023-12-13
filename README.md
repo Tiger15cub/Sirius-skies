@@ -1,6 +1,8 @@
+![Sirius Banner](assets/SiriusBanner.png)
+
 # Sirius
 
-![Sirius Banner](assets/SiriusBanner.png)
+Sirius is a universal Fortnite private server backend written in TypeScript.
 
 ## Getting Started
 
