@@ -1,4 +1,5 @@
 import { v4 as uuid } from "uuid";
+import WebSocket from "ws";
 
 export interface AccessToken {
   accountId: string;
@@ -8,7 +9,13 @@ export interface AccessToken {
 export interface XmppClients extends AccessToken {
   accountId: string;
   displayName?: string;
+  jid?: string;
   token: string;
+  lastPresenceUpdate?: {
+    away: boolean;
+    status: {};
+  };
+  socket: WebSocket;
 }
 
 export interface MUCs {
@@ -19,6 +26,7 @@ export let UUID: string = uuid();
 export let accountId: string = "";
 export let isAuthenticated: boolean = false;
 export let token: string = "";
+export let jid: string = "";
 
 export interface Globals {
   exchangeCodes: Record<string, any>;
@@ -33,6 +41,7 @@ export interface Globals {
   isAuthenticated: boolean;
   accountId: string;
   token: string;
+  jid: string;
 }
 
 export let exchangeCodes: Globals["exchangeCodes"] = {};
@@ -57,4 +66,5 @@ export const Globals: Globals = {
   isAuthenticated,
   accountId,
   token,
+  jid,
 };
