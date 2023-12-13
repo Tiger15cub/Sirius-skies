@@ -21,15 +21,19 @@ async function findPlaylist(
   return null;
 }
 
+interface PlaylistImages {
+  [mnemonic: string]: string;
+}
+
 function updatePlaylistImage(
   result: Result,
-  playlistImages: Record<string, string>
+  playlistImages: PlaylistImages
 ): string | null {
-  const { mnemonic } = result.linkData;
-  let { image_url } = result.linkData.metadata;
+  const { mnemonic, metadata } = result.linkData;
+  const { image_url } = metadata;
 
-  if (!image_url || image_url !== playlistImages[mnemonic]) {
-    result.linkData.metadata.image_url = playlistImages[mnemonic];
+  if (image_url !== playlistImages[mnemonic]) {
+    metadata.image_url = playlistImages[mnemonic];
     return result.linkCode;
   }
 
