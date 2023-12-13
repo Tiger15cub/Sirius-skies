@@ -16,3 +16,5 @@ export * from "./Item";
 // export * from "./PriceConfig";
 // export * from "./CatalogEntry";
 export * from "./Storefront";
+export * from "./CreativeDiscoverySurface";
+export * from "./Discovery";

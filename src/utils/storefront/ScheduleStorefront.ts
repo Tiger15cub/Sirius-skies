@@ -7,6 +7,7 @@ import { SendWebhook } from "../discord/SendWebhook";
 export default async function Schedule(maxAttempts?: number): Promise<void> {
   let attempts = 0;
   let hasLoggedSchedulingMessage = false;
+  let hasLoggedCannotGenerateMessage = false;
 
   const currentDateTime = DateTime.local().setZone("GMT");
 
@@ -37,10 +38,13 @@ export default async function Schedule(maxAttempts?: number): Promise<void> {
 
       break;
     } else {
-      log.error(
-        "Cannot generate shop at this time. Stopping scheduling.",
-        "Schedule"
-      );
+      if (!hasLoggedCannotGenerateMessage) {
+        log.error(
+          "Cannot generate shop at this time. Stopping scheduling.",
+          "Schedule"
+        );
+        hasLoggedCannotGenerateMessage = true;
+      }
     }
 
     attempts++;

@@ -1,0 +1,108 @@
+{
+  "Panels": [
+    {
+      "PanelName": "ByEpicWoven",
+      "Pages": [
+        {
+          "results": [
+            {
+              "linkData": {
+                "namespace": "fn",
+                "mnemonic": "playlist_defaultsolo",
+                "linkType": "BR:Playlist",
+                "active": true,
+                "disabled": false,
+                "version": 95,
+                "moderationStatus": "Unmoderated",
+                "accountId": "epic",
+                "creatorName": "Epic",
+                "descriptionTags": [],
+                "metadata": {
+                  "image_url": "https://fortnite-api.com/images/playlists/playlist_defaultsolo/showcase.png",
+                  "matchmaking": {
+                    "override_playlist": "playlist_defaultsolo"
+                  }
+                }
+              },
+              "lastVisited": null,
+              "linkCode": "playlist_defaultsolo",
+              "isFavorite": false
+            },
+            {
+              "linkData": {
+                "namespace": "fn",
+                "mnemonic": "playlist_defaultduo",
+                "linkType": "BR:Playlist",
+                "active": true,
+                "disabled": false,
+                "version": 95,
+                "moderationStatus": "Unmoderated",
+                "accountId": "epic",
+                "creatorName": "Epic",
+                "descriptionTags": [],
+                "metadata": {
+                  "image_url": "https://fortnite-api.com/images/playlists/playlist_defaultduo/showcase.png",
+                  "matchmaking": {
+                    "override_playlist": "playlist_defaultduo"
+                  }
+                }
+              },
+              "lastVisited": null,
+              "linkCode": "playlist_defaultduo",
+              "isFavorite": false
+            },
+            {
+              "linkData": {
+                "namespace": "fn",
+                "mnemonic": "playlist_trios",
+                "linkType": "BR:Playlist",
+                "active": true,
+                "disabled": false,
+                "version": 95,
+                "moderationStatus": "Unmoderated",
+                "accountId": "epic",
+                "creatorName": "Epic",
+                "descriptionTags": [],
+                "metadata": {
+                  "image_url": "https://fortnite-api.com/images/playlists/playlist_trios/showcase.png",
+                  "matchmaking": {
+                    "override_playlist": "playlist_trios"
+                  }
+                }
+              },
+              "lastVisited": null,
+              "linkCode": "playlist_trios",
+              "isFavorite": false
+            },
+            {
+              "linkData": {
+                "namespace": "fn",
+                "mnemonic": "playlist_defaultsquad",
+                "linkType": "BR:Playlist",
+                "active": true,
+                "disabled": false,
+                "version": 95,
+                "moderationStatus": "Unmoderated",
+                "accountId": "epic",
+                "creatorName": "Epic",
+                "descriptionTags": [],
+                "metadata": {
+                  "image_url": "https://fortnite-api.com/images/playlists/playlist_defaultsquad/showcase.png",
+                  "matchmaking": {
+                    "override_playlist": "playlist_defaultsquad"
+                  }
+                }
+              },
+              "lastVisited": null,
+              "linkCode": "playlist_defaultsquad",
+              "isFavorite": false
+            }
+          ],
+          "hasMore": false
+        }
+      ]
+    }
+  ],
+  "TestCohorts": ["Sirius"],
+  "ModeSets": {}
+}

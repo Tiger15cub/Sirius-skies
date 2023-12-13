@@ -1,11 +1,17 @@
 import { Router } from "express";
 import { getSeason } from "../utils";
 import log from "../utils/log";
+import axios from "axios";
 
 export default function initRoute(router: Router): void {
-  router.get("/content/api/pages/fortnite-game", (req, res) => {
+  router.get("/content/api/pages/fortnite-game", async (req, res) => {
     const userAgent = req.headers["user-agent"];
     const season = getSeason(userAgent);
+    const content = await axios.get(
+      "https://fortnitecontent-website-prod.ak.epicgames.com/content/api/pages/fortnite-game"
+    );
+
+    const { data } = content;
 
     if (!season) {
       return 2;
@@ -63,6 +69,7 @@ export default function initRoute(router: Router): void {
       _activeDate: new Date().toISOString(),
       lastModified: new Date().toISOString(),
       _locale: "en-US",
+      subgameinfo: data.subgameinfo,
       battleroyalenews: {
         news: {
           motds: [
@@ -119,6 +126,64 @@ export default function initRoute(router: Router): void {
         _activeDate: new Date().toISOString(),
         lastModified: new Date().toISOString(),
         _locale: "en-US",
+      },
+      shopSections: {
+        sectionList: {
+          sections: [
+            {
+              bSortOffersByOwnership: false,
+              bShowIneligibleOffersIfGiftable: false,
+              bEnableToastNotification: true,
+              background: {
+                stage: `season${season.season}`,
+                _type: "DynamicBackground",
+                key: "vault",
+              },
+              _type: "ShopSection",
+              landingPriority: 0,
+              bHidden: false,
+              sectionId: "Featured",
+              bShowTimer: true,
+              sectionDisplayName: "Featured",
+              bShowIneligibleOffers: true,
+            },
+            {
+              bSortOffersByOwnership: false,
+              bShowIneligibleOffersIfGiftable: false,
+              bEnableToastNotification: true,
+              background: {
+                stage: `season${season.season}`,
+                _type: "DynamicBackground",
+                key: "vault",
+              },
+              _type: "ShopSection",
+              landingPriority: 1,
+              bHidden: false,
+              sectionId: "Daily",
+              bShowTimer: true,
+              sectionDisplayName: "Daily",
+              bShowIneligibleOffers: true,
+            },
+            {
+              bSortOffersByOwnership: false,
+              bShowIneligibleOffersIfGiftable: false,
+              bEnableToastNotification: false,
+              background: {
+                stage: `season${season.season}`,
+                _type: "DynamicBackground",
+                key: "vault",
+              },
+              _type: "ShopSection",
+              landingPriority: 2,
+              bHidden: false,
+              sectionId: "Battlepass",
+              bShowTimer: false,
+              sectionDisplayName: "Battle Pass",
+              bShowIneligibleOffers: false,
+            },
+          ],
+        },
+        lastModified: "9999-12-12T00:00:00.000Z",
       },
     });
   });
