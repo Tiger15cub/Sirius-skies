@@ -1,6 +1,6 @@
 import WebSocket from "ws";
 import Users from "../../models/Users";
-import { Globals } from "../types/XmppTypes";
+import { Globals, XmppClients } from "../types/XmppTypes";
 import xmlbuilder from "xmlbuilder";
 
 export async function getPresenceFromFriendId(
@@ -59,4 +59,38 @@ export async function getPresenceFromFriendId(
         .toString()
     );
   });
+}
+
+export async function GetPresenceFromId(
+  sender: string,
+  client: string,
+  offline: boolean
+) {
+  const clients: XmppClients | undefined = Globals.Clients.find(
+    (c) => c.accountId === client
+  );
+  const senderClient: XmppClients | undefined = Globals.Clients.find(
+    (s) => s.accountId === sender
+  );
+
+  const status: string = offline ? "unavailable" : "available";
+  const lastPresenceUpdate = senderClient?.lastPresenceUpdate;
+
+  const presenceXml = xmlbuilder
+    .create("presence")
+    .attribute("to", clients?.jid)
+    .attribute("xmlns", "jabber:client")
+    .attribute("from", senderClient?.jid)
+    .attribute("type", status);
+
+  if (lastPresenceUpdate) {
+    presenceXml.element("status", lastPresenceUpdate.status);
+
+    if (lastPresenceUpdate.away) {
+      presenceXml.element("show", "away");
+    }
+  }
+
+  clients?.socket.send(presenceXml.up().toString());
+  return clients?.socket.send(presenceXml.toString());
 }

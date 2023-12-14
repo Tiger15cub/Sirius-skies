@@ -10,6 +10,9 @@ import { parseMessageContent } from "./helpers/Parse";
 import Users from "../models/Users";
 import Accounts from "../models/Accounts";
 import { getPresenceFromFriendId } from "./helpers/GetPresence";
+import { SendMessageToClient } from "./helpers/SendMessage";
+import { GetPresenceFromId } from "./helpers/GetPresence";
+import { UpdatePresenceForFriend } from "./helpers/UpdatePresence";
 
 export function Connection(socket: WebSocket): void {
   socket.on("error", () => {});
@@ -215,9 +218,33 @@ export function Connection(socket: WebSocket): void {
             children.find((data) => data.name === "body")?.content as string
           )
         ) {
-          // TODO
+          SendMessageToClient(
+            Globals.jid,
+            children.find((data) => data.name === "content")?.content as string,
+            parsedMessage
+          );
         }
         break;
+
+      case "presence":
+        switch (attributes.type) {
+          case "unavailable":
+            break;
+
+          default:
+            await UpdatePresenceForFriend(
+              socket,
+              false,
+              children.find((data) => data.name === "status") ? true : false,
+              children.find((data) => data.name === "status")?.content as string
+            );
+            await GetPresenceFromId(
+              Globals.accountId,
+              Globals.accountId,
+              false
+            );
+            break;
+        }
     }
   });
 }
