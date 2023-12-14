@@ -58,10 +58,12 @@ export default function initRoute(router: Router) {
         );
 
         const BattlePassData = json(filePath);
+        const { name, catalogEntries } = BattlePassData;
 
-        for (const entry of BattlePassData) {
-          storefront.storefronts.push(entry);
-        }
+        storefront.storefronts.push({
+          name,
+          catalogEntries,
+        });
       }
 
       Object.keys(Data.catalogItems).forEach((storefrontName) => {

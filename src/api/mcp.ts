@@ -4,7 +4,6 @@ import Users from "../models/Users";
 import Accounts from "../models/Accounts";
 import ProfileAthena from "../common/mcp/operations/QueryProfile/Athena";
 import ProfileCommonCore from "../common/mcp/operations/QueryProfile/CommonCore";
-import { CommonCoreData } from "../interface";
 import SetCosmeticLockerSlot from "../common/mcp/operations/SetCosmeticLockerSlot/SetCosmeticLockerSlot";
 import EquipBattleRoyaleCustomization from "../common/mcp/operations/EquipBattleRoyaleCustomization/EquipBattleRoyaleCustomization";
 import log from "../utils/log";
@@ -34,29 +33,36 @@ export default function initRoute(router: Router): void {
         switch (command) {
           case "QueryProfile":
           case "SetHardcoreModifier":
-            if (profileId === "athena" || profileId === "profile0") {
-              return res
-                .status(204)
-                .json(
-                  await ProfileAthena(
-                    Users,
-                    Accounts,
-                    accountId,
-                    profileId,
-                    false,
-                    season?.season as number,
-                    rvn
-                  )
+            switch (profileId) {
+              case "athena":
+              case "profile0":
+                console.log("p0");
+                const athenaProfile = await ProfileAthena(
+                  Users,
+                  Accounts,
+                  accountId,
+                  profileId,
+                  false,
+                  season?.season as number,
+                  rvn
                 );
-            } else if (
-              profileId === "common_core" ||
-              profileId === "common_public"
-            ) {
-              return res
-                .status(204)
-                .json(await ProfileCommonCore(Accounts, accountId, profileId));
+                return res.json(athenaProfile);
+
+              case "common_core":
+              case "common_public":
+                console.log("cnp");
+                const commonCoreProfile = await ProfileCommonCore(
+                  Accounts,
+                  accountId,
+                  profileId
+                );
+                return res.json(commonCoreProfile);
+
+              default:
+                return res.json(
+                  createDefaultResponse([], profileId, (rvn as any) + 1)
+                );
             }
-            res.status(200).end();
             break;
 
           case "SetCosmeticLockerSlot":
@@ -77,11 +83,11 @@ export default function initRoute(router: Router): void {
             res
               .status(204)
               .json(
-                await SetCosmeticLockerSlot(
-                  category,
-                  itemToSlot,
+                await EquipBattleRoyaleCustomization(
+                  slotName,
                   accountId,
-                  slotIndex,
+                  itemToSlot,
+                  indexWithinSlot,
                   variantUpdates
                 )
               );
@@ -105,6 +111,9 @@ export default function initRoute(router: Router): void {
               .json(
                 await ClientQuestLogin(profileId as string, rvn as any, req)
               );
+            break;
+
+          case "SetMtxPlatform":
             break;
         }
       } catch (error) {
