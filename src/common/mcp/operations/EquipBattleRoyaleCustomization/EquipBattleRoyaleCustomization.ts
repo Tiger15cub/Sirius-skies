@@ -26,53 +26,40 @@ export default async function EquipBattleRoyaleCustomization(
     { ["profilerevision"]: account.profilerevision + 1 }
   );
 
-  switch (slotName) {
-    case "ItemWrap":
-    case "Dance":
-      console.debug(slotName);
-
-      if (itemToSlot === "") {
-        await Accounts.updateOne(
-          { accountId },
-          {
-            [`${slotName
-              .toString()
-              .toLowerCase()}.items.${indexWithinSlot}`]: ``,
-          }
-        );
-      } else {
-        await Accounts.updateOne(
-          { accountId },
-          {
-            [`${slotName
-              .toString()
-              .toLowerCase()}.items.${indexWithinSlot}`]: `${
-              itemToSlot.split(":")[0]
-            }:${itemToSlot.split(":")[1]}`,
-          }
-        );
-      }
-      break;
-
-    default:
-      if (itemToSlot === "") {
-        await Accounts.updateOne(
-          { accountId },
-          {
-            [`${slotName.toLowerCase()}.items`]: "",
-          }
-        );
-      } else {
-        await Accounts.updateOne(
-          { accountId },
-          {
-            [`${slotName.toLowerCase()}.items`]: `${
-              itemToSlot.split(":")[0]
-            }:${itemToSlot.split(":")[1].toLowerCase()}`,
-          }
-        );
-      }
-      break;
+  if (slotName == "ItemWrap" || slotName == "Dance") {
+    if (itemToSlot == "") {
+      await Accounts.updateOne(
+        { accountId },
+        {
+          [`${slotName.toString().toLowerCase()}.items.${indexWithinSlot}`]: ``,
+        }
+      );
+    } else {
+      await Accounts.updateOne(
+        { accountId },
+        {
+          [`${slotName.toString().toLowerCase()}.items.${indexWithinSlot}`]: `${
+            itemToSlot.split(":")[0]
+          }:${itemToSlot.split(":")[1]}`,
+        }
+      );
+    }
+  } else {
+    if (itemToSlot == "") {
+      await Accounts.updateOne(
+        { accountId },
+        { [`${slotName.toString().toLowerCase()}.items`]: `` }
+      );
+    } else {
+      await Accounts.updateOne(
+        { accountId },
+        {
+          [`${slotName.toString().toLowerCase()}.items`]: `${
+            itemToSlot.split(":")[0]
+          }:${itemToSlot.split(":")[1].toLowerCase()}`,
+        }
+      );
+    }
   }
 
   if (variantUpdates.length != 0) {
