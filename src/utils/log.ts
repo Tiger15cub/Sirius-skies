@@ -1,35 +1,64 @@
 import chalk, { Chalk } from "chalk";
 
+export function getMethodColor(method: string) {
+  switch (method.toUpperCase()) {
+    case "GET":
+      return chalk.greenBright;
+    case "POST":
+      return chalk.blueBright;
+    case "PUT":
+      return chalk.yellowBright;
+    case "DELETE":
+      return chalk.redBright;
+    default:
+      return chalk.whiteBright;
+  }
+}
+
+export function getStatusCodeColor(statusCode: number) {
+  if (statusCode >= 200 && statusCode < 300) {
+    return chalk.greenBright;
+  } else if (statusCode >= 400 && statusCode < 500) {
+    return chalk.yellowBright;
+  } else if (statusCode >= 500) {
+    return chalk.redBright;
+  } else {
+    return chalk.whiteBright;
+  }
+}
+
 export default {
-  /**
-   * Logs a message with specified formatting.
-   * @param message - The message to log.
-   * @param module - The name of the module or source of the log message.
-   * @param color - The color to use for the log message (e.g., "greenBright").
-   * @param args - Optional additional arguments to include in the log.
-   */
   log(message: string, module: string, color: keyof Chalk, args?: unknown[]) {
     return logMessage(message, module, color, args);
   },
 
-  /**
-   * Logs an error message with red formatting.
-   * @param message - The error message to log.
-   * @param module - The name of the module or source of the error message.
-   * @param args - Optional additional arguments to include in the error log.
-   */
   error(message: string, module: string, args?: unknown[]) {
     return logMessage(message, module, "redBright", args);
   },
 
-  /**
-   * Logs a warning message with yellow formatting.
-   * @param message - The warning message to log.
-   * @param module - The name of the module or source of the warning message.
-   * @param args - Optional additional arguments to include in the warning log.
-   */
   warn(message: string, module: string, args?: unknown[]) {
     return logMessage(message, module, "yellowBright", args);
+  },
+
+  info(message: string, module: string, args?: unknown[]) {
+    return logMessage(message, module, "blueBright", args);
+  },
+
+  success(message: string, module: string, args?: unknown[]) {
+    return logMessage(message, module, "greenBright", args);
+  },
+
+  debug(message: string, module: string, args?: unknown[]) {
+    return logMessage(message, module, "cyanBright", args);
+  },
+
+  custom(
+    message: string,
+    module: string,
+    color: keyof Chalk,
+    args?: unknown[]
+  ) {
+    return logMessage(message, module, color, args);
   },
 };
 

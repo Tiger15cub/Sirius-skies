@@ -3,7 +3,7 @@ import { getEnv } from "./utils";
 import { NotFound } from "./interface";
 import Route from "./handlers/Route";
 import Database from "./handlers/Database";
-import log from "./utils/log";
+import log, { getMethodColor, getStatusCodeColor } from "./utils/log";
 import { init } from "./xmpp/XmppServer";
 import cookieParser from "cookie-parser";
 import Matchmaker from "./matchmaker/Matchmaker";
@@ -47,6 +47,28 @@ const PORT = getEnv("PORT") || 5555;
       } as NotFound);
 
       res.status(404).send(text);
+
+      const startTime = process.hrtime();
+
+      res.on("finish", () => {
+        const endTime = process.hrtime(startTime);
+        const durationInMs = (endTime[0] * 1e9 + endTime[1]) / 1e6;
+
+        // Remove queries from the originalUrl
+        const urlWithoutQueries = req.originalUrl.split("?")[0];
+
+        const methodColor = getMethodColor(req.method);
+        const statusCodeColor = getStatusCodeColor(res.statusCode);
+
+        log.info(
+          `(${methodColor(req.method)}) (${statusCodeColor(
+            res.statusCode
+          )}) (${durationInMs.toFixed(3)}ms) ${urlWithoutQueries}`,
+          "Server"
+        );
+      });
+
+      next();
     });
 
     if (getEnv("isDiscordBotEnabled") === "true") {
