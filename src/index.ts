@@ -54,7 +54,7 @@ const PORT = getEnv("PORT") || 5555;
       import("./bot/bot");
     } else if (getEnv("isWebEnabled") === "true") {
     } else {
-      log.warn("DiscordBot or Web is not enabled.", "Server");
+      log.warn("DiscordBot or Website is not enabled.", "Server");
     }
     app.listen(PORT, () => {
       log.log(`Listening on http://127.0.0.1:${PORT}`, "Server", "blueBright");

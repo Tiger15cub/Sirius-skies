@@ -35,6 +35,8 @@ function updatePlaylistImage(
   if (image_url !== playlistImages[mnemonic]) {
     metadata.image_url = playlistImages[mnemonic];
     return result.linkCode;
+  } else {
+    log.warn(`Playlist image for ${mnemonic} is already updated.`, "Discovery");
   }
 
   return null;
@@ -90,40 +92,33 @@ export default async function initRoute(router: Router): Promise<void> {
       playlist_radish: "https://i.ibb.co/k3h33NC/Fracture.png",
     };
 
-    let updatedPlaylistId: string | null = null;
+    let updatedPlaylists: string[] = [];
 
     for (const panel of discovery.Panels) {
       for (const page of panel.Pages) {
         for (const result of page.results) {
-          updatedPlaylistId = updatePlaylistImage(result, playlistImages);
+          const updatedPlaylistId = updatePlaylistImage(result, playlistImages);
           if (updatedPlaylistId) {
-            break;
+            updatedPlaylists.push(updatedPlaylistId);
           }
         }
-        if (updatedPlaylistId) {
-          break;
-        }
-      }
-      if (updatedPlaylistId) {
-        break;
       }
     }
 
-    if (updatedPlaylistId) {
+    if (updatedPlaylists.length > 0) {
       fs.writeFileSync(discoveryPath, JSON.stringify(discovery, null, 2));
-      log.log(
-        `Updated Image for playlist: ${updatedPlaylistId}`,
-        "Discovery",
-        "green"
-      );
+      for (const updatedPlaylist of updatedPlaylists) {
+        log.log(`Updated Image for ${updatedPlaylist}`, "Discovery", "green");
+      }
     } else {
-      log.error(
-        `Playlist with the mnemonic ${updatedPlaylistId} was not found.`,
-        "Discovery"
-      );
+      log.error("No playlists were updated.", "Discovery");
     }
   } catch (error) {
-    log.error(`Error reading or parsing discovery file: ${error}`, "Discovery");
+    let err: Error = error as Error;
+    log.error(
+      `Error reading or parsing discovery file: ${err.message}`,
+      "Discovery"
+    );
     process.exit(1);
   }
 

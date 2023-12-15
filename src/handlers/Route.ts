@@ -28,7 +28,6 @@ export default {
               typeof RouteModule.default === "function"
             ) {
               RouteModule.default(app);
-              log.log(`Loaded Route ${file}.`, "RouteHandler", "greenBright");
             } else {
               log.error(
                 `${file} does not export a valid route initializer`,

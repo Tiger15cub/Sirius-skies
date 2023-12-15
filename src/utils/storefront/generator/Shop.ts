@@ -107,7 +107,7 @@ export default class Shop {
     fs.writeFileSync(FilePath, updatedContent);
 
     log.log(
-      `Generated item '${randomShopItem.name}'`,
+      `Generated item '${randomShopItem.name}' in shop`,
       "GenerateShopItem",
       "green"
     );
