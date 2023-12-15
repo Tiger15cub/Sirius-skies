@@ -4,6 +4,7 @@ import { ActiveEvents } from "../interface";
 import fs from "node:fs";
 import path from "node:path";
 import { DateTime } from "luxon";
+import getActiveEvents from "../utils/timeline/getActiveEvents";
 
 export default function initRoute(router: Router): void {
   router.get("/fortnite/api/calendar/v1/timeline", (req, res) => {
@@ -25,18 +26,9 @@ export default function initRoute(router: Router): void {
 
     let season = getSeason(userAgent);
 
-    const now = new Date();
-    const resetTime = new Date(now);
-    resetTime.setUTCHours(0, 0, 0, 0); // Reset at 00:00 UTC
-
     if (!season) {
       return 2;
     }
-
-    const timeUntilReset =
-      resetTime > now
-        ? resetTime.getTime() - now.getTime()
-        : 24 * 60 * 60 * 1000 - (now.getTime() - resetTime.getTime());
 
     let activeEvents: ActiveEvents[] = [
       {
@@ -46,32 +38,7 @@ export default function initRoute(router: Router): void {
       },
     ];
 
-    if (season.buildUpdate === "11.31" || season.buildUpdate === "11.40") {
-      activeEvents = [
-        {
-          eventType: `EventFlag.LobbySeason${season.season}`,
-          activeUntil: "9999-12-31T23:59:59.999Z",
-          activeSince: "2020-01-01T23:59:59.999Z",
-        },
-        {
-          eventType: "EventFlag.Winterfest.Tree",
-          activeUntil: "9999-01-01T00:00:00.000Z",
-          activeSince: "2020-01-01T23:59:59.999Z",
-        },
-        {
-          eventType: "EventFlag.LTE_WinterFest",
-          activeUntil: "9999-01-01T00:00:00.000Z",
-          activeSince: "2020-01-01T23:59:59.999Z",
-        },
-        {
-          eventType: "EventFlag.LTE_WinterFest2019",
-          activeUntil: "9999-01-01T00:00:00.000Z",
-          activeSince: "2020-01-01T23:59:59.999Z",
-        },
-      ];
-    }
-
-    let a: string = "";
+    getActiveEvents(season.buildUpdate, season.season, activeEvents);
 
     res.json({
       channels: {

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { getSeason } from "../utils";
 import log from "../utils/log";
 import axios from "axios";
+import getSeasonBackground from "../utils/content/getSeasonBackground";
 
 export default function initRoute(router: Router): void {
   router.get("/content/api/pages/fortnite-game", async (req, res) => {
@@ -30,37 +31,7 @@ export default function initRoute(router: Router): void {
       },
     ];
 
-    switch (season.buildUpdate) {
-      case "10":
-        backgrounds = [
-          {
-            stage: "seasonx",
-            _type: "DynamicBackground",
-            key: "lobby",
-          },
-          {
-            stage: "seasonx",
-            _type: "DynamicBackground",
-            key: "vault",
-          },
-        ];
-        break;
-      case "11.31":
-      case "11.40":
-        backgrounds = [
-          {
-            stage: "winter19",
-            _type: "DynamicBackground",
-            key: "lobby",
-          },
-          {
-            stage: "winter19",
-            _type: "DynamicBackground",
-            key: "vault",
-          },
-        ];
-        break;
-    }
+    getSeasonBackground(season.buildUpdate, backgrounds);
 
     res.json({
       "jcr:isCheckedOut": true,

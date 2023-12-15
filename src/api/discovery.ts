@@ -4,42 +4,11 @@ import fs from "node:fs";
 import { getSeason } from "../utils";
 import log from "../utils/log";
 import { Discovery, LinkData, Panel, Result } from "../interface";
+import updatePlaylistImage from "../utils/discovery/updatePlaylistImage";
+import { findPlaylist } from "../utils/discovery/findPlaylist";
 
-async function findPlaylist(
-  discovery: Discovery,
-  condition: (result: Result) => boolean
-): Promise<LinkData | null> {
-  for (const panel of discovery.Panels) {
-    for (const page of panel.Pages) {
-      for (const result of page.results) {
-        if (condition(result)) {
-          return result.linkData;
-        }
-      }
-    }
-  }
-  return null;
-}
-
-interface PlaylistImages {
+export interface PlaylistImages {
   [mnemonic: string]: string;
-}
-
-function updatePlaylistImage(
-  result: Result,
-  playlistImages: PlaylistImages
-): string | null {
-  const { mnemonic, metadata } = result.linkData;
-  const { image_url } = metadata;
-
-  if (image_url !== playlistImages[mnemonic]) {
-    metadata.image_url = playlistImages[mnemonic];
-    return result.linkCode;
-  } else {
-    log.warn(`Playlist image for ${mnemonic} is already updated.`, "Discovery");
-  }
-
-  return null;
 }
 
 export default async function initRoute(router: Router): Promise<void> {
