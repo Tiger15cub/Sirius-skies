@@ -30,6 +30,7 @@ interface Prices {
     dc: number;
     dark: number;
     frozen: number;
+    marvel: number;
   };
   wraps: {
     uncommon: number;
@@ -78,6 +79,7 @@ const Prices: Prices = {
     dc: 1200,
     dark: 500,
     frozen: 1000,
+    marvel: 1000, // temp price will change in the future
   },
   wraps: {
     uncommon: 300,

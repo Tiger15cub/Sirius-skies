@@ -13,9 +13,9 @@ const webhook = new WebhookClient({
 
 function createShopItemEmbed(title: string, items: ShopItem[]): EmbedBuilder {
   const embed = new EmbedBuilder()
-    .setTitle(title)
+    .setTitle(`**${title}**`)
     .setColor(0x00ffff)
-    .setThumbnail("https://i.ibb.co/bPRgX2K/Sirius-Banner.png");
+    .setImage("https://i.ibb.co/bPRgX2K/Sirius-Banner.png");
 
   items.forEach((item) => {
     const fields: ShopItemField[] = [
@@ -24,11 +24,13 @@ function createShopItemEmbed(title: string, items: ShopItem[]): EmbedBuilder {
       { name: "Rarity", value: item.rarity, inline: true },
     ];
 
+    const formattedFields = fields
+      .map((field) => `${field.name}: ${field.value}`)
+      .join("\n");
+
     embed.addFields({
-      name: `Item ID: ${item.item}`,
-      value: fields
-        .map((field) => `**${field.name}:** ${field.value}`)
-        .join("\n"),
+      name: `${item.item}`,
+      value: `\`\`\`md\n${formattedFields}\n\`\`\``,
       inline: false,
     });
   });
