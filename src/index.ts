@@ -8,6 +8,7 @@ import { init } from "./xmpp/XmppServer";
 import cookieParser from "cookie-parser";
 import Matchmaker from "./matchmaker/Matchmaker";
 import Schedule from "./utils/storefront/ScheduleStorefront";
+import path from "node:path";
 
 const app = express();
 
@@ -74,9 +75,8 @@ const PORT = getEnv("PORT") || 5555;
     if (getEnv("isDiscordBotEnabled") === "true") {
       import("./bot/deploy");
       import("./bot/bot");
-    } else if (getEnv("isWebEnabled") === "true") {
     } else {
-      log.warn("DiscordBot or Website is not enabled.", "Server");
+      log.warn("DiscordBot is not enabled.", "Server");
     }
     app.listen(PORT, () => {
       log.log(`Listening on http://127.0.0.1:${PORT}`, "Server", "blueBright");
