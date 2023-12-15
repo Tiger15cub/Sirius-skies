@@ -15,9 +15,7 @@ function createShopItemEmbed(title: string, items: ShopItem[]): EmbedBuilder {
   const embed = new EmbedBuilder()
     .setTitle(title)
     .setColor(0x00ffff)
-    .setThumbnail(
-      "https://assets1.ignimgs.com/2018/07/01/fortnitethumb81-1530409573252_160w.jpg"
-    );
+    .setThumbnail("https://i.ibb.co/bPRgX2K/Sirius-Banner.png");
 
   items.forEach((item) => {
     const fields: ShopItemField[] = [

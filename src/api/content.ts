@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { getSeason } from "../utils";
-import log from "../utils/log";
 import axios from "axios";
 import getSeasonBackground from "../utils/content/getSeasonBackground";
 
@@ -46,10 +45,8 @@ export default function initRoute(router: Router): void {
           motds: [
             {
               entryType: "Text",
-              image:
-                "https://eu-central.storage.cloudconvert.com/tasks/2aab3110-a464-4164-9dcc-615829791c10/F__ExBhXcAEjIvB.png",
-              titleImage:
-                "https://eu-central.storage.cloudconvert.com/tasks/2aab3110-a464-4164-9dcc-615829791c10/F__ExBhXcAEjIvB.png",
+              image: "https://i.ibb.co/bPRgX2K/Sirius-Banner.png",
+              titleImage: "https://i.ibb.co/bPRgX2K/Sirius-Banner.png",
               hidden: false,
               videoMute: false,
               tabTitleOverride: "Sirius",
