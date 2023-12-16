@@ -8,8 +8,23 @@ import cookieParser from "cookie-parser";
 import Matchmaker from "./matchmaker/Matchmaker";
 import Schedule from "./utils/storefront/ScheduleStorefront";
 import path from "node:path";
+import fs from "node:fs";
+import winston from "winston";
+
+const logsDirectory = path.join(process.env.LOCALAPPDATA as string, "Sirius");
+if (!fs.existsSync(logsDirectory)) fs.mkdirSync(logsDirectory);
 
 const app = express();
+
+winston.createLogger({
+  level: "info",
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({
+      filename: path.join(logsDirectory, "Sirius.log"),
+    }),
+  ],
+});
 
 const PORT = getEnv("PORT") || 5555;
 
