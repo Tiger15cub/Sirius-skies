@@ -304,11 +304,13 @@ export default class Shop {
       const generate = {
         expiration: date
           .set({ hour: 17, minute: 0, second: 0, millisecond: 0 })
-          .plus(Duration.fromObject({ days: 1 }))
+          .plus({ days: 1 })
+          .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
           .toISO(),
         cacheExpire: date
           .set({ hour: 16, minute: 57, second: 14, millisecond: 490 })
-          .plus(Duration.fromObject({ days: 1 }))
+          .plus({ days: 1 })
+          .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
           .toISO(),
         catalogItems: {
           BRWeeklyStorefront: savedData.weekly,

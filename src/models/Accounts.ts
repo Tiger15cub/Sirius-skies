@@ -215,7 +215,10 @@ const accountsSchema = new Schema<AccountsModel>({
       default: "DefaultColor1",
     },
   },
-  items: { type: Array, default: [] },
+  items: {
+    type: Array,
+    default: [],
+  },
   CommonCore: { type: Array, default: [] },
   vbucks: { type: Number, default: 0 },
   BattleStars: { type: Number, default: 100 },

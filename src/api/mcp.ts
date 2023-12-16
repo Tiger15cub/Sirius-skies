@@ -13,6 +13,55 @@ import ClientQuestLogin from "../common/mcp/operations/ClientQuestLogin/ClientQu
 
 export default function initRoute(router: Router): void {
   router.post(
+    [
+      "/fortnite/api/game/v2/profile/:accountId/*/EquipBattleRoyaleCustomization",
+      "/fortnite/api/game/v2/profile/:accountId/*/SetCosmeticLockerSlot",
+    ],
+    async (req, res) => {
+      try {
+        const { accountId } = req.params;
+        const {
+          profileId,
+          slotName,
+          itemToSlot,
+          indexWithinSlot,
+          category,
+          variantUpdates,
+          rvn,
+          slotIndex,
+        } = req.body;
+
+        if (req.body.slotName !== undefined) {
+          return res.json(
+            await EquipBattleRoyaleCustomization(
+              accountId,
+              slotName,
+              itemToSlot,
+              indexWithinSlot,
+              variantUpdates,
+              rvn
+            )
+          );
+        } else {
+          return res.json(
+            await SetCosmeticLockerSlot(
+              accountId,
+              category,
+              itemToSlot,
+              slotIndex,
+              rvn as any
+            )
+          );
+        }
+      } catch (error) {
+        let err = error as Error;
+        log.error(`Error updating profile: ${err.message}`, "MCP");
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    }
+  );
+
+  router.post(
     "/fortnite/api/game/v2/profile/:accountId/*/:command",
     async (req, res) => {
       const { accountId, command } = req.params;
@@ -36,7 +85,6 @@ export default function initRoute(router: Router): void {
             switch (profileId) {
               case "athena":
               case "profile0":
-                console.log("p0");
                 const athenaProfile = await ProfileAthena(
                   Users,
                   Accounts,
@@ -50,7 +98,6 @@ export default function initRoute(router: Router): void {
 
               case "common_core":
               case "common_public":
-                console.log("cnp");
                 const commonCoreProfile = await ProfileCommonCore(
                   Accounts,
                   accountId,
@@ -63,34 +110,6 @@ export default function initRoute(router: Router): void {
                   createDefaultResponse([], profileId, (rvn as any) + 1)
                 );
             }
-            break;
-
-          case "SetCosmeticLockerSlot":
-            res
-              .status(204)
-              .json(
-                await SetCosmeticLockerSlot(
-                  category,
-                  itemToSlot,
-                  accountId,
-                  slotIndex,
-                  variantUpdates
-                )
-              );
-            break;
-
-          case "EquipBattleRoyaleCustomization":
-            res
-              .status(204)
-              .json(
-                await EquipBattleRoyaleCustomization(
-                  slotName,
-                  accountId,
-                  itemToSlot,
-                  indexWithinSlot,
-                  variantUpdates
-                )
-              );
             break;
 
           case "ClaimMfaEnabled":
