@@ -4,7 +4,7 @@ import log from "../utils/log";
 import xmlbuilder from "xmlbuilder";
 import path from "node:path";
 import fs from "node:fs";
-import { Globals } from "./types/XmppTypes";
+import { Clients, Globals } from "./types/XmppTypes";
 import { SendFeatures } from "./helpers/Features";
 import { parseMessageContent } from "./helpers/Parse";
 import Users from "../models/Users";
@@ -33,6 +33,8 @@ export function Connection(socket: WebSocket): void {
 
     const { root } = parsedMessage;
     const { attributes, children } = root;
+
+    var test: any[] = [];
 
     switch (root.name) {
       case "open":
@@ -115,8 +117,9 @@ export function Connection(socket: WebSocket): void {
             const to =
               attributes.to ||
               `${Globals.accountId}@${config.Domain}/${
-                children.find((data) => data.name === "bind")?.children[0]
-                  .content
+                children
+                  .find((data) => data.name === "bind")
+                  ?.children.find((c) => c.name === "resource")?.content
               }`;
 
             Globals.jid = to;
@@ -229,9 +232,215 @@ export function Connection(socket: WebSocket): void {
       case "presence":
         switch (attributes.type) {
           case "unavailable":
+            const to = attributes.to.toLowerCase();
+
+            if (
+              to.endsWith(`@muc.${config.Domain}`) ||
+              to.split("/")[0].endsWith(`@muc.${config.Domain}`)
+            ) {
+              const roomName = to.split("@")[0];
+
+              if (!Globals.MUCs[roomName]) return;
+
+              const member = Globals.MUCs[roomName];
+              const Index = member.members.findIndex(
+                (muc: any) => muc.accountId === Globals.accountId
+              );
+
+              if (Index != -1) {
+                member.members.splice(Index, 1);
+
+                test.splice(test.indexOf(roomName), 1);
+              }
+
+              socket.send(
+                xmlbuilder
+                  .create("presence")
+                  .attribute("to", Globals.jid)
+                  .attribute(
+                    "from",
+                    `${roomName}@muc.${config.Domain}/${encodeURI(
+                      Globals.accountId
+                    )}:${Globals.accountId}:${
+                      children
+                        .find((data) => data.name === "bind")
+                        ?.children.find((c) => c.name === "resource")?.content
+                    }`
+                  )
+                  .attribute("xmlns", "jabber:client")
+                  .attribute("type", "unavailable")
+                  .element("x")
+                  .attribute("xmlns", "http://jabber.org/protocol/muc#user")
+                  .element("item")
+                  .attribute(
+                    "nick",
+                    `${roomName}@muc.${config.Domain}/${encodeURI(
+                      Globals.accountId
+                    )}:${Globals.accountId}:${
+                      children
+                        .find((data) => data.name === "bind")
+                        ?.children.find((c) => c.name === "resource")?.content
+                    }`.replace(`${roomName}@muc.${config.Domain}/`, "")
+                  )
+                  .attribute("jid", Globals.jid)
+                  .attribute("role", "none")
+                  .up()
+                  .element("status")
+                  .attribute("code", "110")
+                  .up()
+                  .element("status")
+                  .attribute("code", "100")
+                  .up()
+                  .element("status")
+                  .attribute("code", "170")
+                  .up()
+                  .up()
+                  .toString()
+              );
+              return;
+            }
             break;
 
           default:
+            if (
+              children.find((c) => c.name === "muc:x") ||
+              children.find((c) => c.name === "x")
+            ) {
+              const roomName = attributes.to.split("@")[0];
+
+              const member = Globals.MUCs[roomName];
+              member.push({ accountId: Globals.accountId });
+              test.push(roomName);
+
+              socket.send(
+                xmlbuilder
+                  .create("presence")
+                  .attribute("to", Globals.jid)
+                  .attribute(
+                    "from",
+                    `${roomName}@muc.${config.Domain}/${encodeURI(
+                      Globals.accountId
+                    )}:${Globals.accountId}:${
+                      children
+                        .find((data) => data.name === "bind")
+                        ?.children.find((c) => c.name === "resource")?.content
+                    }`
+                  )
+                  .attribute("xmlns", "jabber:client")
+                  .element("x")
+                  .attribute("xmlns", "http://jabber.org/protocol/muc#user")
+                  .element("item")
+                  .attribute(
+                    "nick",
+                    `${roomName}@muc.${config.Domain}/${encodeURI(
+                      Globals.accountId
+                    )}:${Globals.accountId}:${
+                      children
+                        .find((data) => data.name === "bind")
+                        ?.children.find((c) => c.name === "resource")?.content
+                    }`.replace(`${roomName}@muc.${config.Domain}/`, "")
+                  )
+                  .attribute("jid", Globals.jid)
+                  .attribute("role", "participant")
+                  .attribute("affiliation", "none")
+                  .up()
+                  .element("status")
+                  .attribute("code", "110")
+                  .up()
+                  .element("status")
+                  .attribute("code", "100")
+                  .up()
+                  .element("status")
+                  .attribute("code", "170")
+                  .up()
+                  .element("status")
+                  .attribute("code", "201")
+                  .up()
+                  .up()
+                  .toString()
+              );
+
+              member.members.forEach((mem: any) => {
+                const Client = Globals.Clients.find(
+                  (c) => c.accountId === mem.accountId
+                );
+
+                socket.send(
+                  xmlbuilder
+                    .create("presence")
+                    .attribute(
+                      "from",
+                      `${roomName}@muc.${config.Domain}/${encodeURI(
+                        Globals.accountId
+                      )}:${Globals.accountId}:${
+                        children
+                          .find((data) => data.name === "bind")
+                          ?.children.find((c) => c.name === "resource")?.content
+                      }`
+                    )
+                    .attribute("to", Client?.jid)
+                    .attribute("xmlns", "jabber:client")
+                    .element("x")
+                    .attribute("xmlns", "http://jabber.org/protocol/muc#user")
+                    .element("item")
+                    .attribute(
+                      "nick",
+                      `${roomName}@muc.${config.Domain}/${encodeURI(
+                        Globals.accountId
+                      )}:${Globals.accountId}:${
+                        children
+                          .find((data) => data.name === "bind")
+                          ?.children.find((c) => c.name === "resource")?.content
+                      }`.replace(`${roomName}@muc.${config.Domain}/`, "")
+                    )
+                    .attribute("jid", Globals.jid)
+                    .attribute("role", "participant")
+                    .attribute("affiliation", "none")
+                    .up()
+                    .up()
+                    .toString()
+                );
+
+                Client?.socket.send(
+                  xmlbuilder
+                    .create("presence")
+                    .attribute(
+                      "from",
+                      `${roomName}@muc.${config.Domain}/${encodeURI(
+                        Globals.accountId
+                      )}:${Globals.accountId}:${
+                        children
+                          .find((data) => data.name === "bind")
+                          ?.children.find((c) => c.name === "resource")?.content
+                      }`
+                    )
+                    .attribute("to", Client?.jid)
+                    .attribute("xmlns", "jabber:client")
+                    .element("x")
+                    .attribute("xmlns", "http://jabber.org/protocol/muc#user")
+                    .element("item")
+                    .attribute(
+                      "nick",
+                      `${roomName}@muc.${config.Domain}/${encodeURI(
+                        Globals.accountId
+                      )}:${Globals.accountId}:${
+                        children
+                          .find((data) => data.name === "bind")
+                          ?.children.find((c) => c.name === "resource")?.content
+                      }`.replace(`${roomName}@muc.${config.Domain}/`, "")
+                    )
+                    .attribute("jid", Globals.jid)
+                    .attribute("role", "participant")
+                    .attribute("affiliation", "none")
+                    .up()
+                    .up()
+                    .toString()
+                );
+              });
+
+              return;
+            }
+
             await UpdatePresenceForFriend(
               socket,
               false,
@@ -244,6 +453,26 @@ export function Connection(socket: WebSocket): void {
               false
             );
             break;
+        }
+
+        if (
+          Globals.accountId &&
+          Globals.token &&
+          Globals.jid &&
+          Globals.UUID &&
+          test &&
+          Globals.isAuthenticated
+        ) {
+          Globals.Clients.push({
+            socket,
+            accountId: Globals.accountId,
+            token: Globals.token,
+            jid: Globals.jid,
+            lastPresenceUpdate: {
+              away: false,
+              status: "{}",
+            },
+          });
         }
     }
   });
