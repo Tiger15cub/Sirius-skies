@@ -245,7 +245,7 @@ export default async function Athena(
                 level,
                 rested_xp: 2500,
                 rested_xp_mult: 4.4,
-                accountLevel: 69,
+                accountLevel: 1,
                 rested_xp_cumulative: 52500,
                 xp: XP,
                 season_friend_match_boost: 0,

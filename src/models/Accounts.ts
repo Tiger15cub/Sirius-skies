@@ -105,7 +105,12 @@ interface AccountsModel extends Document {
   accessToken: any;
   refreshToken: any;
   clientToken: any;
-  stats: Stats;
+  stats: {
+    solos: Stats;
+    duos: Stats;
+    squad: Stats;
+    ltm: Stats;
+  };
   Season: Season[] | any;
   profilerevision: number;
   baseRevision: number;
@@ -231,7 +236,64 @@ const accountsSchema = new Schema<AccountsModel>({
   accessToken: { type: Array, default: [] },
   refreshToken: { type: Array, default: [] },
   clientToken: { type: Array, default: [] },
-  stats: { type: Object, default: {} },
+  stats: {
+    solos: {
+      wins: {
+        type: Number,
+        default: 0,
+      },
+      kills: {
+        type: Number,
+        default: 0,
+      },
+      matchplayed: {
+        type: Number,
+        default: 0,
+      },
+    },
+    duos: {
+      wins: {
+        type: Number,
+        default: 0,
+      },
+      kills: {
+        type: Number,
+        default: 0,
+      },
+      matchplayed: {
+        type: Number,
+        default: 0,
+      },
+    },
+    squad: {
+      wins: {
+        type: Number,
+        default: 0,
+      },
+      kills: {
+        type: Number,
+        default: 0,
+      },
+      matchplayed: {
+        type: Number,
+        default: 0,
+      },
+    },
+    ltm: {
+      wins: {
+        type: Number,
+        default: 0,
+      },
+      kills: {
+        type: Number,
+        default: 0,
+      },
+      matchplayed: {
+        type: Number,
+        default: 0,
+      },
+    },
+  },
   Season: {
     type: Array,
     default: [
