@@ -128,7 +128,12 @@ export default function initRoute(router: Router): void {
             res
               .status(204)
               .json(
-                await ClientQuestLogin(profileId as string, rvn as any, req)
+                await ClientQuestLogin(
+                  accountId,
+                  profileId as string,
+                  rvn as any,
+                  req
+                )
               );
             break;
 

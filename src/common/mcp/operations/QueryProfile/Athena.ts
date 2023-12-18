@@ -58,6 +58,11 @@ export default async function Athena(
       initializeField("baseRevision", athena.profilerevision - 1),
     ]);
 
+    await Account.updateOne(
+      { accountId },
+      { ["Season.0.seasonNumber"]: season as number }
+    );
+
     let level: number = 1;
     let hasPurchasedBP: boolean = false;
     let XP: number = 0;

@@ -153,6 +153,13 @@ export default function initRoute(router: Router): void {
         },
         lastModified: "9999-12-12T00:00:00.000Z",
       },
+      playlistinformation: {
+        conversion_config: {
+          enableReferences: true,
+          containerName: "playlist_info",
+          contentName: "playlists",
+        },
+      },
     });
   });
 }
