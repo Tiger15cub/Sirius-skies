@@ -25,10 +25,7 @@ export default async function ClientQuestLogin(
   const userAgent = req.headers["user-agent"];
   let season = getSeason(userAgent);
 
-  // ill add the url later
-  // /api/quests/all
-  // /api/daily
-  const request = await axios.get("https://");
+  const request = await axios.get("https://fnquests.onrender.com/api/daily");
 
   const { data } = request;
   const QuestData = data;
