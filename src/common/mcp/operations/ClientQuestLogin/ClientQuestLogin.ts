@@ -68,9 +68,6 @@ export default async function ClientQuestLogin(
         ).toISODate();
         const currentDate = DateTime.local().toISODate();
 
-        console.log(loginDate);
-        console.log(currentDate);
-
         if (loginDate !== currentDate) {
           shouldGrantQuest = true;
 
@@ -103,8 +100,6 @@ export default async function ClientQuestLogin(
             ),
           },
         });
-
-        log.debug(JSON.stringify(multiUpdate), "ClientQuestLogin");
       }
 
       return {

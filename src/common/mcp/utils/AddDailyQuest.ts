@@ -52,8 +52,6 @@ export default async function AddDailyQuest(
     if (data.seasonNumber === season.season) {
       for (const questItemKey in data.quests as QuestItem[]) {
         const questItem = (data.quests as QuestItem[])[questItemKey];
-        log.debug(JSON.stringify(questItem), "ClientQuestLogin");
-
         while (
           QuestData[randomNum].templateId.toLowerCase() === questItem.templateId
         ) {
