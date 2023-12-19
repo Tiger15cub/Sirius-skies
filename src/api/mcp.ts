@@ -125,16 +125,14 @@ export default function initRoute(router: Router): void {
             break;
 
           case "ClientQuestLogin":
-            res
-              .status(204)
-              .json(
-                await ClientQuestLogin(
-                  accountId,
-                  profileId as string,
-                  rvn as any,
-                  req
-                )
-              );
+            const result = await ClientQuestLogin(
+              accountId,
+              profileId as string,
+              rvn as any,
+              req
+            );
+
+            res.json(result).status(204);
             break;
 
           case "SetMtxPlatform":
