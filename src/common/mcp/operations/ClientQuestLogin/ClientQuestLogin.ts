@@ -37,12 +37,6 @@ export default async function ClientQuestLogin(
 
   if (!season) return { errorMessage: "Season is undefined or not found." };
 
-  const seasons = await axios.get(
-    `https://fnquests.onrender.com/api/season/${season.season}`
-  );
-
-  const SeasonQuestData = seasons.request;
-
   for (const data of account.Season) {
     let { bookXP, level, bookLevel, battleStars, quest_manager } = data;
 
