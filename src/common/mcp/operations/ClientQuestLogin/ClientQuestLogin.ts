@@ -108,15 +108,7 @@ export default async function ClientQuestLogin(
         });
       }
 
-      // test
       switch (data.seasonNumber) {
-        case 10:
-          const Season10XP = require("../../../resources/xp/S10XP.json");
-          const S10XP = JSON.parse(Season10XP);
-
-          for (const xp in S10XP) {
-            console.log(xp);
-          }
       }
 
       return {
