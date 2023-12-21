@@ -535,7 +535,29 @@
     "name": "Liteshow",
     "description": "Light it up!",
     "items": [],
-    "rarity": "uncommon"
+    "rarity": "uncommon",
+    "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_126_Athena_Commando_M_AuroraGlow.DA_Featured_CID_126_Athena_Commando_M_AuroraGlow",
+    "newDisplayAssetPath": "/Game/Catalog/NewDisplayAssets/DAv2_Featured_DAv2_CID_126_Athena_Commando_M_AuroraGlow.DAv2_Featured_DAv2_CID_126_Athena_Commando_M_AuroraGlow",
+    "meta": [],
+    "metaInfo": [
+      {
+        "key": "DisplayAssetPath",
+        "value": "/Game/Catalog/DisplayAssets/DA_Featured_CID_126_Athena_Commando_M_AuroraGlow.DA_Featured_CID_126_Athena_Commando_M_AuroraGlow"
+      },
+      {
+        "key": "NewDisplayAssetPath",
+        "value": "/Game/Catalog/NewDisplayAssets/DAv2_Featured_DAv2_CID_126_Athena_Commando_M_AuroraGlow.DAv2_Featured_DAv2_CID_126_Athena_Commando_M_AuroraGlow"
+      },
+      {
+        "key": "TileSize",
+        "value": "Small"
+      },
+      {
+        "key": "SectionId",
+        "value": "Daily"
+      }
+    ],
+    "lastUpdatedDate": "2023-12-21"
   },
   {
     "item": "AthenaCharacter:CID_127_Athena_Commando_M_Hazmat",

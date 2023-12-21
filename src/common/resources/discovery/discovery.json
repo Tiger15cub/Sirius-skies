@@ -18,7 +18,7 @@
                 "creatorName": "Epic",
                 "descriptionTags": [],
                 "metadata": {
-                  "image_url": "https://fortnite-api.com/images/playlists/playlist_defaultsolo/showcase.png",
+                  "image_url": "https://cdn2.unrealengine.com/Fortnite/fortnite-game/playlisttiles/BR_LobbyTileArt_Solo-512x512-24446ea2a54612c5604ecf0e30475b4dec81c3bc.png",
                   "matchmaking": {
                     "override_playlist": "playlist_defaultsolo"
                   }
@@ -41,7 +41,7 @@
                 "creatorName": "Epic",
                 "descriptionTags": [],
                 "metadata": {
-                  "image_url": "https://fortnite-api.com/images/playlists/playlist_defaultduo/showcase.png",
+                  "image_url": "https://cdn2.unrealengine.com/Fortnite/fortnite-game/playlisttiles/BR_LobbyTileArt_Duo-512x512-5dea8dfae97bddcd4e204dd47bfb245d3f68fc7b.png",
                   "matchmaking": {
                     "override_playlist": "playlist_defaultduo"
                   }
@@ -64,7 +64,7 @@
                 "creatorName": "Epic",
                 "descriptionTags": [],
                 "metadata": {
-                  "image_url": "https://fortnite-api.com/images/playlists/playlist_trios/showcase.png",
+                  "image_url": "",
                   "matchmaking": {
                     "override_playlist": "playlist_trios"
                   }
@@ -87,7 +87,7 @@
                 "creatorName": "Epic",
                 "descriptionTags": [],
                 "metadata": {
-                  "image_url": "https://fortnite-api.com/images/playlists/playlist_defaultsquad/showcase.png",
+                  "image_url": "https://cdn2.unrealengine.com/Fortnite/fortnite-game/playlisttiles/BR_LobbyTileArt_Squad-512x512-5225ec6ca3265611957834c2c549754fe1778449.png",
                   "matchmaking": {
                     "override_playlist": "playlist_defaultsquad"
                   }
@@ -103,6 +103,8 @@
       ]
     }
   ],
-  "TestCohorts": ["Sirius"],
+  "TestCohorts": [
+    "Sirius"
+  ],
   "ModeSets": {}
 }

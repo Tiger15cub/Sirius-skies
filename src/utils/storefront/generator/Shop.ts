@@ -116,9 +116,9 @@ export default class Shop {
       const numFeaturedSections = Math.floor(Math.random() * 6); // Random number between 0 and 5
 
       for (let i = 1; i <= numFeaturedSections; i++) {
-        const isChosenSection = Math.random() < 0.5; // 50% chance for Featured
+        const isChosenSection = Math.random() < 0.9; // 90% chance for Featured
 
-        const section = isChosenSection ? `Featured${i}` : "Daily";
+        const section = isChosenSection ? "Featured" : "Daily";
 
         setTileSize(isChosenSection ? "Normal" : "Small");
         setSection(section);
