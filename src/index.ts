@@ -16,7 +16,7 @@ if (!fs.existsSync(logsDirectory)) fs.mkdirSync(logsDirectory);
 
 const app = express();
 
-winston.createLogger({
+const logger = winston.createLogger({
   level: "info",
   format: winston.format.json(),
   transports: [
@@ -45,21 +45,6 @@ const PORT = getEnv("PORT") || 5555;
     else if (getEnv("isMatchmakerEnabled") === "false") {
     }
 
-    app.use((req, res) => {
-      let text: string = JSON.stringify({
-        status: 404,
-        errorCode: "errors.com.sirius.backend.route.not_found",
-        errorMessage:
-          "Sorry, the resource you were trying to find could not be found.",
-        numericErrorCode: 1004,
-        originatingService: "any",
-        intent: "prod",
-        url: req.url,
-      } as NotFound);
-
-      res.status(404).send(text);
-    });
-
     app.use((req, res, next) => {
       const startTime = process.hrtime();
       res.setHeader("Content-Type", "application/json");
@@ -74,10 +59,25 @@ const PORT = getEnv("PORT") || 5555;
       const methodColor = getMethodColor(req.method);
       const statusCodeColor = getStatusCodeColor(res.statusCode);
 
+      if (!new Set<string>().has(fullUrl)) {
+        res.status(404).json({
+          status: 404,
+          errorCode: "errors.com.sirius.backend.route.not_found",
+          errorMessage:
+            "Sorry, the resource you were trying to find could not be found.",
+          numericErrorCode: 1004,
+          originatingService: "any",
+          intent: "prod",
+          url: req.url,
+        });
+      }
+
+      logger.info(fullUrl);
+
       log.info(
         `(${methodColor(req.method)}) (${statusCodeColor(
           res.statusCode
-        )}) (${durationInMs}) ${fullUrl}`,
+        )}) (   ${durationInMs}ms) ${fullUrl}`,
         "Server"
       );
 

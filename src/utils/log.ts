@@ -15,15 +15,33 @@ export function getMethodColor(method: string) {
   }
 }
 
+chalk.level = 3;
+const pink = chalk.rgb(255, 105, 180);
+
 export function getStatusCodeColor(statusCode: number) {
-  if (statusCode >= 200 && statusCode < 300) {
-    return chalk.greenBright;
-  } else if (statusCode >= 400 && statusCode < 500) {
-    return chalk.yellowBright;
-  } else if (statusCode >= 500) {
-    return chalk.redBright;
-  } else {
-    return chalk.whiteBright;
+  switch (statusCode) {
+    case 200:
+      return pink;
+    case 201:
+      return chalk.greenBright;
+    case 204:
+      return chalk.greenBright;
+    case 400:
+      return chalk.yellowBright;
+    case 401:
+      return chalk.yellowBright;
+    case 403:
+      return chalk.yellowBright;
+    case 404:
+      return pink;
+    case 500:
+      return chalk.redBright;
+    case 501:
+      return chalk.redBright;
+    case 502:
+      return chalk.redBright;
+    default:
+      return pink;
   }
 }
 
