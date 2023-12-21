@@ -1,3 +1,5 @@
+import { MetaInfoItem } from "./MetaInfoItem";
+
 export interface ShopItem {
   id: string;
   item: string;
@@ -5,6 +7,10 @@ export interface ShopItem {
   items: string;
   price: number;
   rarity: number;
+  displayAssetPath?: string;
+  newDisplayAssetPath?: string;
+  meta?: string[];
+  metaInfo?: MetaInfoItem[];
   categories?: string[];
 }
 

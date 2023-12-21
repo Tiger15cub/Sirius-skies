@@ -45,6 +45,21 @@ const PORT = getEnv("PORT") || 5555;
     else if (getEnv("isMatchmakerEnabled") === "false") {
     }
 
+    app.use((req, res) => {
+      let text: string = JSON.stringify({
+        status: 404,
+        errorCode: "errors.com.sirius.backend.route.not_found",
+        errorMessage:
+          "Sorry, the resource you were trying to find could not be found.",
+        numericErrorCode: 1004,
+        originatingService: "any",
+        intent: "prod",
+        url: req.url,
+      } as NotFound);
+
+      res.status(404).send(text);
+    });
+
     app.use((req, res, next) => {
       const startTime = process.hrtime();
       res.setHeader("Content-Type", "application/json");
@@ -67,21 +82,6 @@ const PORT = getEnv("PORT") || 5555;
       );
 
       next();
-    });
-
-    app.use((req, res) => {
-      let text: string = JSON.stringify({
-        status: 404,
-        errorCode: "errors.com.sirius.backend.route.not_found",
-        errorMessage:
-          "Sorry, the resource you were trying to find could not be found.",
-        numericErrorCode: 1004,
-        originatingService: "any",
-        intent: "prod",
-        url: req.url,
-      } as NotFound);
-
-      res.status(404).send(text);
     });
 
     import("./bot/deploy");

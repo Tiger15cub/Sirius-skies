@@ -30,8 +30,9 @@ export interface StorefrontEntry {
     giftRecordIds: any[];
   };
   refundable: boolean;
-  metaInfo: any[];
-  displayAssetPath: string;
+  metaInfo: any[] | undefined;
+  meta: any[] | undefined;
+  displayAssetPath: string | undefined;
   itemGrants: { templateId: string; quantity: number }[];
   sortPriority: number;
   catalogGroupPriority: number;

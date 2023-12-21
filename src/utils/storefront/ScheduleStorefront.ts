@@ -61,7 +61,7 @@ export default async function Schedule(maxAttempts?: number): Promise<void> {
         dailyFields: [],
       };
 
-      await new Promise((resolve) => setTimeout(resolve, 10000));
+      // await new Promise((resolve) => setTimeout(resolve, 10000));
       await Shop.Initialize(savedData);
 
       SendWebhook(savedData);

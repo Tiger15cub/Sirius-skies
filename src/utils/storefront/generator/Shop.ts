@@ -5,6 +5,18 @@ import { SavedData, ShopItem, ShopItemField } from "../types/ShopTypes";
 import { DateTime, Duration } from "luxon";
 import log from "../../log";
 import Prices from "../prices/Prices";
+import {
+  getDisplayAsset,
+  setDisplayAsset,
+  setNewDisplayAssetPath,
+} from "../displayAssets/getDisplayAsset";
+import {
+  addMetaInfo,
+  createMetaInfo,
+  setSection,
+  setTileSize,
+} from "../createMetaInfo";
+import { MetaInfoItem } from "../types/MetaInfoItem";
 
 export default class Shop {
   public static readonly itemTypes = ["characters", "dances", "pickaxes"];
@@ -71,6 +83,70 @@ export default class Shop {
 
     const randomIndex = Math.floor(Math.random() * Items.length);
     const randomShopItem = Items[randomIndex];
+
+    randomShopItem.displayAssetPath = randomShopItem.displayAssetPath || "";
+    randomShopItem.newDisplayAssetPath =
+      randomShopItem.newDisplayAssetPath || "";
+
+    if (randomShopItem.displayAssetPath === "") {
+      randomShopItem.displayAssetPath = setDisplayAsset(
+        `DA_Featured_${randomShopItem.item}`
+      );
+
+      addMetaInfo("DisplayAssetPath", randomShopItem.displayAssetPath);
+    }
+
+    if (randomShopItem.newDisplayAssetPath === "") {
+      randomShopItem.newDisplayAssetPath = setNewDisplayAssetPath(
+        `DAv2_${randomShopItem.item}`
+      );
+
+      addMetaInfo("NewDisplayAssetPath", randomShopItem.newDisplayAssetPath);
+    }
+
+    if (!randomShopItem.meta) {
+      // TODO
+      randomShopItem.meta = [];
+    }
+
+    if (!randomShopItem.metaInfo) {
+      const uniqueKeys = new Set<string>();
+      randomShopItem.metaInfo = [];
+
+      const numFeaturedSections = Math.floor(Math.random() * 6); // Random number between 0 and 5
+
+      for (let i = 1; i <= numFeaturedSections; i++) {
+        const isChosenSection = Math.random() < 0.5; // 50% chance for Featured
+
+        const section = isChosenSection ? `Featured${i}` : "Daily";
+
+        setTileSize(isChosenSection ? "Normal" : "Small");
+        setSection(section);
+
+        const newMetaInfo = createMetaInfo();
+
+        // Remove existing entries with the same key
+        randomShopItem.metaInfo = randomShopItem.metaInfo.filter(
+          (existingItem: MetaInfoItem) => {
+            const isDuplicate = newMetaInfo.some(
+              (newItem) => newItem.key === existingItem.key
+            );
+            if (isDuplicate) {
+              uniqueKeys.delete(existingItem.key); // Remove key from uniqueKeys if it's a duplicate
+            }
+            return !isDuplicate;
+          }
+        );
+
+        // Add new meta information
+        newMetaInfo.forEach((newItem) => {
+          if (!uniqueKeys.has(newItem.key)) {
+            randomShopItem.metaInfo.push(newItem);
+            uniqueKeys.add(newItem.key); // Add new key to uniqueKeys
+          }
+        });
+      }
+    }
 
     let attempts: number = 0;
     let maxAttempts: number = 3;
@@ -140,6 +216,12 @@ export default class Shop {
       items: randomShopItem.items || "Failed: Item Details Missing",
       price: parseInt(itemPrice || "9999", 10),
       rarity: randomShopItem.rarity || "Failed: Rarity Missing",
+      ...(randomShopItem.displayAssetPath !== "" && {
+        displayAssetPath: randomShopItem.displayAssetPath,
+      }),
+      ...(randomShopItem.metaInfo !== "" && {
+        metaInfo: randomShopItem.metaInfo,
+      }),
     });
   }
 

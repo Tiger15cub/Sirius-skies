@@ -73,7 +73,8 @@ export default function initRoute(router: Router) {
         dailyStorefrontItems,
         dailyPriority,
         storefront,
-        res
+        res,
+        req
       );
 
       const weeklyStorefrontItems = Data.catalogItems.BRWeeklyStorefront || [];
@@ -82,7 +83,8 @@ export default function initRoute(router: Router) {
         weeklyStorefrontItems,
         weeklyPriority,
         storefront,
-        res
+        res,
+        req
       );
 
       if (storefront) {

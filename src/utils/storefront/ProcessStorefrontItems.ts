@@ -1,4 +1,5 @@
 import { Storefront, StorefrontEntry } from "../../interface";
+import { getSeason } from "../getSeason";
 import log from "../log";
 import { ShopItem } from "./types/ShopTypes";
 
@@ -7,7 +8,8 @@ export const ProcessStorefrontItems = (
   items: ShopItem[],
   priorityCounter: number,
   storefront: Storefront,
-  res: any
+  res: any,
+  req: any
 ) => {
   items.forEach((item: ShopItem) => {
     const entryPriority = ++priorityCounter;
@@ -19,6 +21,10 @@ export const ProcessStorefrontItems = (
     }[] = [];
 
     const itemGrants: { templateId: string; quantity: number }[] = [];
+
+    const season = getSeason(req.headers["user-agent"]);
+
+    if (!season) return { errorMessage: "Failed to get season." };
 
     try {
       if (typeof item === "object" && item !== null) {
@@ -64,42 +70,85 @@ export const ProcessStorefrontItems = (
         }
       }
 
-      const storefrontEntry: StorefrontEntry = {
-        devName: item.item,
-        offerId: `v2:/${item.id}`,
-        fulfillmentIds: [],
-        dailyLimit: -1,
-        weeklyLimit: -1,
-        monthlyLimit: -1,
-        categories: item.categories || [],
-        prices: [
-          {
-            currencyType: "MtxCurrency",
-            currencySubType: "",
-            regularPrice: parseInt(item.price.toString()) || 999999,
-            finalPrice: parseInt(item.price.toString()) || 999999,
-            saleExpiration: new Date(0).toISOString(),
-            basePrice: parseInt(item.price.toString()) || 999999,
+      let storefrontEntry: StorefrontEntry;
+
+      if (season.season < 14) {
+        storefrontEntry = {
+          devName: item.item,
+          offerId: `v2:/${item.id}`,
+          fulfillmentIds: [],
+          dailyLimit: -1,
+          weeklyLimit: -1,
+          monthlyLimit: -1,
+          categories: item.categories || [],
+          prices: [
+            {
+              currencyType: "MtxCurrency",
+              currencySubType: "",
+              regularPrice: parseInt(item.price.toString()) || 999999,
+              finalPrice: parseInt(item.price.toString()) || 999999,
+              saleExpiration: new Date(0).toISOString(),
+              basePrice: parseInt(item.price.toString()) || 999999,
+            },
+          ],
+          matchFilter: "",
+          filterWeight: 0,
+          appStoreId: [],
+          requirements,
+          offerType: "StaticPrice",
+          giftInfo: {
+            bIsEnabled: true,
+            forcedGiftBoxTemplateId: "",
+            purchaseRequirements: [],
+            giftRecordIds: [],
           },
-        ],
-        matchFilter: "",
-        filterWeight: 0,
-        appStoreId: [],
-        requirements,
-        offerType: "StaticPrice",
-        giftInfo: {
-          bIsEnabled: true,
-          forcedGiftBoxTemplateId: "",
-          purchaseRequirements: [],
-          giftRecordIds: [],
-        },
-        refundable: true,
-        metaInfo: [],
-        displayAssetPath: `/Game/Catalog/DisplayAssets/DA_Featured_${item.name}.DA_Featured_${item.name}`,
-        itemGrants,
-        sortPriority: entryPriority,
-        catalogGroupPriority: entryPriority,
-      };
+          refundable: true,
+          metaInfo: [],
+          meta: [],
+          displayAssetPath: "",
+          itemGrants,
+          sortPriority: entryPriority,
+          catalogGroupPriority: entryPriority,
+        };
+      } else {
+        storefrontEntry = {
+          devName: item.item,
+          offerId: `v2:/${item.id}`,
+          fulfillmentIds: [],
+          dailyLimit: -1,
+          weeklyLimit: -1,
+          monthlyLimit: -1,
+          categories: item.categories || [],
+          prices: [
+            {
+              currencyType: "MtxCurrency",
+              currencySubType: "",
+              regularPrice: parseInt(item.price.toString()) || 999999,
+              finalPrice: parseInt(item.price.toString()) || 999999,
+              saleExpiration: new Date(0).toISOString(),
+              basePrice: parseInt(item.price.toString()) || 999999,
+            },
+          ],
+          matchFilter: "",
+          filterWeight: 0,
+          appStoreId: [],
+          requirements,
+          offerType: "StaticPrice",
+          giftInfo: {
+            bIsEnabled: true,
+            forcedGiftBoxTemplateId: "",
+            purchaseRequirements: [],
+            giftRecordIds: [],
+          },
+          refundable: true,
+          metaInfo: item.metaInfo,
+          meta: item.meta,
+          displayAssetPath: item.displayAssetPath,
+          itemGrants,
+          sortPriority: entryPriority,
+          catalogGroupPriority: entryPriority,
+        };
+      }
 
       storefront.storefronts[
         storefrontName.toLowerCase().includes("brweeklystorefront") ? 1 : 0
