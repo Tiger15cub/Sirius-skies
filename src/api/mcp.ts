@@ -137,6 +137,9 @@ export default function initRoute(router: Router): void {
 
           case "SetMtxPlatform":
             break;
+
+          default:
+            log.error(`Unknown MCP Operation: ${command}`, "MCP");
         }
       } catch (error) {
         let err: Error = error as Error;

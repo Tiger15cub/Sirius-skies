@@ -10,12 +10,7 @@ import {
   setDisplayAsset,
   setNewDisplayAssetPath,
 } from "../displayAssets/getDisplayAsset";
-import {
-  addMetaInfo,
-  createMetaInfo,
-  setSection,
-  setTileSize,
-} from "../createMetaInfo";
+import MetaInfoBuilder from "../createMetaInfo";
 import { MetaInfoItem } from "../types/MetaInfoItem";
 
 export default class Shop {
@@ -84,6 +79,8 @@ export default class Shop {
     const randomIndex = Math.floor(Math.random() * Items.length);
     const randomShopItem = Items[randomIndex];
 
+    const meta = new MetaInfoBuilder();
+
     randomShopItem.displayAssetPath = randomShopItem.displayAssetPath || "";
     randomShopItem.newDisplayAssetPath =
       randomShopItem.newDisplayAssetPath || "";
@@ -93,7 +90,7 @@ export default class Shop {
         `DA_Featured_${randomShopItem.item}`
       );
 
-      addMetaInfo("DisplayAssetPath", randomShopItem.displayAssetPath);
+      meta.addMetaInfo("DisplayAssetPath", randomShopItem.displayAssetPath);
     }
 
     if (randomShopItem.newDisplayAssetPath === "") {
@@ -101,7 +98,10 @@ export default class Shop {
         `DAv2_${randomShopItem.item}`
       );
 
-      addMetaInfo("NewDisplayAssetPath", randomShopItem.newDisplayAssetPath);
+      meta.addMetaInfo(
+        "NewDisplayAssetPath",
+        randomShopItem.newDisplayAssetPath
+      );
     }
 
     if (!randomShopItem.meta) {
@@ -109,21 +109,38 @@ export default class Shop {
       randomShopItem.meta = [];
     }
 
+    const shopData = JSON.parse(
+      fs.readFileSync(
+        path.join(
+          __dirname,
+          "..",
+          "..",
+          "..",
+          "common",
+          "resources",
+          "storefront",
+          "shop.json"
+        ),
+        "utf-8"
+      )
+    );
+
     if (!randomShopItem.metaInfo) {
       const uniqueKeys = new Set<string>();
       randomShopItem.metaInfo = [];
 
       const numFeaturedSections = Math.floor(Math.random() * 6); // Random number between 0 and 5
+      const numItemsPerSection = 7; // Number of items to put in BRDailyStorefront
 
       for (let i = 1; i <= numFeaturedSections; i++) {
-        const isChosenSection = Math.random() < 0.9; // 90% chance for Featured
+        const isChosenSection = Math.random() < 0.5; // 50% chance for Featured
 
         const section = isChosenSection ? "Featured" : "Daily";
 
-        setTileSize(isChosenSection ? "Normal" : "Small");
-        setSection(section);
+        meta.setTileSize(isChosenSection ? "Normal" : "Small");
+        meta.setSection(section);
 
-        const newMetaInfo = createMetaInfo();
+        const newMetaInfo = meta.createMetaInfo();
 
         // Remove existing entries with the same key
         randomShopItem.metaInfo = randomShopItem.metaInfo.filter(
@@ -138,14 +155,46 @@ export default class Shop {
           }
         );
 
-        // Add new meta information
         newMetaInfo.forEach((newItem) => {
           if (!uniqueKeys.has(newItem.key)) {
-            randomShopItem.metaInfo.push(newItem);
-            uniqueKeys.add(newItem.key); // Add new key to uniqueKeys
+            if (randomShopItem.metaInfo.length < numItemsPerSection) {
+              randomShopItem.metaInfo.push(newItem);
+              uniqueKeys.add(newItem.key);
+            }
           }
         });
       }
+
+      const remainingItems = meta
+        .createMetaInfo()
+        .filter((newItem) => !uniqueKeys.has(newItem.key));
+
+      shopData.catalogItems.BRWeeklyStorefront.forEach((item: ShopItem) => {
+        if (item.metaInfo) {
+          item.metaInfo.forEach((metaItem: MetaInfoItem) => {
+            if (metaItem.key === "SectionId" && metaItem.value === "Featured") {
+              const sectionIdWithFeatured = metaItem.value;
+
+              metaItem.value = "Daily";
+            }
+          });
+        }
+      });
+
+      shopData.catalogItems.BRDailyStorefront.forEach((item: ShopItem) => {
+        if (item.metaInfo) {
+          item.metaInfo.forEach((metaItem: MetaInfoItem) => {
+            if (metaItem.key === "SectionId" && metaItem.value === "Daily") {
+              const sectionIdWithDaily = metaItem.value;
+
+              metaItem.value = "Featured";
+            }
+          });
+        }
+      });
+
+      shopData.catalogItems.BRWeeklyStorefront =
+        shopData.catalogItems.BRWeeklyStorefront.concat(remainingItems);
     }
 
     let attempts: number = 0;
@@ -181,12 +230,6 @@ export default class Shop {
 
     const updatedContent = JSON.stringify(Items, null, 2);
     fs.writeFileSync(FilePath, updatedContent);
-
-    log.log(
-      `Generated item '${randomShopItem.name}' in shop`,
-      "GenerateShopItem",
-      "green"
-    );
 
     let itemPrice = "0";
 
@@ -249,7 +292,7 @@ export default class Shop {
     savedData: SavedData,
     amount: number
   ): Promise<void> {
-    const maxItems = 5;
+    const maxItems = 6;
     amount = Math.min(amount, maxItems);
 
     for (let i = 0; i < amount; i++) {
@@ -377,6 +420,12 @@ export default class Shop {
       } else {
         await this.generateWeekly(savedData, weekly);
         await this.generateDaily(savedData, daily);
+
+        log.log(
+          `Generated ${weekly} weekly items and ${daily} daily items.`,
+          "Initialize",
+          "green"
+        );
       }
     }
 
