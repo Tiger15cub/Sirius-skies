@@ -226,7 +226,7 @@ const accountsSchema = new Schema<AccountsModel>({
   },
   CommonCore: { type: Array, default: [] },
   vbucks: { type: Number, default: 0 },
-  BattleStars: { type: Number, default: 100 },
+  BattleStars: { type: Number, default: 0 },
   gifts: { type: Array, default: [] },
   banned: { type: Boolean, default: false },
   allowsGifts: { type: Boolean, default: true },
