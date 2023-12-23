@@ -433,16 +433,8 @@ export default class Shop {
       const date = DateTime.utc().setZone("GMT");
 
       const generate = {
-        expiration: date
-          .set({ hour: 17, minute: 0, second: 0, millisecond: 0 })
-          .plus({ days: 1 })
-          .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
-          .toISO(),
-        cacheExpire: date
-          .set({ hour: 16, minute: 57, second: 14, millisecond: 490 })
-          .plus({ days: 1 })
-          .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
-          .toISO(),
+        expiration: date.startOf("day").plus({ days: 1 }).toISO(),
+        cacheExpire: date.startOf("day").plus({ days: 1 }).toISO(),
         catalogItems: {
           BRWeeklyStorefront: savedData.weekly,
           BRDailyStorefront: savedData.daily,

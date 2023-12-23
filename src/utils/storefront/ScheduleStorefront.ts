@@ -17,11 +17,8 @@ export default async function Schedule(maxAttempts?: number): Promise<void> {
     }
 
     if (getEnv("AutoRotate") === "true") {
-      const now = DateTime.utc().setZone("UTC");
-      const targetTime = DateTime.utc()
-        .setZone("UTC")
-        .startOf("day")
-        .plus({ days: 1 });
+      const now = DateTime.utc();
+      const targetTime = DateTime.utc().startOf("day").plus({ days: 1 });
 
       targetTime.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
 
@@ -33,7 +30,7 @@ export default async function Schedule(maxAttempts?: number): Promise<void> {
 
       await new Promise((resolve) => setTimeout(resolve, delayMilliseconds));
 
-      const savedData: SavedData = {
+      const savedData = {
         weekly: [],
         weeklyFields: [],
         daily: [],

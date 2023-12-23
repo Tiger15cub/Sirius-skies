@@ -2,6 +2,8 @@ import { Router } from "express";
 import { getSeason } from "../utils";
 import axios from "axios";
 import getSeasonBackground from "../utils/content/getSeasonBackground";
+import { v4 as uuid } from "uuid";
+import { DateTime } from "luxon";
 
 export default function initRoute(router: Router): void {
   router.get("/content/api/pages/fortnite-game", async (req, res) => {
@@ -36,8 +38,8 @@ export default function initRoute(router: Router): void {
       "jcr:isCheckedOut": true,
       _title: "Fortnite Game",
       "jcr:baseVersion": "a7ca237317f1e74e4b8154-226a-4450-a3cd-c77af841e798",
-      _activeDate: new Date().toISOString(),
-      lastModified: new Date().toISOString(),
+      _activeDate: DateTime.utc().toISO(),
+      lastModified: DateTime.utc().toISO(),
       _locale: "en-US",
       subgameinfo: data.subgameinfo,
       battleroyalenews: {
@@ -52,11 +54,11 @@ export default function initRoute(router: Router): void {
               tabTitleOverride: "Sirius",
               _type: "CommonUI Simple Message MOTD",
               title: "Sirius",
-              body: "Welcome to Sirius, Made by Skies.",
+              body: "Welcome to Sirius\nMade by Skies",
               videoLoop: false,
               videoStreamingEnabled: false,
               sortingPriority: 0,
-              id: "Sirius",
+              id: uuid(),
               spotlight: false,
             },
           ],
@@ -78,8 +80,107 @@ export default function initRoute(router: Router): void {
           ],
         },
         _title: "emergencynotice",
-        _activeDate: new Date().toISOString(),
-        lastModified: new Date().toISOString(),
+        _activeDate: DateTime.utc().toISO(),
+        lastModified: DateTime.utc().toISO(),
+        _locale: "en-US",
+      },
+      creativenewsv2: {
+        news: {
+          motds: [
+            {
+              entryType: "Text",
+              image: "https://i.ibb.co/bPRgX2K/Sirius-Banner.png",
+              tileImage: "https://i.ibb.co/bPRgX2K/Sirius-Banner.png",
+              videoMute: false,
+              tabTitleOverride: "Sirius",
+              _type: "CommonUI Simple Message MOTD",
+              title: "Sirius",
+              body: "Welcome to Sirius\nMade by Skies",
+              videoLoop: false,
+              videoStreamingEnabled: false,
+              sortingPriority: 0,
+              id: uuid(),
+              videoAutoplay: false,
+              videoFullscreen: false,
+              spotlight: false,
+            },
+          ],
+        },
+        "jcr:isCheckedOut": true,
+        header: "",
+        style: "None",
+        _noIndex: false,
+        alwaysShow: false,
+        "jcr:baseVersion": "a7ca237317f1e704b1a186-6846-4eaa-a542-c2c8ca7e7f29",
+        _activeDate: DateTime.utc().toISO(),
+        lastModified: DateTime.utc().toISO(),
+        _locale: "en-US",
+      },
+      creative: {
+        _type: "CommonUI Simple Message",
+        message: {
+          image:
+            "https://cdn2.unrealengine.com/subgameselect-cr-512x1024-371f42541731.png",
+          hidden: false,
+          messagetype: "normal",
+          _type: "CommonUI Simple Message Base",
+          title: "New Featured Islands!",
+          body: "Your Island. Your Friends. Your Rules.\n\nDiscover new ways to play Fortnite, play community made games with friends and build your dream island.",
+          spotlight: false,
+        },
+      },
+      battleroyalenewsv2: {
+        news: {
+          motds: [
+            {
+              entryType: "Text",
+              image: "https://i.ibb.co/bPRgX2K/Sirius-Banner.png",
+              tileImage: "https://i.ibb.co/bPRgX2K/Sirius-Banner.png",
+              videoMute: false,
+              hidden: false,
+              tabTitleOverride: "Sirius",
+              _type: "CommonUI Simple Message MOTD",
+              title: "Sirius",
+              body: "Welcome to Sirius\nMade by Skies",
+              videoLoop: false,
+              videoStreamingEnabled: false,
+              sortingPriority: 0,
+              id: uuid(),
+              videoAutoplay: false,
+              videoFullscreen: false,
+              spotlight: false,
+            },
+          ],
+        },
+        "jcr:isCheckedOut": true,
+        _title: "battleroyalenewsv2",
+        header: "",
+        style: "None",
+        _noIndex: false,
+        alwaysShow: false,
+        "jcr:baseVersion": "a7ca237317f1e704b1a186-6846-4eaa-a542-c2c8ca7e7f29",
+        _activeDate: DateTime.utc().toISO(),
+        lastModified: DateTime.utc().toISO(),
+        _locale: "en-US",
+      },
+      emergencynoticev2: {
+        "jcr:isCheckedOut": true,
+        _title: "emergencynoticev2",
+        _noIndex: false,
+        "jcr:baseVersion": "a7ca237317f1e71fad4bd6-1b21-4008-8758-5c13f080a7eb",
+        emergencynotices: {
+          _type: "Emergency Notices",
+          emergencynotices: [
+            {
+              hidden: false,
+              _type: "CommonUI Emergency Notice Base",
+              title: "Sirius",
+              body: "Github: https://github.com/Skiesuwu/Sirius",
+            },
+          ],
+        },
+        _activeDate: DateTime.utc().toISO(),
+        lastModified: DateTime.utc().toISO(),
         _locale: "en-US",
       },
       dynamicbackgrounds: {
@@ -91,8 +192,8 @@ export default function initRoute(router: Router): void {
         _title: "dynamicbackgrounds",
         _noIndex: false,
         "jcr:baseVersion": "a7ca237317f1e74e4b8154-226a-4450-a3cd-c77af841e798",
-        _activeDate: new Date().toISOString(),
-        lastModified: new Date().toISOString(),
+        _activeDate: DateTime.utc().toISO(),
+        lastModified: DateTime.utc().toISO(),
         _locale: "en-US",
       },
       shopSections: {

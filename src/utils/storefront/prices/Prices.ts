@@ -20,6 +20,7 @@ interface Prices {
     icon: number;
     dark: number;
     frozen: number;
+    slurp: number;
   };
   gliders: {
     uncommon: number;
@@ -31,6 +32,7 @@ interface Prices {
     dark: number;
     frozen: number;
     marvel: number;
+    lava: number;
   };
   wraps: {
     uncommon: number;
@@ -69,6 +71,7 @@ const Prices: Prices = {
     icon: 500,
     dark: 1200,
     frozen: 1000,
+    slurp: 1500,
   },
   gliders: {
     uncommon: 500,
@@ -80,6 +83,7 @@ const Prices: Prices = {
     dark: 500,
     frozen: 1000,
     marvel: 1000, // temp price will change in the future
+    lava: 1200,
   },
   wraps: {
     uncommon: 300,
