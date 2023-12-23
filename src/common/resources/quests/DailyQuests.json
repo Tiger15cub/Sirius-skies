@@ -1,0 +1,146 @@
+[
+  {
+    "templateId": "Quest:AthenaDaily_Outlive_Solo",
+    "attributes": {
+      "quest_rarity": "uncommon",
+      "xp": 500,
+      "count": 150,
+      "objectives": ["daily_athena_outlive_solo_players"]
+    }
+  },
+  {
+    "templateId": "Quest:AthenaDaily_Outlive_Squad",
+    "attributes": {
+      "quest_rarity": "uncommon",
+      "xp": 500,
+      "count": 150,
+      "objectives": ["daily_athena_outlive_squad_players_v2"]
+    }
+  },
+  {
+    "templateId": "Quest:AthenaDaily_Outlive",
+    "attributes": {
+      "quest_rarity": "uncommon",
+      "xp": 500,
+      "count": 300,
+      "objectives": ["daily_athena_outlive_players_v3"]
+    }
+  },
+  {
+    "templateId": "Quest:AthenaDaily_PlayMatches",
+    "attributes": {
+      "quest_rarity": "uncommon",
+      "xp": 500,
+      "count": 7,
+      "objectives": ["daily_athena_play_matches_v3"]
+    }
+  },
+  {
+    "templateId": "Quest:AthenaDaily_Solo_Top25",
+    "attributes": {
+      "quest_rarity": "uncommon",
+      "xp": 500,
+      "count": 1,
+      "objectives": ["daily_athena_solo_top25_v2"]
+    }
+  },
+  {
+    "templateId": "Quest:AthenaDaily_Solo_Top50",
+    "attributes": {
+      "quest_rarity": "uncommon",
+      "xp": 500,
+      "count": 3,
+      "objectives": ["daily_athena_solo_top50_v2"]
+    }
+  },
+  {
+    "templateId": "Quest:AthenaDaily_Squad_Top12",
+    "attributes": {
+      "quest_rarity": "uncommon",
+      "xp": 500,
+      "count": 3,
+      "objectives": ["daily_athena_squad_top12_v2"]
+    }
+  },
+  {
+    "templateId": "Quest:AthenaDaily_Squad_Top6",
+    "attributes": {
+      "quest_rarity": "uncommon",
+      "xp": 500,
+      "count": 1,
+      "objectives": ["daily_athena_squad_top6_v2"]
+    }
+  },
+  {
+    "templateId": "Quest:AthenaDailyQuest_InteractAmmoCrate",
+    "attributes": {
+      "quest_rarity": "uncommon",
+      "xp": 500,
+      "count": 7,
+      "objectives": ["athena_daily_loot_ammobox_v2"]
+    }
+  },
+  {
+    "templateId": "Quest:AthenaDailyQuest_InteractTreasureChest",
+    "attributes": {
+      "quest_rarity": "uncommon",
+      "xp": 500,
+      "count": 7,
+      "objectives": ["daily_athena_loot_chest_v2"]
+    }
+  },
+  {
+    "templateId": "Quest:AthenaDailyQuest_PlayerElimination",
+    "attributes": {
+      "quest_rarity": "uncommon",
+      "xp": 500,
+      "count": 10,
+      "objectives": ["athena_daily_kill_players_v2"]
+    }
+  },
+  {
+    "templateId": "Quest:AthenaDailyQuest_PlayerEliminationAssaultRifles",
+    "attributes": {
+      "quest_rarity": "uncommon",
+      "xp": 500,
+      "count": 5,
+      "objectives": ["athena_daily_kill_players_assault_rifles"]
+    }
+  },
+  {
+    "templateId": "Quest:AthenaDailyQuest_PlayerEliminationPistols",
+    "attributes": {
+      "quest_rarity": "uncommon",
+      "xp": 500,
+      "count": 2,
+      "objectives": ["athena_daily_kill_players_pistol_v3"]
+    }
+  },
+  {
+    "templateId": "Quest:AthenaDailyQuest_PlayerEliminationShotguns",
+    "attributes": {
+      "quest_rarity": "uncommon",
+      "xp": 500,
+      "count": 4,
+      "objectives": ["athena_daily_kill_players_shotgun_v2"]
+    }
+  },
+  {
+    "templateId": "Quest:AthenaDailyQuest_PlayerEliminationSMGs",
+    "attributes": {
+      "quest_rarity": "uncommon",
+      "xp": 500,
+      "count": 2,
+      "objectives": ["athena_daily_kill_players_smg_v2"]
+    }
+  },
+  {
+    "templateId": "Quest:AthenaDailyQuest_PlayerEliminationSniperRifles",
+    "attributes": {
+      "quest_rarity": "uncommon",
+      "xp": 500,
+      "count": 1,
+      "objectives": ["athena_daily_kill_players_sniper_v2"]
+    }
+  }
+]

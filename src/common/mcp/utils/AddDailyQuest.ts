@@ -1,7 +1,6 @@
 import { DateTime } from "luxon";
 import Accounts from "../../../models/Accounts";
-import { createDefaultResponse, getSeason } from "../../../utils";
-import log from "../../../utils/log";
+import { createDefaultResponse, getEnv, getSeason } from "../../../utils";
 import axios from "axios";
 
 interface QuestItem {
@@ -31,7 +30,9 @@ export default async function AddDailyQuest(
   const userAgent = req.headers["user-agent"];
   let season = getSeason(userAgent);
 
-  const request = await axios.get("https://fnquests.onrender.com/api/daily");
+  const request = await axios.get(
+    `http://localhost:${getEnv("PORT")}/api/daily`
+  );
 
   const { data } = request;
   const QuestData = data;

@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import Accounts from "../../../../models/Accounts";
-import { createDefaultResponse, getSeason } from "../../../../utils";
+import { createDefaultResponse, getEnv, getSeason } from "../../../../utils";
 import axios from "axios";
 import { v4 as uuid } from "uuid";
 import log from "../../../../utils/log";
@@ -18,7 +18,9 @@ export default async function ClientQuestLogin(
   const multiUpdate: any[] = [];
   let shouldGrantQuest: boolean = false;
 
-  const request = await axios.get("https://fnquests.onrender.com/api/daily");
+  const request = await axios.get(
+    `http://localhost:${getEnv("PORT")}/api/daily`
+  );
 
   const { data } = request;
   const QuestData = data;
