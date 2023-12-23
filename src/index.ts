@@ -37,10 +37,6 @@ const PORT = getEnv("PORT") || 5555;
     await Route.initializeRoutes(app);
     await Database.connect();
 
-    if (getEnv("isXmppEnabled") === "true") return;
-    else if (getEnv("isXmppEnabled") === "false") {
-    }
-
     if (getEnv("isMatchmakerEnabled") === "true") new Matchmaker().start();
     else if (getEnv("isMatchmakerEnabled") === "false") {
     }
