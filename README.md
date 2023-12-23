@@ -46,3 +46,6 @@ To get started with `Sirius`, follow these steps:
    ```bash
    node .
    ```
+   
+## Discord
+[Join the discord if you need help](https://discord.gg/Y3YRVMDxEb)
