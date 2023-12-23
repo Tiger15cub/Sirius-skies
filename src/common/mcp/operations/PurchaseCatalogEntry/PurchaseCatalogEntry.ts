@@ -206,6 +206,30 @@ export default async function PurchaseCatalogEntry(
       }
     }
 
+    if (applyProfileChanges.length > 0) {
+      rvn += 1;
+      account.RVN += 1;
+      account.baseRevision += 1;
+
+      Accounts.updateOne(
+        { accountId },
+        { $set: { RVN: parseInt(account.baseRevision.toString() ?? "0") + 1 } }
+      );
+
+      Accounts.updateOne(
+        { accountId },
+        {
+          $set: {
+            baseRevision: parseInt(account.baseRevision.toString() ?? "0") + 1,
+          },
+        }
+      );
+    }
+
+    if (multiUpdate.length > 0) {
+      rvn += 1;
+    }
+
     return {
       profileRevision: account.profilerevision,
       profileId,
@@ -220,7 +244,7 @@ export default async function PurchaseCatalogEntry(
           },
         },
       ],
-      profileCommandRevision: rvn,
+      profileCommandRevision: account.RVN,
       serverTime: DateTime.now().toISO(),
       multiUpdate: [
         {
@@ -228,7 +252,7 @@ export default async function PurchaseCatalogEntry(
           profileId: "athena",
           profileChangesBaseRevision: account.baseRevision,
           profileChanges: multiUpdate,
-          profileCommandRevision: rvn,
+          profileCommandRevision: account.RVN,
         },
       ],
       response: 1,
