@@ -31,7 +31,7 @@ export default async function AddDailyQuest(
   let season = getSeason(userAgent);
 
   const request = await axios.get(
-    `http://localhost:${getEnv("PORT")}/api/daily`
+    `http://localhost:${getEnv("PORT")}/sirius/quests/daily`
   );
 
   const { data } = request;

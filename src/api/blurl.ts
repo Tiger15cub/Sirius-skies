@@ -17,6 +17,13 @@ export default function initRoute(router: Router) {
       "Chapter2"
     );
 
+    if (
+      !fileName.includes("master.blurl") ||
+      !fileName.includes("master.json")
+    ) {
+      return res.status(400).json({ error: "This is not a blurl" });
+    }
+
     switch (videoId) {
       // Chapter 2 Season 2
       case "KqnBrvsHnfYFXrvo":

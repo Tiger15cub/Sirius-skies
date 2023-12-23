@@ -10,6 +10,7 @@ import log from "../utils/log";
 import ClaimMfaEnabled from "../common/mcp/operations/ClaimMfaEnabled/ClaimMfaEnabled";
 import MarkItemSeen from "../common/mcp/operations/MarkItemSeen/MarkItemSeen";
 import ClientQuestLogin from "../common/mcp/operations/ClientQuestLogin/ClientQuestLogin";
+import PurchaseCatalogEntry from "../common/mcp/operations/PurchaseCatalogEntry/PurchaseCatalogEntry";
 
 export default function initRoute(router: Router): void {
   router.post(
@@ -136,6 +137,17 @@ export default function initRoute(router: Router): void {
             break;
 
           case "SetMtxPlatform":
+            break;
+
+          case "PurchaseCatalogEntry":
+            const purchase = await PurchaseCatalogEntry(
+              accountId,
+              profileId as string,
+              rvn as any,
+              req
+            );
+
+            res.json(purchase).status(204);
             break;
 
           default:

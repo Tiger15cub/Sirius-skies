@@ -19,7 +19,7 @@ export default async function ClientQuestLogin(
   let shouldGrantQuest: boolean = false;
 
   const request = await axios.get(
-    `http://localhost:${getEnv("PORT")}/api/daily`
+    `http://localhost:${getEnv("PORT")}/sirius/quests/daily`
   );
 
   const { data } = request;
