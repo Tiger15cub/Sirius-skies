@@ -4,12 +4,14 @@ import fs from "node:fs";
 import path from "node:path";
 import log from "../../../../utils/log";
 import { DateTime } from "luxon";
+import MarkItemSeen from "../MarkItemSeen/MarkItemSeen";
 
 export default async function PurchaseCatalogEntry(
   accountId: string,
   profileId: string,
   rvn: number,
-  req: any
+  req: any,
+  res: any
 ) {
   const userAgent = req.headers["user-agent"];
   let season = getSeason(userAgent);
@@ -34,15 +36,18 @@ export default async function PurchaseCatalogEntry(
   const multiUpdate: any[] = [];
   const notifications: any[] = [];
   const applyProfileChanges: any[] = [];
+  const changeStream = Accounts.watch();
 
   const account = await Accounts.findOne({ accountId }).lean();
 
   if (!account)
-    return {
-      errorMessage: "Account not found.",
-    };
+    return res.status(404).json({
+      errorMessage: "Account not found. ",
+    });
 
   try {
+    changeStream;
+
     if (currency === "MtxCurrency") {
       if (offerId === null) return;
       else {
@@ -64,14 +69,13 @@ export default async function PurchaseCatalogEntry(
           }
 
           if (!matchedStorefront) {
-            return {
-              statusCode: 400,
-              errorName: "BadRequest",
+            return res.status(400).json({
+              errorType: "BadRequest",
               errorMessage: "Failed to get item from the current shop.",
-            };
+            });
           } else {
             for (const currentItem of account.items) {
-              if (currentItem.includes(matchedStorefront.item)) {
+              if (currentItem.templateId.includes(matchedStorefront.item)) {
                 isItemOwned = true;
               }
             }
@@ -84,22 +88,26 @@ export default async function PurchaseCatalogEntry(
                 quantity: 1,
               });
 
+              const Items = {
+                templateId: matchedStorefront.item,
+                attributes: {
+                  favorite: false,
+                  item_seen: false,
+                  level: 1,
+                  max_level_bonus: 0,
+                  rnd_sel_cnt: 0,
+                  variants: [],
+                  xp: 0,
+                },
+                quantity: 1,
+              };
+
+              account.items[matchedStorefront.item] = Items;
+
               multiUpdate.push({
                 changeType: "itemAdded",
-                itemId: matchedStorefront.id,
-                item: {
-                  templateId: matchedStorefront.item,
-                  attributes: {
-                    favorite: false,
-                    item_seen: false,
-                    level: 1,
-                    max_level_bonus: 0,
-                    rnd_sel_cnt: 0,
-                    variants: [],
-                    xp: 0,
-                  },
-                  quantity: 1,
-                },
+                itemId: matchedStorefront.item,
+                item: account.items[matchedStorefront.item],
               });
 
               for (const item of matchedStorefront.items) {
@@ -112,33 +120,23 @@ export default async function PurchaseCatalogEntry(
 
                 multiUpdate.push({
                   changeType: "itemAdded",
-                  itemId: item.item,
-                  item: {
-                    templateId: item.item,
-                    attributes: {
-                      favorite: false,
-                      item_seen: false,
-                      level: 1,
-                      max_level_bonus: 0,
-                      rnd_sel_cnt: 0,
-                      variants: [],
-                      xp: 0,
-                    },
-                    quantity: 1,
-                  },
+                  itemId: matchedStorefront.item,
+                  item: account.items[matchedStorefront.item],
                 });
               }
+
+              const newVbucksBalance =
+                parseInt(account.vbucks.toString() ?? "0", 10) -
+                parseInt(matchedStorefront.price.toString() ?? "0", 10);
 
               applyProfileChanges.push({
                 changeType: "itemQuantityChanged",
                 itemId: "Currency",
-                quantity:
-                  parseInt(account.vbucks.toString() ?? "0", 10) -
-                  parseInt(matchedStorefront.price.toString() ?? "0", 10),
+                quantity: newVbucksBalance,
               });
 
               if (matchedStorefront.price > account.vbucks)
-                return { statusCode: 400 };
+                return res.status(400).json({ errorType: "BadRequest" });
 
               const items: Array<Record<string, any>> = [];
 
@@ -175,33 +173,12 @@ export default async function PurchaseCatalogEntry(
                   },
                 });
               }
-
-              await Accounts.updateOne(
-                { accountId },
-                {
-                  $set: {
-                    ["vbucks"]:
-                      parseInt(account.vbucks.toString() ?? "0", 10) -
-                      parseInt(matchedStorefront.price.toString() ?? "0", 10),
-                  },
-                }
-              );
-
-              await Accounts.updateOne(
-                { accountId },
-                {
-                  $push: {
-                    ["items"]: items,
-                  },
-                }
-              );
             } else {
-              return {
-                statusCode: 400,
+              return res.status(400).json({
                 errorCode:
                   "errors.com.epicgames.modules.profiles.invalid_command",
                 errorMessage: "You Already Own this Item",
-              };
+              });
             }
           }
         } else {
@@ -241,23 +218,21 @@ export default async function PurchaseCatalogEntry(
                   );
 
                   if (basePrice > 0) {
-                    return {
-                      statusCode: 400,
+                    return res.status(400).json({
                       errorCode:
                         "errors.com.epicgames.modules.profiles.invalid_command",
                       errorMessage: "An Error has occured.",
-                    };
+                    });
                   }
 
                   // TODO
                 } else {
-                  return {
-                    statusCode: 400,
+                  return res.status(400).json({
                     errorCode:
                       "errors.com.epicgames.modules.profiles.invalid_command",
                     errorMessage:
                       "There is currently no Battle Pass available for this season.",
-                  };
+                  });
                 }
               }
             }
@@ -284,13 +259,40 @@ export default async function PurchaseCatalogEntry(
           },
         }
       );
+
+      for (const items of multiUpdate) {
+        const { item } = items;
+
+        for (const profileChanges of applyProfileChanges) {
+          await Accounts.updateOne(
+            { accountId },
+            {
+              $set: {
+                vbucks: profileChanges.quantity.toString(),
+              },
+            }
+          );
+        }
+        await Accounts.updateOne(
+          {
+            accountId,
+          },
+          {
+            $set: {
+              ["items"]: item,
+            },
+          }
+        );
+
+        console.log(account.items);
+      }
     }
 
     if (multiUpdate.length > 0) {
       rvn += 1;
     }
 
-    return {
+    res.json({
       profileRevision: account.profilerevision,
       profileId,
       profileChangesBaseRevision: account.baseRevision,
@@ -316,7 +318,7 @@ export default async function PurchaseCatalogEntry(
         },
       ],
       response: 1,
-    };
+    });
   } catch (error) {
     log.error(`${error}`, "PurchaseCatalogEntry");
   }

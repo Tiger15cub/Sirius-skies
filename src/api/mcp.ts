@@ -140,14 +140,13 @@ export default function initRoute(router: Router): void {
             break;
 
           case "PurchaseCatalogEntry":
-            const purchase = await PurchaseCatalogEntry(
+            await PurchaseCatalogEntry(
               accountId,
               profileId as string,
               rvn as any,
-              req
+              req,
+              res
             );
-
-            res.json(purchase).status(204);
             break;
 
           default:
