@@ -67,7 +67,7 @@ export default async function PurchaseCatalogEntry(
             return {
               statusCode: 400,
               errorName: "BadRequest",
-              errorMessage: "Failed to get Item in Current Shop.",
+              errorMessage: "Failed to get item from the current shop.",
             };
           } else {
             for (const currentItem of account.items) {
@@ -90,12 +90,13 @@ export default async function PurchaseCatalogEntry(
                 item: {
                   templateId: matchedStorefront.item,
                   attributes: {
-                    max_level_bonus: 0,
-                    level: 1,
-                    item_seen: false,
-                    xp: 0,
-                    variants: [],
                     favorite: false,
+                    item_seen: false,
+                    level: 1,
+                    max_level_bonus: 0,
+                    rnd_sel_cnt: 0,
+                    variants: [],
+                    xp: 0,
                   },
                   quantity: 1,
                 },
@@ -115,12 +116,13 @@ export default async function PurchaseCatalogEntry(
                   item: {
                     templateId: item.item,
                     attributes: {
-                      max_level_bonus: 0,
-                      level: 1,
-                      item_seen: false,
-                      xp: 0,
-                      variants: [],
                       favorite: false,
+                      item_seen: false,
+                      level: 1,
+                      max_level_bonus: 0,
+                      rnd_sel_cnt: 0,
+                      variants: [],
+                      xp: 0,
                     },
                     quantity: 1,
                   },
@@ -148,6 +150,7 @@ export default async function PurchaseCatalogEntry(
                     item_seen: false,
                     level: 1,
                     max_level_bonus: 0,
+                    rnd_sel_cnt: 0,
                     variants: [],
                     xp: 0,
                   },
@@ -164,6 +167,7 @@ export default async function PurchaseCatalogEntry(
                       item_seen: false,
                       level: 1,
                       max_level_bonus: 0,
+                      rnd_sel_cnt: 0,
                       variants: [],
                       xp: 0,
                     },
@@ -201,7 +205,63 @@ export default async function PurchaseCatalogEntry(
             }
           }
         } else {
-          // TODO: BattlePass
+          const BattlePasses = [
+            "Season10BattlePass",
+            "Season9BattlePass",
+            "Season8BattlePass",
+            "Season7BattlePass",
+            "Season6BattlePass",
+            "Season5BattlePass",
+          ];
+
+          const currentSeason = season?.season as number;
+
+          if (currentSeason < 11 && currentSeason >= 5) {
+            for (const battlepass of BattlePasses) {
+              const filePath = JSON.parse(
+                fs.readFileSync(
+                  path.join(
+                    __dirname,
+                    "..",
+                    "..",
+                    "..",
+                    "resources",
+                    "storefront",
+                    "battlepasses",
+                    `${battlepass}.json`
+                  ),
+                  "utf-8"
+                )
+              );
+
+              for (const battlepassData of filePath.catalogEntries) {
+                if (battlepassData.catalogEntries === offerId) {
+                  let basePrice: number = parseInt(
+                    battlepassData.prices[0].basePrice.toString() ?? "0"
+                  );
+
+                  if (basePrice > 0) {
+                    return {
+                      statusCode: 400,
+                      errorCode:
+                        "errors.com.epicgames.modules.profiles.invalid_command",
+                      errorMessage: "An Error has occured.",
+                    };
+                  }
+
+                  // TODO
+                } else {
+                  return {
+                    statusCode: 400,
+                    errorCode:
+                      "errors.com.epicgames.modules.profiles.invalid_command",
+                    errorMessage:
+                      "There is currently no Battle Pass available for this season.",
+                  };
+                }
+              }
+            }
+          }
         }
       }
     }
