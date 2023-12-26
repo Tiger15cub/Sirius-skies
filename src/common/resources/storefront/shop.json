@@ -4,6 +4,7 @@
   "catalogItems": {
     "BRWeeklyStorefront": [
       {
+        "section": "Weekly",
         "id": "25x57pqr538",
         "item": "AthenaCharacter:CID_523_Athena_Commando_F_Cupid",
         "name": "Stoneheart",
@@ -17,6 +18,7 @@
         "rarity": "epic"
       },
       {
+        "section": "Weekly",
         "id": "bcjubciyz4r",
         "item": "AthenaCharacter:CID_312_Athena_Commando_F_FunkOps",
         "name": "Disco Diva",
@@ -30,6 +32,7 @@
         "rarity": "rare"
       },
       {
+        "section": "Weekly",
         "id": "ynouuoerwb",
         "item": "AthenaCharacter:CID_297_Athena_Commando_F_Math",
         "name": "Maven",
@@ -43,6 +46,7 @@
         "rarity": "rare"
       },
       {
+        "section": "Weekly",
         "id": "q1tnsrwgc1h",
         "item": "AthenaCharacter:CID_199_Athena_Commando_F_BlueSamurai",
         "name": "Hime",
@@ -56,6 +60,7 @@
         "rarity": "legendary"
       },
       {
+        "section": "Weekly",
         "id": "djdq5djnp7",
         "item": "AthenaPickaxe:Pickaxe_ID_043_OrbitingPlanets",
         "name": "Global Axe",
@@ -66,6 +71,7 @@
     ],
     "BRDailyStorefront": [
       {
+        "section": "Daily",
         "id": "bwb8mghefo",
         "item": "AthenaGlider:Glider_ID_058_Shark",
         "name": "Laser Chomp",
@@ -74,6 +80,7 @@
         "rarity": "legendary"
       },
       {
+        "section": "Daily",
         "id": "ogwdqusbipd",
         "item": "AthenaPickaxe:Pickaxe_ID_254_Syko",
         "name": "Plasmatic Edge",
@@ -82,6 +89,7 @@
         "rarity": "rare"
       },
       {
+        "section": "Daily",
         "id": "4id36dkhur",
         "item": "AthenaCharacter:CID_136_Athena_Commando_M_StreetBasketball",
         "name": "Jumpshot",
@@ -90,6 +98,7 @@
         "rarity": "rare"
       },
       {
+        "section": "Daily",
         "id": "h31qmfe0svu",
         "item": "AthenaCharacter:CID_470_Athena_Commando_M_Anarchy",
         "name": "Anarchy Agent",
@@ -98,6 +107,7 @@
         "rarity": "uncommon"
       },
       {
+        "section": "Daily",
         "id": "ic4tqxaboh",
         "item": "AthenaPickaxe:Pickaxe_ID_139_Gingerbread",
         "name": "Cookie Cutter",

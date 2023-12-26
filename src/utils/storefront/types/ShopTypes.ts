@@ -1,6 +1,7 @@
 import { MetaInfoItem } from "./MetaInfoItem";
 
 export interface ShopItem {
+  section?: string;
   id: string;
   item: string;
   name: string;

@@ -10,7 +10,7 @@ import {
   setDisplayAsset,
   setNewDisplayAssetPath,
 } from "../displayAssets/getDisplayAsset";
-import MetaInfoBuilder from "../createMetaInfo";
+import MetaInfoBuilder, { Section, TileSize } from "../createMetaInfo";
 import { MetaInfoItem } from "../types/MetaInfoItem";
 
 export default class Shop {
@@ -125,19 +125,40 @@ export default class Shop {
       )
     );
 
+    if (!randomShopItem.section) {
+      const isWeekly = shopData.catalogItems.BRWeeklyStorefront.some(
+        (data: any) => data.item === randomShopItem.item
+      );
+
+      const sectionValue = isWeekly ? "Weekly" : "Daily";
+
+      randomShopItem.section = sectionValue;
+
+      shopData.catalogItems.BRWeeklyStorefront.forEach((data: any) => {
+        if (!data.section) {
+          data.section = "Weekly";
+        }
+      });
+
+      shopData.catalogItems.BRDailyStorefront.forEach((data: any) => {
+        if (!data.section) {
+          data.section = "Daily";
+        }
+      });
+    }
+
     if (!randomShopItem.metaInfo) {
       const uniqueKeys = new Set<string>();
       randomShopItem.metaInfo = [];
 
       const numFeaturedSections = Math.floor(Math.random() * 6); // Random number between 0 and 5
-      const numItemsPerSection = 7; // Number of items to put in BRDailyStorefront
 
       for (let i = 1; i <= numFeaturedSections; i++) {
         const isChosenSection = Math.random() < 0.5; // 50% chance for Featured
 
-        const section = isChosenSection ? "Featured" : "Daily";
+        const section = isChosenSection ? Section.Featured : Section.Daily;
 
-        meta.setTileSize(isChosenSection ? "Normal" : "Small");
+        meta.setTileSize(isChosenSection ? TileSize.Normal : TileSize.Small);
         meta.setSection(section);
 
         const newMetaInfo = meta.createMetaInfo();
@@ -157,7 +178,7 @@ export default class Shop {
 
         newMetaInfo.forEach((newItem) => {
           if (!uniqueKeys.has(newItem.key)) {
-            if (randomShopItem.metaInfo.length < numItemsPerSection) {
+            if (randomShopItem.metaInfo.length < 7) {
               randomShopItem.metaInfo.push(newItem);
               uniqueKeys.add(newItem.key);
             }
@@ -197,35 +218,6 @@ export default class Shop {
         shopData.catalogItems.BRWeeklyStorefront.concat(remainingItems);
     }
 
-    let attempts: number = 0;
-    let maxAttempts: number = 3;
-
-    if (
-      randomShopItem.lastUpdatedDate &&
-      DateTime.fromISO(randomShopItem.lastUpdatedDate).hasSame(
-        DateTime.local(),
-        "month"
-      )
-    ) {
-      if (attempts < maxAttempts) {
-        attempts += 1;
-        this.generateShopItem(
-          savedData,
-          shopCollection,
-          shopFields,
-          itemType,
-          rarityProb
-        );
-        return;
-      } else {
-        shopFields.push({
-          name: "ShopFields Error",
-          value: "Max attempts reached for regenerating item.",
-        });
-        return;
-      }
-    }
-
     randomShopItem.lastUpdatedDate = DateTime.local().toISODate();
 
     const updatedContent = JSON.stringify(Items, null, 2);
@@ -237,11 +229,12 @@ export default class Shop {
       const categoryPrices = Prices[selectedItemType as keyof Prices] as {
         [key: string]: number;
       };
+      const itemPrice = categoryPrices[randomShopItem.rarity]?.toString();
 
-      if (categoryPrices && categoryPrices[randomShopItem.rarity]) {
-        itemPrice = categoryPrices[randomShopItem.rarity].toString();
-      } else {
-        throw new Error("Invalid category or rarity");
+      if (itemPrice === undefined) {
+        throw new Error(
+          `Invalid rarity "${randomShopItem.rarity}" for category "${selectedItemType}"`
+        );
       }
     } catch (error) {
       log.error(`Error getting item price: ${error}`, "GenerateShopItem");
@@ -253,6 +246,7 @@ export default class Shop {
     });
 
     shopCollection.push({
+      section: randomShopItem.section || "Failed: Section Is Missing",
       id: Math.random().toString(36).substring(2),
       item: randomShopItem.item || "Failed: Item Type Missing",
       name: randomShopItem.name || "Failed: Item Name Missing",
@@ -396,31 +390,38 @@ export default class Shop {
 
     const random = Math.random();
 
-    const minWeeklyItems = 10;
-    const maxWeeklyItems = 15;
+    const minWeeklyItems = 5;
+    const maxWeeklyItems = 7;
+
+    const minDailyItems = 5;
+    const maxDailyItems = 7;
 
     const weekly =
       Math.floor(random * (maxWeeklyItems - minWeeklyItems + 1)) +
       minWeeklyItems;
-    const daily = Math.floor(random * (7 - 5 + 1)) + 5;
+    const daily =
+      Math.floor(random * (maxDailyItems - minDailyItems + 1)) + minDailyItems;
+    if (!this.isSpecialShop()) {
+      const bundlePromise = this.regenerateBundle(
+        savedData,
+        attempts,
+        maxAttempts,
+        minWeeklyItems,
+        maxWeeklyItems
+      );
 
-    if (this.isSpecialShop()) {
-      // TODO
-    } else {
-      if (
-        await this.regenerateBundle(
-          savedData,
-          attempts,
-          maxAttempts,
-          minWeeklyItems,
-          maxWeeklyItems
-        )
-      ) {
+      const weeklyPromise = this.generateWeekly(savedData, weekly);
+      const dailyPromise = this.generateDaily(savedData, daily);
+
+      const [bundleResult] = await Promise.all([
+        bundlePromise,
+        weeklyPromise,
+        dailyPromise,
+      ]);
+
+      if (bundleResult) {
         log.log("Bundle generated successfully.", "Initialize", "blue");
       } else {
-        await this.generateWeekly(savedData, weekly);
-        await this.generateDaily(savedData, daily);
-
         log.log(
           `Generated ${weekly} weekly items and ${daily} daily items.`,
           "Initialize",
@@ -429,44 +430,48 @@ export default class Shop {
       }
     }
 
+    const date = DateTime.utc().setZone("GMT");
+
+    const generate = {
+      expiration: date.startOf("day").plus({ days: 1 }).toISO(),
+      cacheExpire: date.startOf("day").plus({ days: 1 }).toISO(),
+      catalogItems: {
+        BRWeeklyStorefront: savedData.weekly,
+        BRDailyStorefront: savedData.daily,
+      },
+    };
+
+    const filePath = path.join(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "common",
+      "resources",
+      "storefront",
+      "shop.json"
+    );
+
     try {
-      const date = DateTime.utc().setZone("GMT");
-
-      const generate = {
-        expiration: date.startOf("day").plus({ days: 1 }).toISO(),
-        cacheExpire: date.startOf("day").plus({ days: 1 }).toISO(),
-        catalogItems: {
-          BRWeeklyStorefront: savedData.weekly,
-          BRDailyStorefront: savedData.daily,
-        },
-      };
-
-      const FilePath = path.join(
-        __dirname,
-        "..",
-        "..",
-        "..",
-        "common",
-        "resources",
-        "storefront",
-        "shop.json"
-      );
-
-      if (!fs.existsSync(FilePath)) {
+      if (!fs.existsSync(filePath)) {
         fs.writeFileSync(
-          FilePath,
-          JSON.stringify({
-            expiration: "9999-12-31T23:59:59.999Z",
-            cacheExpire: "9999-12-31T23:59:59.999Z",
-            catalogItems: {
-              BRWeeklyStorefront: [],
-              BRDailyStorefront: [],
+          filePath,
+          JSON.stringify(
+            {
+              expiration: "9999-12-31T23:59:59.999Z",
+              cacheExpire: "9999-12-31T23:59:59.999Z",
+              catalogItems: {
+                BRWeeklyStorefront: [],
+                BRDailyStorefront: [],
+              },
             },
-          })
+            null,
+            2
+          )
         );
       }
 
-      fs.writeFileSync(FilePath, JSON.stringify(generate, null, 2));
+      fs.writeFileSync(filePath, JSON.stringify(generate, null, 2));
 
       log.log("Successfully generated Shop", "Initialize", "blue");
     } catch (error) {
