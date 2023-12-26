@@ -125,7 +125,14 @@ export default function initRoute(router: Router): void {
           case "MarkItemSeen":
             res
               .status(204)
-              .json(await MarkItemSeen(profileId as string, rvn as any, req));
+              .json(
+                await MarkItemSeen(
+                  profileId as string,
+                  accountId,
+                  rvn as any,
+                  req
+                )
+              );
             break;
 
           case "ClientQuestLogin":
