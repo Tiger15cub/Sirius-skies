@@ -6,6 +6,7 @@ import { getEnv } from "../utils";
 import path from "node:path";
 import { v4 as uuid } from "uuid";
 import fs from "node:fs";
+import verifyToken from "../middleware/verifyToken";
 
 function generateRandomKey(): Buffer {
   const prefix = "matchmaking";
@@ -39,6 +40,7 @@ function decryptAES256(encryptedData: string, key: Buffer): string {
 export default function initRoute(router: Router): void {
   router.get(
     "/fortnite/api/game/v2/matchmakingservice/ticket/player/:accountId",
+    verifyToken,
     async (req, res) => {
       try {
         const { accountId } = req.params;
@@ -193,6 +195,7 @@ export default function initRoute(router: Router): void {
 
   router.get(
     "/fortnite/api/matchmaking/session/:sessionId",
+    verifyToken,
     async (req, res) => {
       const { sessionId } = req.params;
 

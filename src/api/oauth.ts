@@ -8,6 +8,7 @@ import { getEnv, sendErrorResponse } from "../utils";
 import { DecodedToken, VerificationResponse } from "../interface";
 import log from "../utils/log";
 import { Globals } from "../xmpp/types/XmppTypes";
+import verifyToken from "../middleware/verifyToken";
 
 export default function initRoute(router: Router): void {
   router.delete("/account/api/oauth/sessions/kill", (req, res) => {
@@ -16,6 +17,7 @@ export default function initRoute(router: Router): void {
 
   router.delete(
     "/account/api/oauth/sessions/kill/:accessToken",
+    verifyToken,
     async (req, res) => {
       res.status(204).end();
     }
@@ -167,6 +169,15 @@ export default function initRoute(router: Router): void {
         token: `eg1~${accessToken}`,
       });
 
+      Accounts.updateOne(
+        { accountId },
+        {
+          $push: {
+            ["accessTokens"]: Globals.AccessTokens,
+          },
+        }
+      );
+
       return res.json({
         access_token: `eg1~${accessToken}`,
         expires_in: 28800,
@@ -198,7 +209,7 @@ export default function initRoute(router: Router): void {
     }
   });
 
-  router.get("/account/api/oauth/verify", (req, res) => {
+  router.get("/account/api/oauth/verify", verifyToken, (req, res) => {
     const token = req.headers["authorization"]?.split("bearer ")[1];
 
     if (!token) {

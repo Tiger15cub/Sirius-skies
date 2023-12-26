@@ -6,11 +6,12 @@ import ProfileAthena from "../common/mcp/operations/QueryProfile/Athena";
 import ProfileCommonCore from "../common/mcp/operations/QueryProfile/CommonCore";
 import SetCosmeticLockerSlot from "../common/mcp/operations/SetCosmeticLockerSlot/SetCosmeticLockerSlot";
 import EquipBattleRoyaleCustomization from "../common/mcp/operations/EquipBattleRoyaleCustomization/EquipBattleRoyaleCustomization";
-import log from "../utils/log";
 import ClaimMfaEnabled from "../common/mcp/operations/ClaimMfaEnabled/ClaimMfaEnabled";
 import MarkItemSeen from "../common/mcp/operations/MarkItemSeen/MarkItemSeen";
 import ClientQuestLogin from "../common/mcp/operations/ClientQuestLogin/ClientQuestLogin";
 import PurchaseCatalogEntry from "../common/mcp/operations/PurchaseCatalogEntry/PurchaseCatalogEntry";
+import verifyToken from "../middleware/verifyToken";
+import log from "../utils/log";
 
 export default function initRoute(router: Router): void {
   router.post(
@@ -18,6 +19,7 @@ export default function initRoute(router: Router): void {
       "/fortnite/api/game/v2/profile/:accountId/*/EquipBattleRoyaleCustomization",
       "/fortnite/api/game/v2/profile/:accountId/*/SetCosmeticLockerSlot",
     ],
+    verifyToken,
     async (req, res) => {
       try {
         const { accountId } = req.params;
@@ -64,6 +66,7 @@ export default function initRoute(router: Router): void {
 
   router.post(
     "/fortnite/api/game/v2/profile/:accountId/*/:command",
+    verifyToken,
     async (req, res) => {
       const { accountId, command } = req.params;
       const { rvn, profileId } = req.query;

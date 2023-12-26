@@ -4,6 +4,7 @@ import path from "node:path";
 import util from "node:util";
 import log from "../utils/log";
 import Users from "../models/Users";
+import verifyToken from "../middleware/verifyToken";
 
 const readdir = util.promisify(fs.readdir);
 const readFile = util.promisify(fs.readFile);
@@ -107,111 +108,123 @@ export default function initRoute(router: Router): void {
     }
   );
 
-  router.get("/fortnite/api/cloudstorage/user/:id/:file", async (req, res) => {
-    res.contentType("application/octet-stream");
+  router.get(
+    "/fortnite/api/cloudstorage/user/:id/:file",
+    verifyToken,
+    async (req, res) => {
+      res.contentType("application/octet-stream");
 
-    const id = req.params.id;
-    const file = req.params.file;
-    const filePath = path.join(
-      process.env.LOCALAPPDATA as string,
-      "Sirius",
-      "ClientSettings",
-      `ClientSettings-${id}.sav`
-    );
-
-    try {
-      if (fs.existsSync(filePath)) {
-        const fileContent = await readFile(filePath);
-        res.type("application/octet-stream").send(fileContent);
-      } else {
-        res.status(204).send();
-      }
-    } catch (error) {
-      console.error(error);
-      res.status(500).send("Internal Server Error");
-    }
-  });
-
-  router.put("/fortnite/api/cloudstorage/user/:id/:file", async (req, res) => {
-    res.contentType("application/octet-stream");
-
-    try {
-      if (
-        req.headers["content-length"] &&
-        parseInt(req.headers["content-length"] as string, 10) >= 400000
-      ) {
-        console.log("Request body too large!");
-        res.status(403).send("Forbidden");
-        return;
-      }
-
-      const requestBody = await getRequestBody(req);
-      const folderPath = path.join(
+      const id = req.params.id;
+      const file = req.params.file;
+      const filePath = path.join(
         process.env.LOCALAPPDATA as string,
         "Sirius",
-        "Cloudstorage"
+        "ClientSettings",
+        `ClientSettings-${id}.sav`
       );
 
-      if (!fs.existsSync(folderPath)) {
-        fs.mkdirSync(folderPath, { recursive: true });
+      try {
+        if (fs.existsSync(filePath)) {
+          const fileContent = await readFile(filePath);
+          res.type("application/octet-stream").send(fileContent);
+        } else {
+          res.status(204).send();
+        }
+      } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
       }
+    }
+  );
 
-      const user = await Users.findOne({ accountId: req.params.id });
+  router.put(
+    "/fortnite/api/cloudstorage/user/:id/:file",
+    verifyToken,
+    async (req, res) => {
+      res.contentType("application/octet-stream");
 
-      if (user) {
-        const filePath = path.join(
-          folderPath,
-          `ClientSettings-${req.params.id}.Sav`
+      try {
+        if (
+          req.headers["content-length"] &&
+          parseInt(req.headers["content-length"] as string, 10) >= 400000
+        ) {
+          console.log("Request body too large!");
+          res.status(403).send("Forbidden");
+          return;
+        }
+
+        const requestBody = await getRequestBody(req);
+        const folderPath = path.join(
+          process.env.LOCALAPPDATA as string,
+          "Sirius",
+          "Cloudstorage"
         );
-        await writeFile(filePath, requestBody, { encoding: "latin1" });
-        res.status(204).send();
-      } else {
-        res.status(204).send();
+
+        if (!fs.existsSync(folderPath)) {
+          fs.mkdirSync(folderPath, { recursive: true });
+        }
+
+        const user = await Users.findOne({ accountId: req.params.id });
+
+        if (user) {
+          const filePath = path.join(
+            folderPath,
+            `ClientSettings-${req.params.id}.Sav`
+          );
+          await writeFile(filePath, requestBody, { encoding: "latin1" });
+          res.status(204).send();
+        } else {
+          res.status(204).send();
+        }
+      } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
       }
-    } catch (error) {
-      console.error(error);
-      res.status(500).send("Internal Server Error");
     }
-  });
+  );
 
-  router.get("/fortnite/api/cloudstorage/user/:id", async (req, res) => {
-    res.contentType("application/json");
+  router.get(
+    "/fortnite/api/cloudstorage/user/:id",
+    verifyToken,
+    async (req, res) => {
+      res.contentType("application/json");
 
-    const id = req.params.id;
-    const filePath = path.join(
-      process.env.LOCALAPPDATA as string,
-      "Sirius",
-      "ClientSettings",
-      `ClientSettings-${id}.sav`
-    );
+      const id = req.params.id;
+      const filePath = path.join(
+        process.env.LOCALAPPDATA as string,
+        "Sirius",
+        "ClientSettings",
+        `ClientSettings-${id}.sav`
+      );
 
-    try {
-      if (fs.existsSync(filePath)) {
-        const fileContents = await readFile(filePath, "utf8");
-        const fileInfo = await fs.promises.stat(filePath);
+      try {
+        if (fs.existsSync(filePath)) {
+          const fileContents = await readFile(filePath, "utf8");
+          const fileInfo = await fs.promises.stat(filePath);
 
-        res.json([
-          {
-            uniqueFilename: "ClientSettings.Sav",
-            filename: "ClientSettings.Sav",
-            hash: "603E6907398C7E74E25C0AE8EC3A03FFAC7C9BB4",
-            hash256:
-              "973124FFC4A03E66D6A4458E587D5D6146F71FC57F359C8D516E0B12A50AB0D9",
-            length: fileContents.length,
-            contentType: "application/octet-stream",
-            uploaded: fileInfo.ctime,
-            storageType: "S3",
-            storageIds: {},
-            accountId: id,
-            doNotCache: false,
-          },
-        ]);
-      } else {
-        res.json([]);
+          res.json([
+            {
+              uniqueFilename: "ClientSettings.Sav",
+              filename: "ClientSettings.Sav",
+              hash: "603E6907398C7E74E25C0AE8EC3A03FFAC7C9BB4",
+              hash256:
+                "973124FFC4A03E66D6A4458E587D5D6146F71FC57F359C8D516E0B12A50AB0D9",
+              length: fileContents.length,
+              contentType: "application/octet-stream",
+              uploaded: fileInfo.ctime,
+              storageType: "S3",
+              storageIds: {},
+              accountId: id,
+              doNotCache: false,
+            },
+          ]);
+        } else {
+          res.json([]);
+        }
+      } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
       }
-    } catch (error) {
-      console.error(error);
-      res.status(500).send("Internal Server Error");
     }
-  });
+  );
 }

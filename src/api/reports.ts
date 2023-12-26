@@ -2,10 +2,12 @@ import { Router } from "express";
 import Users from "../models/Users";
 import { WebhookClient, EmbedBuilder } from "discord.js";
 import { getEnv } from "../utils";
+import verifyToken from "../middleware/verifyToken";
 
 export default function initRoute(router: Router) {
   router.post(
     "/fortnite/api/game/v2/toxicity/account/:reporterId/report/:offenderId",
+    verifyToken,
     async (req, res) => {
       const { reporterId, offenderId } = req.params;
 

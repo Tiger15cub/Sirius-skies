@@ -1,35 +1,40 @@
 import { Router } from "express";
 import Users from "../models/Users";
 import log from "../utils/log";
+import verifyToken from "../middleware/verifyToken";
 
 export default function initRoute(router: Router): void {
-  router.get("/account/api/public/account/:accountId", async (req, res) => {
-    const { accountId } = req.params;
-    const user = await Users.findOne({ accountId }).lean();
+  router.get(
+    "/account/api/public/account/:accountId",
+    verifyToken,
+    async (req, res) => {
+      const { accountId } = req.params;
+      const user = await Users.findOne({ accountId }).lean();
 
-    try {
-      if (!user) {
-        return res.json({});
-      } else if (user.banned === true) {
-        return res.json({});
+      try {
+        if (!user) {
+          return res.json({});
+        } else if (user.banned === true) {
+          return res.json({});
+        }
+
+        return res.json({
+          id: user.accountId,
+          displayName: user.username,
+          externalAuths: {},
+        });
+      } catch (error) {
+        let err: Error = error as Error;
+        log.error(
+          `Error while fetching public account information:  ${err.message}`,
+          "Account"
+        );
+        res.status(500).json({ error: "Internal Server Error" });
       }
-
-      return res.json({
-        id: user.accountId,
-        displayName: user.username,
-        externalAuths: {},
-      });
-    } catch (error) {
-      let err: Error = error as Error;
-      log.error(
-        `Error while fetching public account information:  ${err.message}`,
-        "Account"
-      );
-      res.status(500).json({ error: "Internal Server Error" });
     }
-  });
+  );
 
-  router.get("/account/api/public/account", async (req, res) => {
+  router.get("/account/api/public/account", verifyToken, async (req, res) => {
     try {
       const accountId = req.query.accountId;
 
@@ -66,18 +71,27 @@ export default function initRoute(router: Router): void {
     }
   });
 
-  router.all("/fortnite/api/game/v2/world/info", (req, res) => {
-    res.json({});
-  });
+  router.all(
+    "/fortnite/api/game/v2/world/info",
+    verifyToken,
+    async (req, res) => {
+      res.json({});
+    }
+  );
 
   router.post(
     "/fortnite/api/game/v2/tryPlayOnPlatform/account/*",
-    (req, res) => {
+    verifyToken,
+    async (req, res) => {
       res.setHeader("Content-Type", "text/plain").send(true).end();
     }
   );
 
-  router.get("/fortnite/api/game/v2/enabled_features", (req, res) => {
-    res.json([]);
-  });
+  router.get(
+    "/fortnite/api/game/v2/enabled_features",
+    verifyToken,
+    async (req, res) => {
+      res.json([]);
+    }
+  );
 }
