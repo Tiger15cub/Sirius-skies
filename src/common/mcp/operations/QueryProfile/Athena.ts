@@ -297,17 +297,40 @@ export default async function Athena(
         ...athena,
       };
 
-      if (!athena.items) {
-        await Account.updateOne({ accountId }, { items: [] }).lean();
+      const account = await Account.findOne({ accountId }).lean();
+
+      if (!account.items) {
+        await Account.updateOne(
+          { accountId },
+          {
+            $set: {
+              ["items"]: [],
+            },
+          }
+        );
       } else {
-        isEnabled = athena.items.some((e: any) => true);
+        isEnabled = account.items.some((cosmetic: any) => true);
       }
 
       if (isEnabled) {
-        athena.items.forEach((e: any) => {
+        await Account.updateOne({ accountId }, { items: account.items }).lean();
+
+        account.items.forEach((cosmetic: any) => {
+          fs.writeFileSync(
+            `${__dirname}/items.json`,
+            JSON.stringify({
+              [`${cosmetic.templateId}`]: {
+                atrributes: cosmetic.attributes,
+                templateId: cosmetic.templateId,
+              },
+            })
+          );
+
+          const items = require("./items.json");
+
           AthenaData.profileChanges[0].profile.items = {
             ...AthenaData.profileChanges[0].profile.items,
-            ...e,
+            ...items,
           };
         });
       }

@@ -136,7 +136,11 @@ export default async function PurchaseCatalogEntry(
               });
 
               if (matchedStorefront.price > account.vbucks)
-                return res.status(400).json({ errorType: "BadRequest" });
+                return res.status(400).json({
+                  errorType: "BadRequest",
+                  errorMessage:
+                    "You do not have enough V-Bucks to purchase this item",
+                });
 
               const items: Array<Record<string, any>> = [];
 
