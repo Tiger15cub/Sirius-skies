@@ -154,14 +154,6 @@ export default function initRoute(router: Router): void {
 
       if (accessTokens !== -1) {
         Globals.AccessTokens.splice(accessTokens, 1);
-
-        const Client = Globals.Clients.find(
-          (data) => data.accountId === accountId
-        );
-
-        // if (Client) {
-        //   Client.socket?.socket.close();
-        // }
       }
 
       Globals.AccessTokens.push({
