@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import Account from "../../../../models/Accounts";
 import User from "../../../../models/Users";
 import log from "../../../../utils/log";
@@ -6,8 +7,8 @@ export default async function EquipBattleRoyaleCustomization(
   accountId: string,
   slotName: string,
   itemToSlot: string,
-  indexWithinSlot: string,
-  variantUpdates: string,
+  slotIndex: string,
+  variantUpdates: any[],
   rvn: number
 ) {
   try {
@@ -22,87 +23,91 @@ export default async function EquipBattleRoyaleCustomization(
 
     await Account.updateOne(
       { accountId },
-      { [`profilerevision`]: account.profilerevision + 1 }
+      { $set: { [`profilerevision`]: account.profilerevision + 1 } }
     );
 
-    if (category === "ItemWrap" || category === "Dance") {
-      // Debug log
-      console.log(category);
+    await Account.updateOne(
+      { accountId },
+      {
+        $set: {
+          baseRevision: account.baseRevision + 1,
+        },
+      }
+    );
 
-      if (itemToSlot == "") {
-        await Account.updateOne(
-          { accountId },
-          { [`${category.toString().toLowerCase()}`]: `` }
-        );
+    const profileChanges: any[] = [];
+
+    if (category === "ItemWrap" || category === "Dance") {
+      if (parseInt(slotIndex ?? "0", 10) === -1) {
+        if (itemToSlot === "Dance") {
+          return {};
+        }
       } else {
-        await Account.findOne(
-          { accountId },
-          {
-            [`${category
-              .toString()
-              .toLowerCase()}.items.${indexWithinSlot}`]: `${
-              itemToSlot.split(":")[0]
-            }:${itemToSlot.split(":")[1]}`,
-          }
-        );
+        if (itemToSlot === "") {
+          await Account.updateOne(
+            { accountId },
+            {
+              $set: {
+                [`${category.toString().toLowerCase()}.items.${slotIndex}`]: "",
+              },
+            }
+          );
+        } else {
+          await Account.updateOne(
+            { accountId },
+            {
+              $set: {
+                [`${category.toString().toLowerCase()}.items.${slotIndex}`]:
+                  itemToSlot.toLowerCase(),
+              },
+            }
+          );
+        }
       }
     } else {
       if (itemToSlot === "") {
         await Account.updateOne(
           { accountId },
-          { [`${category.toString().toLowerCase()}.items`]: `` }
+          {
+            $set: {
+              [`${category.toString().toLowerCase()}.items`]: "",
+            },
+          }
         );
       } else {
         await Account.updateOne(
           { accountId },
           {
-            [`${category.toString().toLowerCase()}.items`]: `${
-              itemToSlot.split(":")[0]
-            }:${itemToSlot.split(":")[1].toLowerCase()}`,
+            $set: {
+              [`${category.toString().toLowerCase()}.items`]:
+                itemToSlot.toString(),
+            },
           }
         );
       }
     }
 
-    // Debug log
-    console.log(variantUpdates);
+    const newProfileData = await Account.findOne({ accountId });
 
-    if (variantUpdates.length != 0) {
-      await Account.updateOne(
-        { accountId },
-        {
-          [`${category.toString().toLowerCase()}.activeVariants`]:
-            variantUpdates,
-        }
-      );
+    if (!newProfileData) {
+      return { error: "Failed to find New Profile." };
     }
 
-    const newAccountProfile = await Account.findOne({ accountId }).lean();
+    profileChanges.push({
+      changeType: "statModified",
+      name: `favorite_${category.toString().toLowerCase()}`,
+      value: itemToSlot,
+    });
 
-    // Debug log
-    console.log(rvn);
-
-    if (!newAccountProfile) {
-      return {};
-    }
-
-    const responseData = {
-      profileRevision: newAccountProfile.profilerevision,
+    return {
+      profileRevision: newProfileData.profilerevision,
       profileId: "athena",
-      profileChangesBaseRevision: newAccountProfile.profilerevision,
-      profileChanges: [
-        {
-          changeType: "statModified",
-          name: `favorite_${category.toLowerCase()}`,
-          value: itemToSlot,
-        },
-      ],
-      profileCommandRevision: newAccountProfile.profilerevision,
-      serverTime: new Date(),
-      responseVersion: 2,
+      profileChangesBaseRevision: newProfileData.baseRevision,
+      profileChanges,
+      profileCommandRevision: rvn,
+      serverTime: DateTime.now().toISO(),
+      responseVersion: 1,
     };
-
-    return responseData;
   } catch (error) {
     let err = error as Error;
     log.error(err.message, "EquipBattleRoyaleCustomization");

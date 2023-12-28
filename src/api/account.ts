@@ -94,4 +94,12 @@ export default function initRoute(router: Router): void {
       res.json([]);
     }
   );
+
+  router.get(
+    "/account/api/public/account/:accountId/externalAuths",
+    verifyToken,
+    async (req, res) => {
+      res.json([]);
+    }
+  );
 }

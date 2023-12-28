@@ -2,8 +2,7 @@ import { Router } from "express";
 import path from "node:path";
 import fs from "node:fs";
 import log from "../utils/log";
-import { Storefront, StorefrontEntry } from "../interface";
-import { ShopItem } from "../utils/storefront/types/ShopTypes";
+import { Storefront } from "../interface";
 import { ProcessStorefrontItems } from "../utils/storefront/ProcessStorefrontItems";
 import verifyToken from "../middleware/verifyToken";
 

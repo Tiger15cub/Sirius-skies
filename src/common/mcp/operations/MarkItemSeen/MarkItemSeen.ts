@@ -22,7 +22,7 @@ export default async function MarkItemSeen(
   const items = account.items;
 
   for (let item in itemIds) {
-    items[itemIds[item]].attributes.item_seen = true;
+    // items[itemIds[item]].attributes.item_seen = true;
 
     applyProfileChanges.push({
       changeType: "itemAttrChanged",

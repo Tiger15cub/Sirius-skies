@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { getEnv, sendErrorResponse } from "../utils";
 import { Globals } from "../xmpp/types/XmppTypes";
 import Users from "../models/Users";
+import log from "../utils/log";
 
 export default async function verifyToken(
   req: Request,
@@ -22,25 +23,23 @@ export default async function verifyToken(
   try {
     if (
       !authorization ||
-      !authorization.startsWith("Bearer ") ||
-      !authorization.split(" ")[1]
+      !authorization.startsWith("bearer ") ||
+      !authorization.startsWith("bearer eg1~")
     ) {
       throw new Error("Invalid authorization format");
     }
 
-    const token = authorization.split(" ")[1];
-    const decodedToken = jwt.verify(
-      token.split("-")[1],
-      getEnv("CLIENT_SECRET")
-    );
+    const token = authorization.replace("bearer eg1~", "");
+    const decodedToken = jwt.decode(token);
 
-    if (!Globals.AccessTokens.some((t) => t.token === token)) {
-      throw new Error("Invalid AccessToken");
+    const user = await Users.findOne({ accountId: decodedToken?.sub }).lean();
+
+    if (!user) {
+      res.status(404).json({ error: "User not found." });
+      return;
     }
 
-    const user = await Users.findOne({ accountId: decodedToken.sub }).lean();
-
-    if (user?.banned) {
+    if (user.banned) {
       sendErrorResponse(
         res,
         "errors.com.epicgames.account.account_not_active",

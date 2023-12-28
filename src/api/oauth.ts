@@ -17,7 +17,6 @@ export default function initRoute(router: Router): void {
 
   router.delete(
     "/account/api/oauth/sessions/kill/:accessToken",
-    verifyToken,
     async (req, res) => {
       res.status(204).end();
     }
@@ -161,14 +160,14 @@ export default function initRoute(router: Router): void {
         token: `eg1~${accessToken}`,
       });
 
-      Accounts.updateOne(
-        { accountId },
-        {
-          $push: {
-            ["accessTokens"]: Globals.AccessTokens,
-          },
-        }
-      );
+      // Accounts.updateOne(
+      //   { accountId },
+      //   {
+      //     $push: {
+      //       ["accessTokens"]: Globals.AccessTokens,
+      //     },
+      //   }
+      // );
 
       return res.json({
         access_token: `eg1~${accessToken}`,
@@ -201,7 +200,7 @@ export default function initRoute(router: Router): void {
     }
   });
 
-  router.get("/account/api/oauth/verify", verifyToken, (req, res) => {
+  router.get("/account/api/oauth/verify", (req, res) => {
     const token = req.headers["authorization"]?.split("bearer ")[1];
 
     if (!token) {

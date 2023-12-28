@@ -229,12 +229,11 @@ export default class Shop {
       const categoryPrices = Prices[selectedItemType as keyof Prices] as {
         [key: string]: number;
       };
-      const itemPrice = categoryPrices[randomShopItem.rarity]?.toString();
 
-      if (itemPrice === undefined) {
-        throw new Error(
-          `Invalid rarity "${randomShopItem.rarity}" for category "${selectedItemType}"`
-        );
+      if (categoryPrices && categoryPrices[randomShopItem.rarity]) {
+        itemPrice = categoryPrices[randomShopItem.rarity].toString();
+      } else {
+        throw new Error("Invalid category or rarity");
       }
     } catch (error) {
       log.error(`Error getting item price: ${error}`, "GenerateShopItem");
@@ -251,7 +250,7 @@ export default class Shop {
       item: randomShopItem.item || "Failed: Item Type Missing",
       name: randomShopItem.name || "Failed: Item Name Missing",
       items: randomShopItem.items || "Failed: Item Details Missing",
-      price: parseInt(itemPrice || "9999", 10),
+      price: parseInt(itemPrice || "1000000", 10),
       rarity: randomShopItem.rarity || "Failed: Rarity Missing",
       ...(randomShopItem.displayAssetPath !== "" && {
         displayAssetPath: randomShopItem.displayAssetPath,
