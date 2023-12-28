@@ -1,10 +1,11 @@
-import Accounts from "../../../../models/Accounts";
-import { getSeason } from "../../../../utils";
 import fs from "node:fs";
 import path from "node:path";
-import log from "../../../../utils/log";
 import { DateTime } from "luxon";
-import MarkItemSeen from "../MarkItemSeen/MarkItemSeen";
+import { v4 as uuid } from "uuid";
+import Accounts from "../../../../models/Accounts";
+import { getSeason } from "../../../../utils";
+import log from "../../../../utils/log";
+import { AddItem, UpdateVbucks } from "../../utils/profile";
 
 export default async function PurchaseCatalogEntry(
   accountId: string,
@@ -13,83 +14,94 @@ export default async function PurchaseCatalogEntry(
   req: any,
   res: any
 ) {
-  const userAgent = req.headers["user-agent"];
-  let season = getSeason(userAgent);
-
-  const shop = JSON.parse(
-    fs.readFileSync(
-      path.join(
-        __dirname,
-        "..",
-        "..",
-        "..",
-        "resources",
-        "storefront",
-        "shop.json"
-      ),
-      "utf-8"
-    )
-  );
-
-  const { currency, offerId } = req.body;
-
-  const multiUpdate: any[] = [];
-  const notifications: any[] = [];
-  const applyProfileChanges: any[] = [];
-  const changeStream = Accounts.watch();
-
-  const account = await Accounts.findOne({ accountId }).lean();
-
-  if (!account)
-    return res.status(404).json({
-      errorMessage: "Account not found. ",
-    });
-
   try {
-    changeStream;
+    const { currency, offerId } = req.body;
+    const userAgent = req.headers["user-agent"];
+    const season = getSeason(userAgent);
+
+    const shopPath = path.join(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "resources",
+      "storefront",
+      "shop.json"
+    );
+
+    const shop = JSON.parse(fs.readFileSync(shopPath, "utf-8"));
+
+    const account = await Accounts.findOne({ accountId }).lean();
+
+    const applyProfileChanges: any[] = [];
+    const notifications: any[] = [];
+    const multiUpdate: any[] = [];
+
+    if (!account) {
+      return res.status(404).json({
+        errorMessage: "Account not found.",
+      });
+    }
+
+    if (profileId === "profile0") return;
 
     if (currency === "MtxCurrency") {
-      if (offerId === null) return;
-      else {
-        if (offerId.includes(":/")) {
-          let id: string = offerId.split(":/")[1];
-          let matchedStorefront: any = null;
-          let isItemOwned: boolean = false;
+      if (!offerId) {
+        return res.status(400).json({
+          errorCode: "errors.com.epicgames.fortnite.id_invalid",
+          errorMessage: `Offer ID (${offerId}) not found.`,
+          messageVars: undefined,
+          numericErrorCode: 1040,
+          originatingService: "any",
+          intent: "prod",
+          error_description: `Offer ID (${offerId}) not found.`,
+          error: undefined,
+        });
+      }
 
-          for (const storefront of shop.catalogItems.BRDailyStorefront) {
-            if (storefront.id === id) {
-              matchedStorefront = storefront;
-            }
+      if (offerId.includes(":/")) {
+        const id = offerId.split(":/")[1];
+        let matchedStorefront = null;
+        let isItemOwned = false;
+
+        for (const storefronts of ["BRDailyStorefront", "BRWeeklyStorefront"]) {
+          matchedStorefront = shop.catalogItems[storefronts].find(
+            (storefront: any) => storefront.id === id
+          );
+
+          if (matchedStorefront) {
+            break;
           }
+        }
 
-          for (const storefront of shop.catalogItems.BRWeeklyStorefront) {
-            if (storefront.id === id) {
-              matchedStorefront = storefront;
-            }
+        if (!matchedStorefront) {
+          return res.status(400).json({
+            errorCode: "errors.com.epicgames.fortnite.invalid_item_id",
+            errorMessage: "Failed to retrieve item from the current shop.",
+            messageVars: undefined,
+            numericErrorCode: 1040,
+            originatingService: "any",
+            intent: "prod",
+            error_description: "Failed to retrieve item from the current shop.",
+            error: undefined,
+          });
+        }
+
+        for (const currentItem of account.items) {
+          if (currentItem.templateId.includes(matchedStorefront.item)) {
+            isItemOwned = true;
           }
+        }
 
-          if (!matchedStorefront) {
-            return res.status(400).json({
-              errorType: "BadRequest",
-              errorMessage: "Failed to get item from the current shop.",
-            });
-          } else {
-            for (const currentItem of account.items) {
-              if (currentItem.templateId.includes(matchedStorefront.item)) {
-                isItemOwned = true;
-              }
-            }
+        if (!isItemOwned) {
+          const itemUUID = uuid();
 
-            if (!isItemOwned) {
-              notifications.push({
-                itemType: matchedStorefront.id,
-                itemGuid: matchedStorefront.item,
-                itemProfile: "athena",
-                quantity: 1,
-              });
-
-              const Items = {
-                templateId: matchedStorefront.item,
+          for (const item of matchedStorefront.items) {
+            multiUpdate.push({
+              changeType: "itemAdded",
+              itemId: itemUUID,
+              item: {
+                templateId: item.item,
                 attributes: {
                   favorite: false,
                   item_seen: false,
@@ -100,149 +112,51 @@ export default async function PurchaseCatalogEntry(
                   xp: 0,
                 },
                 quantity: 1,
-              };
+              },
+            });
 
-              account.items[matchedStorefront.item] = Items;
-
-              multiUpdate.push({
-                changeType: "itemAdded",
-                itemId: matchedStorefront.item,
-                item: account.items[matchedStorefront.item],
-              });
-
-              for (const item of matchedStorefront.items) {
-                notifications.push({
-                  itemType: item.item,
-                  itemGuid: item.id,
-                  itemProfile: "athena",
-                  quantity: 1,
-                });
-
-                multiUpdate.push({
-                  changeType: "itemAdded",
-                  itemId: matchedStorefront.item,
-                  item: account.items[matchedStorefront.item],
-                });
-              }
-
-              const newVbucksBalance =
-                parseInt(account.vbucks.toString() ?? "0", 10) -
-                parseInt(matchedStorefront.price.toString() ?? "0", 10);
-
-              applyProfileChanges.push({
-                changeType: "itemQuantityChanged",
-                itemId: "Currency",
-                quantity: newVbucksBalance,
-              });
-
-              if (matchedStorefront.price > account.vbucks)
-                return res.status(400).json({
-                  errorType: "BadRequest",
-                  errorMessage:
-                    "You do not have enough V-Bucks to purchase this item",
-                });
-
-              const items: Array<Record<string, any>> = [];
-
-              items.push({
-                [matchedStorefront.item]: {
-                  templateId: matchedStorefront.item,
-                  attributes: {
-                    favorite: false,
-                    item_seen: false,
-                    level: 1,
-                    max_level_bonus: 0,
-                    rnd_sel_cnt: 0,
-                    variants: [],
-                    xp: 0,
-                  },
-                  quantity: 1,
-                },
-              });
-
-              for (const item of matchedStorefront.items) {
-                items.push({
-                  [item.item]: {
-                    templateId: item.item,
-                    attributes: {
-                      favorite: false,
-                      item_seen: false,
-                      level: 1,
-                      max_level_bonus: 0,
-                      rnd_sel_cnt: 0,
-                      variants: [],
-                      xp: 0,
-                    },
-                    quantity: 1,
-                  },
-                });
-              }
-            } else {
-              return res.status(400).json({
-                errorCode:
-                  "errors.com.epicgames.modules.profiles.invalid_command",
-                errorMessage: "You Already Own this Item",
-              });
-            }
+            notifications.push({
+              itemType: item.item,
+              itemGuid: itemUUID,
+              itemProfile: "athena",
+              quantity: 1,
+            });
           }
-        } else {
-          const BattlePasses = [
-            "Season10BattlePass",
-            "Season9BattlePass",
-            "Season8BattlePass",
-            "Season7BattlePass",
-            "Season6BattlePass",
-            "Season5BattlePass",
-          ];
 
-          const currentSeason = season?.season as number;
+          account.vbucks -= matchedStorefront.price;
 
-          if (currentSeason < 11 && currentSeason >= 5) {
-            for (const battlepass of BattlePasses) {
-              const filePath = JSON.parse(
-                fs.readFileSync(
-                  path.join(
-                    __dirname,
-                    "..",
-                    "..",
-                    "..",
-                    "resources",
-                    "storefront",
-                    "battlepasses",
-                    `${battlepass}.json`
-                  ),
-                  "utf-8"
-                )
-              );
+          applyProfileChanges.push({
+            changeType: "itemQuantityChanged",
+            itemId: "Currency:MtxPurchased",
+            quantity: account.vbucks,
+          });
 
-              for (const battlepassData of filePath.catalogEntries) {
-                if (battlepassData.catalogEntries === offerId) {
-                  let basePrice: number = parseInt(
-                    battlepassData.prices[0].basePrice.toString() ?? "0"
-                  );
+          UpdateVbucks(account.vbucks, accountId);
 
-                  if (basePrice > 0) {
-                    return res.status(400).json({
-                      errorCode:
-                        "errors.com.epicgames.modules.profiles.invalid_command",
-                      errorMessage: "An Error has occured.",
-                    });
-                  }
-
-                  // TODO
-                } else {
-                  return res.status(400).json({
-                    errorCode:
-                      "errors.com.epicgames.modules.profiles.invalid_command",
-                    errorMessage:
-                      "There is currently no Battle Pass available for this season.",
-                  });
-                }
-              }
-            }
+          if (matchedStorefront.price > account.vbucks) {
+            return res.status(400).json({
+              errorType: "BadRequest",
+              errorMessage:
+                "You do not have enough V-Bucks to purchase this item.",
+            });
           }
+
+          isItemOwned = true;
         }
+      } else {
+        return res.status(400).json({
+          errorCode: "errors.com.epicgames.offer.already_owned",
+          errorMessage: "You have already bought this item before.",
+          messageVars: undefined,
+          numericErrorCode: 1040,
+          originatingService: "any",
+          intent: "prod",
+          error_description: "You have already bought this item before.",
+          error: undefined,
+        });
       }
+    } else {
+      // TODO: Battle Pass
     }
 
     if (applyProfileChanges.length > 0) {
@@ -250,46 +164,11 @@ export default async function PurchaseCatalogEntry(
       account.RVN += 1;
       account.baseRevision += 1;
 
+      Accounts.updateOne({ accountId }, { $set: { RVN: account.RVN } });
       Accounts.updateOne(
         { accountId },
-        { $set: { RVN: parseInt(account.baseRevision.toString() ?? "0") + 1 } }
+        { $set: { baseRevision: account.baseRevision } }
       );
-
-      Accounts.updateOne(
-        { accountId },
-        {
-          $set: {
-            baseRevision: parseInt(account.baseRevision.toString() ?? "0") + 1,
-          },
-        }
-      );
-
-      for (const items of multiUpdate) {
-        const { item } = items;
-
-        for (const profileChanges of applyProfileChanges) {
-          await Accounts.updateOne(
-            { accountId },
-            {
-              $set: {
-                vbucks: profileChanges.quantity.toString(),
-              },
-            }
-          );
-        }
-        await Accounts.updateOne(
-          {
-            accountId,
-          },
-          {
-            $set: {
-              ["items"]: item,
-            },
-          }
-        );
-
-        console.log(account.items);
-      }
     }
 
     if (multiUpdate.length > 0) {
@@ -323,6 +202,18 @@ export default async function PurchaseCatalogEntry(
       ],
       response: 1,
     });
+
+    if (applyProfileChanges.length > 0) {
+      for (const profileChanges of applyProfileChanges) {
+        await UpdateVbucks(profileChanges.quantity, accountId);
+      }
+
+      for (const items of multiUpdate) {
+        const { item } = items;
+
+        await AddItem(item, accountId);
+      }
+    }
   } catch (error) {
     log.error(`${error}`, "PurchaseCatalogEntry");
   }
