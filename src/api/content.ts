@@ -9,11 +9,6 @@ export default function initRoute(router: Router): void {
   router.get("/content/api/pages/fortnite-game", async (req, res) => {
     const userAgent = req.headers["user-agent"];
     const season = getSeason(userAgent);
-    const content = await axios.get(
-      "https://fortnitecontent-website-prod.ak.epicgames.com/content/api/pages/fortnite-game"
-    );
-
-    const { data } = content;
 
     if (!season) {
       return 2;
@@ -41,7 +36,6 @@ export default function initRoute(router: Router): void {
       _activeDate: DateTime.utc().toISO(),
       lastModified: DateTime.utc().toISO(),
       _locale: "en-US",
-      subgameinfo: data.subgameinfo,
       battleroyalenews: {
         news: {
           motds: [

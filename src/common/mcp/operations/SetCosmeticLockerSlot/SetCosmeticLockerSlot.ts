@@ -25,60 +25,28 @@ export default async function SetCosmeticLockerSlot(
 
     await Account.updateOne(
       { accountId },
-      { $set: { [`profilerevision`]: account.profilerevision + 1 } }
+      { $set: { profilerevision: account.profilerevision + 1 } }
     );
-
-    await Account.updateOne(
-      { accountId },
-      {
-        $set: {
-          baseRevision: account.baseRevision + 1,
-        },
-      }
-    );
-
-    const profileChanges: any[] = [];
 
     if (slotName === "ItemWrap" || slotName === "Dance") {
-      if (parseInt(slotIndex ?? "0") === -1) {
+      if (parseInt(slotIndex) === -1) {
         if (slotName === "Dance") {
-          return {};
+          return log.error("Error Found", "SetCosmeticLockerSlot");
         }
-
-        let itemToSlotValues: string[] = [];
-
-        // @ts-ignore
-        itemToSlotValues = Array.from(
-          // @ts-ignore
-          { length: account[slotName]["items"].length },
-          () => itemToSlot.toLowerCase()
-        );
-        await Account.updateOne(
-          { accountId },
-          {
-            $set: {
-              [`${slotName}`]: itemToSlotValues,
-            },
-          }
-        );
-
-        console.log(itemToSlot);
       } else {
         if (itemToSlot === "") {
           await Account.updateOne(
             { accountId },
-            {
-              $set: {
-                [`${slotName}.items.${slotIndex}`]: "",
-              },
-            }
+            { $set: { [`${slotName.toLowerCase()}.items.${slotIndex}`]: "" } }
           );
         } else {
           await Account.updateOne(
             { accountId },
             {
               $set: {
-                [`${slotName}.items.${slotIndex}`]: itemToSlot.toLowerCase(),
+                [`${slotName.toLowerCase()}.items.${slotIndex}`]: `${
+                  itemToSlot.split(":")[0]
+                }:${itemToSlot.split(":")[1].toLowerCase()}`,
               },
             }
           );
@@ -88,73 +56,45 @@ export default async function SetCosmeticLockerSlot(
       if (itemToSlot === "") {
         await Account.updateOne(
           { accountId },
-          {
-            $set: {
-              [`${slotName}.items`]: "",
-            },
-          }
+          { $set: { [`${slotName.toLowerCase()}.items`]: "" } }
         );
       } else {
         await Account.updateOne(
           { accountId },
           {
             $set: {
-              [`${slotName}.items`]: itemToSlot.toLowerCase(),
+              [`${slotName.toLowerCase()}.items`]: `${
+                itemToSlot.split(":")[0]
+              }:${itemToSlot.split(":")[1].toLowerCase()}`,
             },
           }
         );
       }
     }
+    let updatedProfile: any[] = [
+      {
+        changeType: "statModified",
+        name: `favorite_${slotName.toLowerCase()}`,
+        value: itemToSlot,
+      },
+    ];
 
-    for (const variant of variantUpdates) {
-      if (variant.channel !== null && variant.active !== null) {
-        await Account.updateOne(
-          { accountId },
-          {
-            $set: {
-              [`${slotName}.activeVariants`]: [
-                [
-                  {
-                    ...variant,
-                  },
-                ],
-              ],
-            },
-          }
-        );
+    const newAccountData = await Account.findOne({ accountId }).lean();
 
-        profileChanges.push({
-          changeType: "itemAttrChanged",
-          itemId: slotName.toString().toLowerCase(),
-          attributeName: "variants",
-          attributeValue: variant,
-        });
-      } else {
-        return {};
-      }
+    if (!newAccountData) {
+      return {};
     }
 
-    const newProfileData = await Account.findOne({ accountId });
-
-    if (!newProfileData) {
-      return { error: "Failed to find New Profile." };
-    }
-
-    profileChanges.push({
-      changeType: "statModified",
-      name: `favorite_${slotName.toString().toLowerCase()}`,
-      value: itemToSlot,
-    });
-
-    return {
-      profileRevision: newProfileData.profilerevision,
+    const response = {
       profileId: "athena",
-      profileChangesBaseRevision: newProfileData.baseRevision,
-      profileChanges,
-      profileCommandRevision: rvn,
-      serverTime: DateTime.now().toISO(),
+      profileChangesBaseRevision: rvn,
+      profileChanges: updatedProfile,
+      profileCommandRevision: newAccountData.profilerevision,
+      serverTime: new Date().toISOString(),
       responseVersion: 1,
     };
+
+    return response;
   } catch (error) {
     let err = error as Error;
     log.error(err.message, "SetCosmeticLockerSlot");

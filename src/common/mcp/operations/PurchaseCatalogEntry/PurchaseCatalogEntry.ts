@@ -5,7 +5,9 @@ import { v4 as uuid } from "uuid";
 import Accounts from "../../../../models/Accounts";
 import { getSeason } from "../../../../utils";
 import log from "../../../../utils/log";
-import { AddItem, UpdateVbucks } from "../../utils/profile";
+import { UpdateVbucks } from "../../utils/profile";
+import { getProfile } from "../../utils/getProfile";
+import mongoose from "mongoose";
 
 export default async function PurchaseCatalogEntry(
   accountId: string,
@@ -46,7 +48,7 @@ export default async function PurchaseCatalogEntry(
     if (profileId === "profile0") return;
 
     if (currency === "MtxCurrency") {
-      if (!offerId) {
+      if (!offerId || offerId === null) {
         return res.status(400).json({
           errorCode: "errors.com.epicgames.fortnite.id_invalid",
           errorMessage: `Offer ID (${offerId}) not found.`,
@@ -60,17 +62,19 @@ export default async function PurchaseCatalogEntry(
       }
 
       if (offerId.includes(":/")) {
-        const id = offerId.split(":/")[1];
-        let matchedStorefront = null;
-        let isItemOwned = false;
+        const id: string = offerId.split(":/")[1];
+        let matchedStorefront: any = null;
+        let isItemOwned: boolean = false;
 
-        for (const storefronts of ["BRDailyStorefront", "BRWeeklyStorefront"]) {
-          matchedStorefront = shop.catalogItems[storefronts].find(
-            (storefront: any) => storefront.id === id
-          );
+        for (const storefront of shop.catalogItems.BRDailyStorefront) {
+          if (storefront.id === id) {
+            matchedStorefront = storefront;
+          }
+        }
 
-          if (matchedStorefront) {
-            break;
+        for (const storefront of shop.catalogItems.BRWeeklyStorefront) {
+          if (storefront.id === id) {
+            matchedStorefront = storefront;
           }
         }
 
@@ -85,23 +89,60 @@ export default async function PurchaseCatalogEntry(
             error_description: "Failed to retrieve item from the current shop.",
             error: undefined,
           });
-        }
-
-        for (const currentItem of account.items) {
-          if (currentItem.templateId.includes(matchedStorefront.item)) {
-            isItemOwned = true;
+        } else {
+          for (const currentItem of account.items) {
+            if (currentItem.templateId.includes(matchedStorefront.item)) {
+              isItemOwned = true;
+              break;
+            }
           }
-        }
 
-        if (!isItemOwned) {
-          const itemUUID = uuid();
+          if (isItemOwned) {
+            return res.status(400).json({
+              errorCode: "errors.com.epicgames.offer.already_owned",
+              errorMessage: "You have already bought this item before.",
+              messageVars: undefined,
+              numericErrorCode: 1040,
+              originatingService: "any",
+              intent: "prod",
+              error_description: "You have already bought this item before.",
+              error: undefined,
+            });
+          } else {
+            const itemUUID = uuid();
 
-          for (const item of matchedStorefront.items) {
+            for (const item of matchedStorefront.items) {
+              multiUpdate.push({
+                changeType: "itemAdded",
+                itemId: itemUUID,
+                item: {
+                  templateId: item.item,
+                  attributes: {
+                    favorite: false,
+                    item_seen: false,
+                    level: 1,
+                    max_level_bonus: 0,
+                    rnd_sel_cnt: 0,
+                    variants: [],
+                    xp: 0,
+                  },
+                  quantity: 1,
+                },
+              });
+
+              notifications.push({
+                itemType: item.item,
+                itemGuid: itemUUID,
+                itemProfile: "athena",
+                quantity: 1,
+              });
+            }
+
             multiUpdate.push({
               changeType: "itemAdded",
               itemId: itemUUID,
               item: {
-                templateId: item.item,
+                templateId: matchedStorefront.item,
                 attributes: {
                   favorite: false,
                   item_seen: false,
@@ -116,47 +157,32 @@ export default async function PurchaseCatalogEntry(
             });
 
             notifications.push({
-              itemType: item.item,
+              itemType: matchedStorefront.item,
               itemGuid: itemUUID,
               itemProfile: "athena",
               quantity: 1,
             });
-          }
 
-          account.vbucks -= matchedStorefront.price;
+            account.vbucks -= matchedStorefront.price;
 
-          applyProfileChanges.push({
-            changeType: "itemQuantityChanged",
-            itemId: "Currency:MtxPurchased",
-            quantity: account.vbucks,
-          });
-
-          UpdateVbucks(account.vbucks, accountId);
-
-          if (matchedStorefront.price > account.vbucks) {
-            return res.status(400).json({
-              errorType: "BadRequest",
-              errorMessage:
-                "You do not have enough V-Bucks to purchase this item.",
+            applyProfileChanges.push({
+              changeType: "itemQuantityChanged",
+              itemId: "Currency:MtxPurchased",
+              quantity: account.vbucks,
             });
-          }
 
-          isItemOwned = true;
+            if (matchedStorefront.price > account.vbucks) {
+              return res.status(400).json({
+                errorType: "BadRequest",
+                errorMessage:
+                  "You do not have enough V-Bucks to purchase this item.",
+              });
+            }
+          }
         }
       } else {
-        return res.status(400).json({
-          errorCode: "errors.com.epicgames.offer.already_owned",
-          errorMessage: "You have already bought this item before.",
-          messageVars: undefined,
-          numericErrorCode: 1040,
-          originatingService: "any",
-          intent: "prod",
-          error_description: "You have already bought this item before.",
-          error: undefined,
-        });
+        // TODO: Battle Pass
       }
-    } else {
-      // TODO: Battle Pass
     }
 
     if (applyProfileChanges.length > 0) {
@@ -205,13 +231,59 @@ export default async function PurchaseCatalogEntry(
 
     if (applyProfileChanges.length > 0) {
       for (const profileChanges of applyProfileChanges) {
-        await UpdateVbucks(profileChanges.quantity, accountId);
+        await Accounts.updateOne(
+          { accountId },
+          {
+            $set: {
+              vbucks: profileChanges.quantity,
+            },
+          }
+        );
       }
 
       for (const items of multiUpdate) {
         const { item } = items;
 
-        await AddItem(item, accountId);
+        const UserProfile = path.join(
+          __dirname,
+          "..",
+          "..",
+          "utils",
+          "profiles",
+          `profile-${accountId}.json`
+        );
+
+        const userProfiles = getProfile(account.accountId);
+
+        if (userProfiles) {
+          userProfiles.profileChanges[0].profile.items = {
+            ...userProfiles.profileChanges[0].profile.items,
+            [item.templateId]: {
+              attributes: item.attributes,
+              templateId: item.templateId,
+            },
+          };
+
+          await Accounts.updateOne(
+            { accountId },
+            {
+              $push: {
+                items: item,
+              },
+            }
+          );
+
+          fs.writeFileSync(
+            UserProfile,
+            JSON.stringify(userProfiles, null, 2),
+            "utf-8"
+          );
+        } else {
+          log.error(
+            `User profile not found for accountId: ${accountId}`,
+            "PurchaseCatalogEntry"
+          );
+        }
       }
     }
   } catch (error) {

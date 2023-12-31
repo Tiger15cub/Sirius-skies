@@ -1,6 +1,7 @@
 import { DateTime } from "luxon";
 import Accounts from "../../../../models/Accounts";
 import { createDefaultResponse, getSeason } from "../../../../utils";
+import { getProfile } from "../../utils/getProfile";
 
 export default async function MarkItemSeen(
   profileId: string,
@@ -21,8 +22,12 @@ export default async function MarkItemSeen(
 
   const items = account.items;
 
+  const userProfiles = getProfile(accountId);
+
   for (let item in itemIds) {
-    // items[itemIds[item]].attributes.item_seen = true;
+    userProfiles.profileChanges[0].profile.items[
+      itemIds[item]
+    ].attributes.item_seen = true;
 
     applyProfileChanges.push({
       changeType: "itemAttrChanged",

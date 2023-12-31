@@ -15,72 +15,53 @@ import log from "../utils/log";
 
 export default function initRoute(router: Router): void {
   router.post(
-    "/fortnite/api/game/v2/profile/:accountId/client/SetCosmeticLockerSlot",
+    [
+      "/fortnite/api/game/v2/profile/:accountId/*/EquipBattleRoyaleCustomization",
+      "/fortnite/api/game/v2/profile/:accountId/*/SetCosmeticLockerSlot",
+    ],
     verifyToken,
     async (req, res) => {
       try {
         const { accountId } = req.params;
+        const {
+          profileId,
+          slotName,
+          itemToSlot,
+          indexWithinSlot,
+          category,
+          variantUpdates,
+          rvn,
+          slotIndex,
+        } = req.body;
 
-        let category: string = "";
-        let itemToSlot: string = "";
-        let slotIndex: string = "";
-        let variantUpdates: any[] = [];
-
-        category = req.body.category ?? req.body.slotName;
-        itemToSlot = req.body.itemToSlot ?? null;
-        slotIndex = req.body.slotIndex ?? req.body.indexWithinSlot;
-        variantUpdates = req.body.variantUpdates;
-
-        const { rvn, profileId } = req.query;
-
-        return res
-          .json(
+        if (slotName !== undefined) {
+          return res.json(
             await EquipBattleRoyaleCustomization(
               accountId,
-              category || "",
-              itemToSlot || "",
+              slotName,
+              itemToSlot,
+              indexWithinSlot,
+              variantUpdates,
+              rvn
+            )
+          );
+        } else {
+          return res.json(
+            await SetCosmeticLockerSlot(
+              accountId,
+              category,
+              itemToSlot,
               slotIndex,
               variantUpdates,
               rvn as any
             )
-          )
-          .status(204);
+          );
+        }
       } catch (error) {
         let err = error as Error;
         log.error(`Error updating profile: ${err.message}`, "MCP");
         res.status(500).json({ error: "Internal Server Error" });
       }
-    }
-  );
-
-  router.post(
-    "/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCustomization",
-    async (req, res) => {
-      const { accountId } = req.params;
-
-      let category: string = "";
-      let itemToSlot: string = "";
-      let slotIndex: string = "";
-      let variantUpdates: any[] = [];
-
-      category = req.body.category ?? req.body.slotName;
-      itemToSlot = req.body.itemToSlot ?? null;
-      slotIndex = req.body.slotIndex ?? req.body.indexWithinSlot;
-      variantUpdates = req.body.variantUpdates;
-
-      const { rvn, profileId } = req.query;
-      return res
-        .json(
-          await EquipBattleRoyaleCustomization(
-            accountId,
-            category || "",
-            itemToSlot || "",
-            slotIndex,
-            variantUpdates,
-            rvn as any
-          )
-        )
-        .status(204);
     }
   );
 
