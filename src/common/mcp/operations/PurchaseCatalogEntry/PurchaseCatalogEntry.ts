@@ -5,9 +5,13 @@ import { v4 as uuid } from "uuid";
 import Accounts from "../../../../models/Accounts";
 import { getSeason } from "../../../../utils";
 import log from "../../../../utils/log";
-import { UpdateVbucks } from "../../utils/profile";
 import { getProfile } from "../../utils/getProfile";
-import mongoose from "mongoose";
+
+interface ProfileChange {
+  changeType: string;
+  itemId: string;
+  quantity: number;
+}
 
 export default async function PurchaseCatalogEntry(
   accountId: string,
@@ -17,7 +21,7 @@ export default async function PurchaseCatalogEntry(
   res: any
 ) {
   try {
-    const { currency, offerId } = req.body;
+    const { currency, offerId, purchaseQuantity } = req.body;
     const userAgent = req.headers["user-agent"];
     const season = getSeason(userAgent);
 
@@ -35,7 +39,7 @@ export default async function PurchaseCatalogEntry(
 
     const account = await Accounts.findOne({ accountId }).lean();
 
-    const applyProfileChanges: any[] = [];
+    const applyProfileChanges: Object[] = [];
     const notifications: any[] = [];
     const multiUpdate: any[] = [];
 
@@ -45,7 +49,7 @@ export default async function PurchaseCatalogEntry(
       });
     }
 
-    if (profileId === "profile0") return;
+    const userProfiles = getProfile(account.accountId);
 
     if (currency === "MtxCurrency") {
       if (!offerId || offerId === null) {
@@ -78,6 +82,21 @@ export default async function PurchaseCatalogEntry(
           }
         }
 
+        if (purchaseQuantity < 1) {
+          return res.status(400).json({
+            errorCode: "errors.com.epicgames.validation.validation_failed",
+            errorMessage:
+              "Validation Failed. 'purchaseQuantity' is less than 1.",
+            messageVars: undefined,
+            numericErrorCode: 1040,
+            originatingService: "any",
+            intent: "prod",
+            error_description:
+              "Validation Failed. 'purchaseQuantity' is less than 1.",
+            error: undefined,
+          });
+        }
+
         if (!matchedStorefront) {
           return res.status(400).json({
             errorCode: "errors.com.epicgames.fortnite.invalid_item_id",
@@ -91,7 +110,16 @@ export default async function PurchaseCatalogEntry(
           });
         } else {
           for (const currentItem of account.items) {
-            if (currentItem.templateId.includes(matchedStorefront.item)) {
+            const isItemInProfile = userProfiles.profileChanges.some(
+              (profileChange: any) =>
+                profileChange.profile.items[currentItem.templateId]
+            );
+
+            const isItemIncluded = currentItem.templateId.includes(
+              matchedStorefront.item
+            );
+
+            if (isItemInProfile && isItemIncluded) {
               isItemOwned = true;
               break;
             }
@@ -111,12 +139,39 @@ export default async function PurchaseCatalogEntry(
           } else {
             const itemUUID = uuid();
 
-            for (const item of matchedStorefront.items) {
+            if (matchedStorefront.items && matchedStorefront.items.length > 0) {
+              for (const item of matchedStorefront.items) {
+                multiUpdate.push({
+                  changeType: "itemAdded",
+                  itemId: itemUUID,
+                  item: {
+                    templateId: item.item,
+                    attributes: {
+                      favorite: false,
+                      item_seen: false,
+                      level: 1,
+                      max_level_bonus: 0,
+                      rnd_sel_cnt: 0,
+                      variants: [],
+                      xp: 0,
+                    },
+                    quantity: 1,
+                  },
+                });
+
+                notifications.push({
+                  itemType: item.item,
+                  itemGuid: itemUUID,
+                  itemProfile: "athena",
+                  quantity: 1,
+                });
+              }
+            } else {
               multiUpdate.push({
                 changeType: "itemAdded",
                 itemId: itemUUID,
                 item: {
-                  templateId: item.item,
+                  templateId: matchedStorefront.item,
                   attributes: {
                     favorite: false,
                     item_seen: false,
@@ -131,37 +186,12 @@ export default async function PurchaseCatalogEntry(
               });
 
               notifications.push({
-                itemType: item.item,
+                itemType: matchedStorefront.item,
                 itemGuid: itemUUID,
                 itemProfile: "athena",
                 quantity: 1,
               });
             }
-
-            multiUpdate.push({
-              changeType: "itemAdded",
-              itemId: itemUUID,
-              item: {
-                templateId: matchedStorefront.item,
-                attributes: {
-                  favorite: false,
-                  item_seen: false,
-                  level: 1,
-                  max_level_bonus: 0,
-                  rnd_sel_cnt: 0,
-                  variants: [],
-                  xp: 0,
-                },
-                quantity: 1,
-              },
-            });
-
-            notifications.push({
-              itemType: matchedStorefront.item,
-              itemGuid: itemUUID,
-              itemProfile: "athena",
-              quantity: 1,
-            });
 
             account.vbucks -= matchedStorefront.price;
 
@@ -173,9 +203,14 @@ export default async function PurchaseCatalogEntry(
 
             if (matchedStorefront.price > account.vbucks) {
               return res.status(400).json({
-                errorType: "BadRequest",
-                errorMessage:
-                  "You do not have enough V-Bucks to purchase this item.",
+                errorCode: "errors.com.epicgames.currency.mtx.insufficient",
+                errorMessage: `You can not afford this item (${matchedStorefront.price}).`,
+                messageVars: undefined,
+                numericErrorCode: 1040,
+                originatingService: "any",
+                intent: "prod",
+                error_description: `You can not afford this item (${matchedStorefront.price}).`,
+                error: undefined,
               });
             }
           }
@@ -231,11 +266,15 @@ export default async function PurchaseCatalogEntry(
 
     if (applyProfileChanges.length > 0) {
       for (const profileChanges of applyProfileChanges) {
+        const typedProfileChanges = profileChanges as ProfileChange;
+
+        console.log(typedProfileChanges);
+
         await Accounts.updateOne(
           { accountId },
           {
             $set: {
-              vbucks: profileChanges.quantity,
+              vbucks: typedProfileChanges.quantity,
             },
           }
         );
@@ -252,8 +291,6 @@ export default async function PurchaseCatalogEntry(
           "profiles",
           `profile-${accountId}.json`
         );
-
-        const userProfiles = getProfile(account.accountId);
 
         if (userProfiles) {
           userProfiles.profileChanges[0].profile.items = {
