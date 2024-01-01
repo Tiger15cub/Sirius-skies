@@ -1,6 +1,6 @@
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
-import { Application } from "express";
+import { Application, NextFunction, Request, Response, Router } from "express";
 import log from "../utils/log";
 
 /**
@@ -27,7 +27,17 @@ export default {
               RouteModule.default &&
               typeof RouteModule.default === "function"
             ) {
-              RouteModule.default(app);
+              try {
+                RouteModule.default(app, (next: NextFunction) => {
+                  return next();
+                });
+              } catch (error) {
+                let err = error as Error;
+                log.error(
+                  `Error in route ${file}: ${err.message}`,
+                  "RouteHandler"
+                );
+              }
             } else {
               log.error(
                 `${file} does not export a valid route initializer`,

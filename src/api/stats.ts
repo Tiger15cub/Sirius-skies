@@ -2,50 +2,110 @@ import { Router, Request, Response } from "express";
 import Accounts from "../models/Accounts";
 import log from "../utils/log";
 
-interface Account {
-  accountId: string;
-  stats: {
-    [key: string]: {
-      wins: number;
-    };
-  };
-}
-
-async function getEntries(account: Account[], mode: string): Promise<any[]> {
-  const validAccounts = account.filter((acc) => acc.stats && acc.stats[mode]);
-
-  return validAccounts.slice(0, 100).map((acc) => ({
-    account: acc.accountId,
-    value: acc.stats[mode].wins,
-  }));
-}
-
 export default function initRoute(router: Router) {
+  router.get("/statsproxy/api/statsv2/query", (req, res) => {
+    const { collection_fish, collection_character } = req.query;
+  });
+
+  router.get(
+    "/statsproxy/api/statsv2/leaderboards/:leaderboardName",
+    async (req, res) => {
+      const { leaderboardName } = req.params;
+
+      const leaderboardTypeToMode: { [key: string]: string } = {
+        br_placetop1_keyboardmouse_m0_playlist_defaultduo: "duos",
+        br_placetop1_keyboardmouse_m0_playlist_defaultsquad: "squad",
+        default: "solos",
+      };
+
+      const mode =
+        leaderboardTypeToMode[leaderboardName] || leaderboardTypeToMode.default;
+
+      const account = await Accounts.findOne().lean();
+      const entries: any[] = [];
+
+      if (!account) {
+        return res.status(404).json({
+          error: "Failed to find account(s)",
+        });
+      } else {
+        entries.push({
+          account: account.accountId,
+          // @ts-ignore
+          value: account.stats[mode].wins,
+        });
+      }
+
+      res.json({
+        entries,
+        maxSize: 1000,
+      });
+    }
+  );
+
   router.all(
     [
-      "/statsproxy/api/statsv2/leaderboards/:type",
-      "/fortnite/api/statsv2/leaderboards/:type",
+      "/statsproxy/api/statsv2/account/:accountId",
+      "/fortnite/api/statsv2/account/:accountId",
     ],
     async (req: Request, res: Response) => {
       try {
-        const { type } = req.params;
+        const { accountId } = req.params;
+        const { startTime, endTime } = req.query;
 
-        const leaderboardTypeToMode: { [key: string]: string } = {
-          br_placetop1_keyboardmouse_m0_playlist_defaultduo: "duos",
-          br_placetop1_keyboardmouse_m0_playlist_defaultsquad: "squad",
-          default: "solos",
-        };
+        const account = await Accounts.findOne({ accountId }).lean();
 
-        const mode: string =
-          leaderboardTypeToMode[type] || leaderboardTypeToMode.default;
-
-        const accounts = await Accounts.find().lean();
-
-        const entries = await getEntries(accounts, mode);
+        if (!account) {
+          return res.status(404).json({
+            error: "Failed to find account.",
+          });
+        }
 
         res.json({
-          entries,
+          startTime,
+          endTime,
+          stats: {
+            br_score_keyboardmouse_m0_playlist_DefaultSolo: 859,
+            br_kills_keyboardmouse_m0_playlist_DefaultSolo:
+              account.stats.solos.kills,
+            br_playersoutlived_keyboardmouse_m0_playlist_DefaultSolo: 0,
+            br_matchesplayed_keyboardmouse_m0_playlist_DefaultSolo:
+              account.stats.solos.matchplayed,
+            br_placetop25_keyboardmouse_m0_playlist_DefaultSolo: 0,
+            br_placetop1_keyboardmouse_m0_playlist_DefaultSolo:
+              account.stats.solos.wins,
+
+            br_score_keyboardmouse_m0_playlist_DefaultDuo: 0,
+            br_kills_keyboardmouse_m0_playlist_DefaultDuo:
+              account.stats.duos.kills,
+            br_playersoutlived_keyboardmouse_m0_playlist_DefaultDuo: 0,
+            br_matchesplayed_keyboardmouse_m0_playlist_DefaultDuo:
+              account.stats.duos.matchplayed,
+            br_placetop25_keyboardmouse_m0_playlist_DefaultDuo: 0,
+            br_placetop1_keyboardmouse_m0_playlist_DefaultDuo:
+              account.stats.duos.wins,
+
+            br_score_keyboardmouse_m0_playlist_DefaultSquad: 0,
+            br_kills_keyboardmouse_m0_playlist_DefaultSquad:
+              account.stats.squad.kills,
+            br_playersoutlived_keyboardmouse_m0_playlist_DefaultSquad: 0,
+            br_matchesplayed_keyboardmouse_m0_playlist_DefaultSquad:
+              account.stats.squad.matchplayed,
+            br_placetop25_keyboardmouse_m0_playlist_DefaultSquad: 0,
+            br_placetop1_keyboardmouse_m0_playlist_DefaultSquad:
+              account.stats.squad.wins,
+
+            br_score_keyboardmouse_m0_playlist_50v50: 0,
+            br_kills_keyboardmouse_m0_playlist_50v50: account.stats.ltm.kills,
+            br_playersoutlived_keyboardmouse_m0_playlist_50v50: 0,
+            br_matchesplayed_keyboardmouse_m0_playlist_50v50:
+              account.stats.ltm.matchplayed,
+            br_placetop25_keyboardmouse_m0_playlist_50v50: 0,
+            br_placetop1_keyboardmouse_m0_playlist_50v50:
+              account.stats.ltm.wins,
+          },
           maxSize: 1000,
+          accountId: account.accountId,
         });
       } catch (error) {
         let err: Error = error as Error;

@@ -39,6 +39,8 @@ export default async function verifyToken(
       return;
     }
 
+    Globals.accountId = decodedToken?.sub as string;
+
     if (user.banned) {
       sendErrorResponse(
         res,
@@ -46,6 +48,8 @@ export default async function verifyToken(
         "You have been permanently banned from Fortnite."
       );
     }
+
+    
 
     next();
   } catch (error) {

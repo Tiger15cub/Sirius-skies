@@ -33,6 +33,7 @@ export interface Globals {
   clientTokens: any[];
   AccessTokens: AccessToken[];
   Clients: XmppClients[];
+  refreshTokens: any[];
   MUCs: Record<string, any>;
   parties: any[];
   invites: any[];
@@ -52,6 +53,7 @@ export let MUCs: Globals["MUCs"] = {};
 export let parties: Globals["parties"] = [];
 export let invites: Globals["invites"] = [];
 export let pings: Globals["pings"] = [];
+export let refreshTokens: Globals["refreshTokens"] = [];
 
 export const Globals: Globals = {
   exchangeCodes,
@@ -67,4 +69,5 @@ export const Globals: Globals = {
   accountId,
   token,
   jid,
+  refreshTokens,
 };

@@ -51,7 +51,7 @@ export default async function PurchaseCatalogEntry(
 
     const userProfiles = getProfile(account.accountId);
 
-    if (currency === "MtxCurrency") {
+    if (currency === "MtxCurrency" && profileId === "common_core") {
       if (!offerId || offerId === null) {
         return res.status(400).json({
           errorCode: "errors.com.epicgames.fortnite.id_invalid",
@@ -267,8 +267,6 @@ export default async function PurchaseCatalogEntry(
     if (applyProfileChanges.length > 0) {
       for (const profileChanges of applyProfileChanges) {
         const typedProfileChanges = profileChanges as ProfileChange;
-
-        console.log(typedProfileChanges);
 
         await Accounts.updateOne(
           { accountId },
