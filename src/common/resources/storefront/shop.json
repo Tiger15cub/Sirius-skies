@@ -1,37 +1,17 @@
 {
-  "expiration": "2023-12-31T00:00:00.000Z",
-  "cacheExpire": "2023-12-31T00:00:00.000Z",
+  "expiration": "2024-01-03T00:00:00.000Z",
+  "cacheExpire": "2024-01-03T00:00:00.000Z",
   "catalogItems": {
     "BRWeeklyStorefront": [
       {
         "section": "Daily",
-        "id": "56xs1pft3d7",
-        "item": "AthenaDance:EID_Bendy",
-        "name": "Zany",
+        "id": "h70i86omenm",
+        "item": "AthenaDance:EID_RedCard",
+        "name": "Red Card",
         "items": [],
-        "price": 500,
-        "rarity": "rare",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_EID_Bendy.DA_Featured_EID_Bendy",
-        "metaInfo": [
-          {
-            "key": "SectionId",
-            "value": "Daily"
-          },
-          {
-            "key": "TileSize",
-            "value": "Small"
-          }
-        ]
-      },
-      {
-        "section": "Daily",
-        "id": "gv977hfp1yj",
-        "item": "AthenaCharacter:CID_478_Athena_Commando_F_WorldCup",
-        "name": "World Warrior",
-        "items": [],
-        "price": 800,
+        "price": 200,
         "rarity": "uncommon",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_478_Athena_Commando_F_WorldCup.DA_Featured_CID_478_Athena_Commando_F_WorldCup",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_EID_RedCard.DA_Featured_EID_RedCard",
         "metaInfo": [
           {
             "key": "SectionId",
@@ -45,49 +25,74 @@
       },
       {
         "section": "Daily",
-        "id": "8r9fsdadn8n",
-        "item": "AthenaCharacter:CID_177_Athena_Commando_M_StreetRacerCobra",
-        "name": "Maverick",
+        "id": "qdt9f83wb4g",
+        "item": "AthenaDance:EID_Shaka",
+        "name": "Hang Loose",
+        "items": [],
+        "price": 200,
+        "rarity": "uncommon",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_EID_Shaka.DA_Featured_EID_Shaka",
+        "metaInfo": [
+          {
+            "key": "SectionId",
+            "value": "Daily"
+          },
+          {
+            "key": "TileSize",
+            "value": "Small"
+          }
+        ]
+      },
+      {
+        "section": "Daily",
+        "id": "0jlx4lbacglb",
+        "item": "AthenaCharacter:CID_142_Athena_Commando_M_WWIIPilot",
+        "name": "Sky Stalker",
         "items": [
           {
-            "item": "AthenaBackpack:BID_080_StreetRacerCobraMale",
-            "name": "Bat Attitude"
+            "item": "AthenaBackpack:BID_059_WWIIPilot",
+            "name": "Last Gasp"
+          }
+        ],
+        "price": 2000,
+        "rarity": "legendary",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_142_Athena_Commando_M_WWIIPilot.DA_Featured_CID_142_Athena_Commando_M_WWIIPilot",
+        "metaInfo": [
+          {
+            "key": "SectionId",
+            "value": "Featured"
+          },
+          {
+            "key": "TileSize",
+            "value": "Normal"
+          }
+        ]
+      },
+      {
+        "section": "Daily",
+        "id": "d4885l3n1ea",
+        "item": "AthenaCharacter:CID_099_Athena_Commando_F_Scathach",
+        "name": "Highland Warrior",
+        "items": [
+          {
+            "item": "AthenaBackpack:BID_035_Scathach",
+            "name": "Buckler"
           }
         ],
         "price": 1500,
         "rarity": "epic",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_177_Athena_Commando_M_StreetRacerCobra.DA_Featured_CID_177_Athena_Commando_M_StreetRacerCobra",
-        "metaInfo": [
-          {
-            "key": "SectionId",
-            "value": "Daily"
-          },
-          {
-            "key": "TileSize",
-            "value": "Small"
-          }
-        ]
-      },
-      {
-        "section": "Daily",
-        "id": "ehqka4n087j",
-        "item": "AthenaCharacter:CID_256_Athena_Commando_M_Pumpkin",
-        "name": "Patch Patroller",
-        "items": [],
-        "price": 800,
-        "rarity": "uncommon",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_256_Athena_Commando_M_Pumpkin.DA_Featured_CID_256_Athena_Commando_M_Pumpkin",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_099_Athena_Commando_F_Scathach.DA_Featured_CID_099_Athena_Commando_F_Scathach",
         "metaInfo": []
       },
       {
         "section": "Daily",
-        "id": "x416gjwu1q",
-        "item": "AthenaDance:EID_WIR",
-        "name": "Hot Marat",
+        "id": "ws2bbdlt99",
+        "item": "AthenaDance:EID_DeepDab",
+        "name": "Deep Dab",
         "items": [],
-        "price": 500,
-        "rarity": "rare",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_EID_WIR.DA_Featured_EID_WIR",
+        "price": 200,
+        "rarity": "uncommon",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_EID_DeepDab.DA_Featured_EID_DeepDab",
         "metaInfo": [
           {
             "key": "SectionId",
@@ -103,18 +108,13 @@
     "BRDailyStorefront": [
       {
         "section": "Daily",
-        "id": "g5ay1pmqugi",
-        "item": "AthenaCharacter:CID_411_Athena_Commando_F_CyberScavenger",
-        "name": "Versa",
-        "items": [
-          {
-            "item": "AthenaBackpack:BID_268_CyberScavengerFemale",
-            "name": "Phrenzy"
-          }
-        ],
-        "price": 1500,
+        "id": "gmvdqq09mi",
+        "item": "AthenaDance:EID_DJ01",
+        "name": "Drop The Bass",
+        "items": [],
+        "price": 800,
         "rarity": "epic",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_411_Athena_Commando_F_CyberScavenger.DA_Featured_CID_411_Athena_Commando_F_CyberScavenger",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_EID_DJ01.DA_Featured_EID_DJ01",
         "metaInfo": [
           {
             "key": "SectionId",
@@ -128,13 +128,24 @@
       },
       {
         "section": "Daily",
-        "id": "h47kiu9y5dh",
-        "item": "AthenaGlider:Glider_ID_147_Raptor",
-        "name": "Assault Bomber",
+        "id": "85jeuo6jtye",
+        "item": "AthenaPickaxe:Pickaxe_ID_226_CyberFuBlade",
+        "name": "Fixation",
+        "items": [],
+        "price": 800,
+        "rarity": "rare",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Pickaxe_ID_226_CyberFuBlade.DA_Featured_Pickaxe_ID_226_CyberFuBlade",
+        "metaInfo": []
+      },
+      {
+        "section": "Daily",
+        "id": "821pa9gw6f6",
+        "item": "AthenaGlider:Glider_ID_076_DieselPunk",
+        "name": "Dirigible",
         "items": [],
         "price": 1200,
         "rarity": "epic",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Glider_ID_147_Raptor.DA_Featured_Glider_ID_147_Raptor",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Glider_ID_076_DieselPunk.DA_Featured_Glider_ID_076_DieselPunk",
         "metaInfo": [
           {
             "key": "SectionId",
@@ -148,13 +159,13 @@
       },
       {
         "section": "Daily",
-        "id": "5hmu00rzkuc",
-        "item": "AthenaGlider:Glider_ID_097_Feathers",
-        "name": "Flappy Flyer",
+        "id": "4scwyvw1rru",
+        "item": "AthenaGlider:Glider_ID_172_RaptorBlackOps",
+        "name": "Dual Defiant",
         "items": [],
         "price": 800,
         "rarity": "rare",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Glider_ID_097_Feathers.DA_Featured_Glider_ID_097_Feathers",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Glider_ID_172_RaptorBlackOps.DA_Featured_Glider_ID_172_RaptorBlackOps",
         "metaInfo": [
           {
             "key": "SectionId",
@@ -168,24 +179,13 @@
       },
       {
         "section": "Daily",
-        "id": "21hw6bijko2",
-        "item": "AthenaGlider:Glider_ID_106_FortniteDJ",
-        "name": "Equalizer",
+        "id": "zopy4lktorh",
+        "item": "AthenaDance:EID_BreakDance",
+        "name": "Breakin'",
         "items": [],
         "price": 800,
-        "rarity": "rare",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Glider_ID_106_FortniteDJ.DA_Featured_Glider_ID_106_FortniteDJ",
-        "metaInfo": []
-      },
-      {
-        "section": "Daily",
-        "id": "5fl1tyvg3hr",
-        "item": "AthenaDance:EID_BillyBounce",
-        "name": "Billy Bounce",
-        "items": [],
-        "price": 500,
-        "rarity": "rare",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_EID_BillyBounce.DA_Featured_EID_BillyBounce",
+        "rarity": "epic",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_EID_BreakDance.DA_Featured_EID_BreakDance",
         "metaInfo": [
           {
             "key": "SectionId",
@@ -199,14 +199,23 @@
       },
       {
         "section": "Daily",
-        "id": "cags3o4ayyg",
-        "item": "AthenaPickaxe:Pickaxe_ID_STW005_Tier_6",
-        "name": "Laser Pick",
+        "id": "2z4ev24u8qw",
+        "item": "AthenaDance:EID_Cry",
+        "name": "Waterworks",
         "items": [],
-        "price": 500,
+        "price": 200,
         "rarity": "uncommon",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Pickaxe_ID_STW005_Tier_6.DA_Featured_Pickaxe_ID_STW005_Tier_6",
-        "metaInfo": []
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_EID_Cry.DA_Featured_EID_Cry",
+        "metaInfo": [
+          {
+            "key": "SectionId",
+            "value": "Daily"
+          },
+          {
+            "key": "TileSize",
+            "value": "Small"
+          }
+        ]
       }
     ]
   }

@@ -70,13 +70,19 @@ export default {
     return logMessage(message, module, "cyanBright", args);
   },
 
-  custom(
-    message: string,
-    module: string,
-    color: keyof Chalk,
-    args?: unknown[]
-  ) {
-    return logMessage(message, module, color, args);
+  custom(message: string, module: string, args?: unknown[]) {
+    const color = chalk.hex("#FF1493");
+    const timestamp = new Date().toISOString();
+    const chalkColor: any = color;
+    let logText = `${chalkColor.gray(timestamp)} [${chalkColor(
+      module
+    )}] ${message}`;
+
+    if (args && args.length > 0) {
+      logText += ` ${args.join(" ")}`;
+    }
+
+    console.log(logText);
   },
 };
 

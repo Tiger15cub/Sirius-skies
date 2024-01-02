@@ -20,3 +20,4 @@ export * from "./CreativeDiscoverySurface";
 export * from "./Discovery";
 export * from "./VivoxTokenClaims";
 export * from "./PurchaseItem";
+export * from "./Friend";

@@ -32,24 +32,25 @@ export default async function verifyToken(
     const token = authorization.replace("bearer eg1~", "");
     const decodedToken = jwt.decode(token);
 
-    const user = await Users.findOne({ accountId: decodedToken?.sub }).lean();
+    res.locals = {
+      ...res.locals,
+      user: await Users.findOne({ accountId: decodedToken?.sub }).lean(),
+    };
 
-    if (!user) {
+    if (!res.locals.user) {
       res.status(404).json({ error: "User not found." });
       return;
     }
 
     Globals.accountId = decodedToken?.sub as string;
 
-    if (user.banned) {
+    if (res.locals.user.banned) {
       sendErrorResponse(
         res,
         "errors.com.epicgames.account.account_not_active",
         "You have been permanently banned from Fortnite."
       );
     }
-
-    
 
     next();
   } catch (error) {

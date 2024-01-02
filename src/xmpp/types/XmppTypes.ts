@@ -27,9 +27,10 @@ export let accountId: string = "";
 export let isAuthenticated: boolean = false;
 export let token: string = "";
 export let jid: string = "";
+export let displayName: string = "";
 
 export interface Globals {
-  exchangeCodes: Record<string, any>;
+  exchangeCodes: any[];
   clientTokens: any[];
   AccessTokens: AccessToken[];
   Clients: XmppClients[];
@@ -43,9 +44,10 @@ export interface Globals {
   accountId: string;
   token: string;
   jid: string;
+  displayName: string;
 }
 
-export let exchangeCodes: Globals["exchangeCodes"] = {};
+export let exchangeCodes: Globals["exchangeCodes"] = [];
 export let clientTokens: Globals["clientTokens"] = [];
 export let AccessTokens: Globals["AccessTokens"] = [];
 export let Clients: Globals["Clients"] = [];
@@ -70,4 +72,5 @@ export const Globals: Globals = {
   token,
   jid,
   refreshTokens,
+  displayName,
 };

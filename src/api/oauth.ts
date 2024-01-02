@@ -11,6 +11,7 @@ import { Globals } from "../xmpp/types/XmppTypes";
 import verifyToken from "../middleware/verifyToken";
 import { DateTime } from "luxon";
 import { v4 as uuid } from "uuid";
+import ExchangeCodes from "../models/ExchangeCodes";
 
 export default function initRoute(router: Router, next: NextFunction): void {
   router.delete("/account/api/oauth/sessions/kill", (req, res) => {
@@ -132,6 +133,21 @@ export default function initRoute(router: Router, next: NextFunction): void {
             });
             responseSent = true;
             return;
+          }
+
+          if (user.banned) {
+            res.status(400).json({
+              errorCode: "errors.com.epicgames.account.account_not_active",
+              errorMessage: "You have been permanently banned from Fortnite.",
+              messageVars: undefined,
+              numericErrorCode: -1,
+              originatingService: "any",
+              intent: "prod",
+              error_description:
+                "You have been permanently banned from Fortnite.",
+              error: "account_not_active",
+            });
+            responseSent = true;
           }
 
           if (bcrypt.compareSync(password, user.password)) {
@@ -310,24 +326,6 @@ export default function initRoute(router: Router, next: NextFunction): void {
           responseSent = true;
       }
 
-      const user = await Users.findOne({
-        email: displayName,
-      }).lean();
-
-      if (user?.banned) {
-        res.status(400).json({
-          errorCode: "errors.com.epicgames.account.account_not_active",
-          errorMessage: "You have been permanently banned from Fortnite.",
-          messageVars: undefined,
-          numericErrorCode: -1,
-          originatingService: "any",
-          intent: "prod",
-          error_description: "You have been permanently banned from Fortnite.",
-          error: "account_not_active",
-        });
-        responseSent = true;
-      }
-
       refreshToken = jwt.sign(
         {
           sub: accountId,
@@ -361,6 +359,39 @@ export default function initRoute(router: Router, next: NextFunction): void {
       );
 
       if (!responseSent) {
+        const refreshTokenIndex = Globals.refreshTokens.findIndex(
+          (refresh) => refresh.accountId === accountId
+        );
+
+        if (refreshTokenIndex !== -1)
+          Globals.refreshTokens.splice(refreshTokenIndex, 1);
+
+        const accessTokenIndex = Globals.AccessTokens.findIndex(
+          (token) => token.accountId === accountId
+        );
+
+        if (accessTokenIndex !== -1)
+          Globals.AccessTokens.splice(accessTokenIndex, 1);
+
+        Globals.refreshTokens.push({
+          accountId: accountId,
+        });
+
+        Globals.AccessTokens.push({
+          accountId: accountId,
+          token: `eg1~${accessToken}`,
+        });
+
+        await Accounts.updateOne(
+          { accountId },
+          {
+            $push: {
+              refreshToken: Globals.refreshTokens,
+              accessToken: Globals.AccessTokens,
+            },
+          }
+        );
+
         res.json({
           access_token: `eg1~${accessToken}`,
           expires_in: 28800,
@@ -427,7 +458,66 @@ export default function initRoute(router: Router, next: NextFunction): void {
     res.json(verificationResponse).status(200);
   });
 
-  router.get("/account/api/oauth/exchange", async (req, res) => {
-    return res.status(204).json([]);
+  router.get("/account/api/oauth/exchange", verifyToken, async (req, res) => {
+    const existingExchangeCode = Globals.exchangeCodes.find(
+      (item) => item.accountId === res.locals.accountId
+    );
+
+    if (existingExchangeCode) {
+      const remainingExpiresInSeconds = Math.round(
+        existingExchangeCode.expiresAt.diffNow().as("seconds")
+      );
+
+      res.json({
+        expiresInSeconds: remainingExpiresInSeconds,
+        code: existingExchangeCode.exchange_code,
+        creatingClientId: existingExchangeCode.creatingClientId,
+      });
+
+      return;
+    }
+
+    const randomExchangeCode = uuid().replace(/-/g, "");
+
+    const createdAt = DateTime.local();
+    const expiresAt = DateTime.local().plus({ minutes: 5 });
+
+    const expiresInSeconds = Math.round(
+      expiresAt.diff(createdAt).as("seconds")
+    );
+
+    Globals.exchangeCodes.push({
+      accountId: res.locals.user.accountId,
+      exchange_code: randomExchangeCode,
+      creatingClientId: getEnv("CLIENT_SECRET"),
+      expiresAt: expiresAt,
+    });
+
+    await ExchangeCodes.create({
+      accountId: res.locals.user.accountId,
+      exchange_code: randomExchangeCode,
+      creatingClientId: getEnv("CLIENT_SECRET"),
+      expiresAt: expiresAt,
+    });
+
+    setTimeout(() => {
+      const index = Globals.exchangeCodes.findIndex(
+        (item) => item.exchange_code === randomExchangeCode
+      );
+
+      if (index !== -1) {
+        Globals.exchangeCodes.splice(index, 1);
+        log.custom(
+          `Exchange code '${randomExchangeCode}' removed successfully.`,
+          "ExchangeCodes"
+        );
+      }
+    }, 300000);
+
+    res.json({
+      expiresInSeconds,
+      code: randomExchangeCode,
+      creatingClientId: getEnv("CLIENT_SECRET"),
+    });
   });
 }

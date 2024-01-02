@@ -41,6 +41,8 @@ const PORT = getEnv("PORT") || 5555;
     else if (getEnv("isMatchmakerEnabled") === "false") {
     }
 
+    import("./xmpp/xmpp");
+
     app.use((req, res, next) => {
       const startTime = process.hrtime();
       res.setHeader("Content-Type", "application/json");
