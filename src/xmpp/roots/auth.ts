@@ -43,7 +43,6 @@ export default async function auth(
   const user = await Users.findOne({ accountId: accessToken.accountId }).lean();
 
   if (!user) {
-    console.log("blud was not found");
     await socket.close();
     return;
   }
