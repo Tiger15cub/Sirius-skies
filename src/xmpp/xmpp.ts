@@ -4,9 +4,8 @@ import { getEnv } from "../utils";
 import log from "../utils/log";
 import chalk from "chalk";
 import HandleConnection from "./helpers/HandleConnection";
-import { ConnectedClients } from "./types/Saves";
+import { Saves } from "./types/Saves";
 import { Globals } from "./types/XmppTypes";
-import { createServer } from "http";
 
 const app = express();
 
@@ -22,19 +21,23 @@ wss.on("listening", () => {
 
 wss.on("connection", async (socket, request: express.Request) => {
   HandleConnection.handleConnection(socket, request);
+});
 
-  app.use("/clients", async (req, res) => {
-    if (!res.locals.hasWebSocket) {
-      res.json({
-        connectedClients: ConnectedClients.size,
-        clients: Globals.Clients.map((client) => client.displayName),
-      });
-    } else {
-      res.status(400).json({ error: "BadRequest" });
-    }
-  });
+app.use("/clients", async (req, res) => {
+  if (!res.locals.hasWebSocket) {
+    res.json({
+      connectedClients: Saves.ConnectedClients.size,
+      clients: Globals.Clients.map((client) => ({
+        accountId: client.accountId,
+        displayName: client.displayName,
+        lastPresenceUpdate: client.lastPresenceUpdate,
+      })),
+    });
+  } else {
+    res.status(400).json({ error: "BadRequest" });
+  }
+});
 
-  app.use((req, res) => {
-    res.status(404).json({ error: "Route not Found." });
-  });
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not Found." });
 });

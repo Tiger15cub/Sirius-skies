@@ -66,20 +66,18 @@ export default async function auth(
   ) {
     Globals.isAuthenticated = true;
 
-    log.custom(
-      `New XMPP client has logged in with the displayName ${Globals.displayName}`,
-      "XMPP"
-    );
+    // @ts-ignore
+    Globals.Clients[Globals.accountId] = {
+      accountId: Globals.accountId,
+      displayName: Globals.displayName,
+    };
 
-    const streamNs = "urn:ietf:params:xml:ns:xmpp-sasl";
-
-    await socket.send(
+    socket.send(
       xmlbuilder
         .create("success")
-        .attribute("xmlns", streamNs)
-        .toString({ pretty: true })
+        .attribute("xmlns", "urn:ietf:params:xml:ns:xmpp-sasl")
+        .toString()
     );
-    return;
   } else {
     socket.send(
       xmlbuilder
@@ -95,5 +93,6 @@ export default async function auth(
     log.error("Password not verified.", "Auth");
   }
 
-  await socket.close();
+  // await socket.close();
+  // console.log("connection closed?");
 }

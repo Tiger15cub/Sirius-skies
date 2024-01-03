@@ -6,7 +6,7 @@ export interface Friend {
   favorite: boolean;
 }
 
-export interface Friends {
+export interface IFriends {
   accountId: string;
   groups: string[];
   mutual: number;

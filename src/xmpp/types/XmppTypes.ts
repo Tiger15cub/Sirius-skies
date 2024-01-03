@@ -10,6 +10,7 @@ export interface XmppClients extends AccessToken {
   accountId: string;
   displayName?: string;
   jid?: string;
+  resource?: string;
   token: string;
   lastPresenceUpdate?: {
     away: boolean;

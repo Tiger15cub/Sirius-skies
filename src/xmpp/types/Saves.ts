@@ -1,4 +1,13 @@
 import WebSocket from "ws";
 
-export let ConnectedClients = new Map<string, WebSocket>();
-export let Received = "";
+let ConnectedClients = new Map<string, WebSocket>();
+let Received = "";
+let resource: string = "";
+let clientExists: boolean = false;
+
+export const Saves = {
+  ConnectedClients,
+  Received,
+  resource,
+  clientExists,
+};

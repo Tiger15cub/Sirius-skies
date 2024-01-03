@@ -70,8 +70,6 @@ const PORT = getEnv("PORT") || 5555;
         });
       }
 
-      logger.info(fullUrl);
-
       log.info(
         `(${methodColor(req.method)}) (${statusCodeColor(
           res.statusCode

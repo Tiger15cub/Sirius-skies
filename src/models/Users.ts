@@ -9,14 +9,6 @@ export interface IUser extends Document {
   password: string;
   banned: boolean;
   hasFL: boolean;
-  friends: Friends;
-}
-
-interface Friends {
-  accepted: Array<Record<string, any>>;
-  incoming: Array<Record<string, any>>;
-  outgoing: Array<Record<string, any>>;
-  blocked: Array<Record<string, any>>;
 }
 
 const UserSchema = new Schema<IUser>({
@@ -29,24 +21,6 @@ const UserSchema = new Schema<IUser>({
   banned: { type: Boolean, default: false },
   // hasFullLocker
   hasFL: { type: Boolean, default: false },
-  friends: {
-    accepted: {
-      type: Array,
-      default: [],
-    },
-    incoming: {
-      type: Array,
-      default: [],
-    },
-    outgoing: {
-      type: Array,
-      default: [],
-    },
-    blocked: {
-      type: Array,
-      default: [],
-    },
-  },
 });
 
 export default model<IUser>("Users", UserSchema);

@@ -1,15 +1,16 @@
 import { Router } from "express";
-import { Friend, Friends, NewFriend } from "../interface";
-import Users from "../models/Users";
+import { Friend, IFriends, NewFriend } from "../interface";
 import { DateTime } from "luxon";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { getEnv } from "../utils";
-import Accounts from "../models/Accounts";
+import Friends from "../models/Friends";
+import { Globals } from "../xmpp/types/XmppTypes";
+import xmlbuilder from "xmlbuilder";
 
 export default function initRoute(router: Router) {
   router.get("/friends/api/public/friends/:accountId", async (req, res) => {
     const { accountId } = req.params;
-    const user = await Users.findOne({ accountId }).lean();
+    const user = await Friends.findOne({ accountId }).lean();
 
     if (!user) {
       return res.status(404).json({ error: "Failed to find User." });
@@ -61,7 +62,7 @@ export default function initRoute(router: Router) {
 
   router.get("/friends/api/v1/:accountId/summary", async (req, res) => {
     const content: {
-      friends: Friends[];
+      friends: IFriends[];
       incoming: any[];
       outgoing: any[];
       suggested: any[];
@@ -78,7 +79,7 @@ export default function initRoute(router: Router) {
       },
     };
     const { accountId } = req.params;
-    const user = await Users.findOne({ accountId }).lean();
+    const user = await Friends.findOne({ accountId }).lean();
 
     if (!user) {
       return res.status(404).json({ error: "Failed to find User." });
@@ -145,7 +146,19 @@ export default function initRoute(router: Router) {
     res.json(content);
   });
 
-  router.post(
+  router.get("/friends/api/v1/:accountId/blocklist", async (req, res) => {
+    res.json([]);
+  });
+
+  router.get("/friends/api/v1/:accountId/settings", async (req, res) => {
+    res.json([]);
+  });
+
+  router.get("/friends/api/v1/:accountId/recent/fortnite", async (req, res) => {
+    res.json([]);
+  });
+
+  router.all(
     "/friends/api/v1/:accountId/friends/:friendId",
     async (req, res) => {
       const { accountId, friendId } = req.params;
@@ -166,11 +179,8 @@ export default function initRoute(router: Router) {
         getEnv("CLIENT_SECRET")
       ) as JwtPayload;
 
-      const clientId = decodedToken.clid;
-      const displayName = decodedToken.dn;
-
-      const user = await Users.findOne({ accountId });
-      const friend = await Users.findOne({ accountId: friendId });
+      const user = await Friends.findOne({ accountId });
+      const friend = await Friends.findOne({ accountId: friendId });
 
       if (!user || !friend) {
         return res.status(404).json({ error: "User or Friend not found" });
@@ -209,7 +219,7 @@ export default function initRoute(router: Router) {
           });
         }
 
-        await Users.updateOne(
+        await Friends.updateOne(
           { accountId },
           {
             $set: {
@@ -223,7 +233,7 @@ export default function initRoute(router: Router) {
           createdAt: DateTime.utc().toFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'"),
         };
 
-        await Users.updateOne(
+        await Friends.updateOne(
           { accountId },
           {
             $push: {
@@ -232,7 +242,175 @@ export default function initRoute(router: Router) {
           }
         );
 
-        // TODO
+        const friendToRemoveOutgoing = incomingFriendsForUser.filter(
+          (entry) => {
+            return entry !== null && entry.accountId === accountId;
+          }
+        );
+
+        if (friendToRemoveOutgoing) {
+          return friendToRemoveOutgoing.forEach((remove) => {
+            const friendIndex = incomingFriendsForUser.indexOf(remove);
+
+            if (!friendIndex !== undefined && friendIndex !== -1) {
+              incomingFriendsForUser.splice(friendIndex, 1);
+            }
+          });
+        }
+
+        await Friends.updateOne(
+          { accountId },
+          {
+            $push: {
+              "friends.outgoing": outgoingFriendsForUser,
+            },
+          }
+        );
+
+        const newFriend: NewFriend = {
+          accountId,
+          createdAt: DateTime.utc().toFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'"),
+        };
+
+        await Friends.updateOne(
+          { accountId },
+          {
+            $push: {
+              "friends.accepted": newFriend,
+            },
+          }
+        );
+
+        const userClient = Globals.Clients.find(
+          (client) => client.accountId === accountId
+        );
+        const friendClient = Globals.Clients.find(
+          (client) => client.accountId === friendId
+        );
+
+        if (userClient !== undefined && friendClient !== undefined) {
+          await userClient.socket.send(
+            xmlbuilder
+              .create("message")
+              .attribute("from", "xmpp-admin@prod.ol.epicgames.com")
+              .attribute("to", userClient.jid)
+              .attribute("xmlns", "jabber:client")
+              .element(
+                "body",
+                JSON.stringify({
+                  payload: {
+                    accountId: friend.accountId,
+                    status: "ACCEPTED",
+                    direction: "OUTBOUND",
+                    created: DateTime.utc(),
+                    favorite: false,
+                  },
+                  type: "com.epicgames.friends.core.apiobjects.Friend",
+                  timestamp: DateTime.utc(),
+                })
+              )
+              .up()
+              .toString()
+          );
+
+          await friendClient.socket.send(
+            xmlbuilder
+              .create("message")
+              .attribute("from", "xmpp-admin@prod.ol.epicgames.com")
+              .attribute("to", friendClient.jid)
+              .attribute("xmlns", "jabber:client")
+              .element(
+                "body",
+                JSON.stringify({
+                  payload: {
+                    accountId: user.accountId,
+                    status: "ACCEPTED",
+                    direction: "INBOUND",
+                    created: new Date().toISOString(),
+                    favorite: false,
+                  },
+                  type: "com.epicgames.friends.core.apiobjects.Friend",
+                  timestamp: new Date().toISOString(),
+                })
+              )
+              .up()
+              .toString()
+          );
+
+          await userClient.socket.send(
+            xmlbuilder
+              .create("message")
+              .attribute("from", "xmpp-admin@prod.ol.epicgames.com")
+              .attribute("to", userClient.jid)
+              .attribute("xmlns", "jabber:client")
+              .element("type", "available")
+              .toString()
+          );
+
+          await friendClient.socket.send(
+            xmlbuilder
+              .create("message")
+              .attribute("from", "xmpp-admin@prod.ol.epicgames.com")
+              .attribute("to", friendClient.jid)
+              .attribute("xmlns", "jabber:client")
+              .element("type", "available")
+              .toString()
+          );
+        }
+        res.json({}).status(400);
+      } else {
+        const outgoing = user.friends.outgoing;
+        const incoming = friend.friends.incoming;
+
+        if (outgoing !== null && incoming !== null) {
+          const incomingFriendRequest = outgoing;
+
+          const newFriend: NewFriend = {
+            accountId: friend.accountId,
+            createdAt: DateTime.utc().toFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'"),
+          };
+
+          await Friends.updateOne(
+            { accountId },
+            {
+              $push: {
+                "friends.outgoing": newFriend,
+              },
+            }
+          );
+
+          incomingFriendRequest.push({
+            accountId: user.accountId,
+            createdAt: DateTime.utc().toFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'"),
+          });
+
+          const NewFriend: NewFriend = {
+            accountId: user.accountId,
+            createdAt: DateTime.utc().toFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'"),
+          };
+
+          await Friends.updateOne(
+            { accountId: friendId },
+            {
+              $push: {
+                "friends.incoming": NewFriend,
+              },
+            }
+          );
+
+          const userClient = Globals.Clients.find(
+            (client) => client.accountId === accountId
+          );
+          const friendClient = Globals.Clients.find(
+            (client) => client.accountId === friendId
+          );
+
+          if (userClient !== undefined && friendClient !== undefined) {
+            // TODO
+          } else {
+            res.json({}).status(400);
+          }
+        }
       }
     }
   );

@@ -123,7 +123,7 @@ const accountsSchema = new Schema<AccountsModel>({
   character: {
     items: {
       type: String,
-      default: "",
+      default: "AthenaCharacter:cid_001_athena_commando_f_default",
     },
     activeVariants: {
       type: Array,

@@ -231,31 +231,31 @@ export default function initRoute(router: Router, next: NextFunction): void {
             responseSent = true;
           }
 
-          const refreshTokenObject =
-            Globals.refreshTokens[
-              Globals.refreshTokens.findIndex(
-                (token) => token.token === refresh_token
-              )
-            ];
+          // const refreshTokenObject =
+          //   Globals.refreshTokens[
+          //     Globals.refreshTokens.findIndex(
+          //       (token) => token.token === refresh_token
+          //     )
+          //   ];
 
-          if (refreshTokenObject === undefined) {
-            res.status(400).json({
-              errorCode:
-                "errors.com.epicgames.account.auth_token.invalid_refresh_token",
-              errorMessage: `Sorry the refresh token '${refresh_token}' is invalid`,
-              messageVars: undefined,
-              numericErrorCode: 18036,
-              originatingService: "any",
-              intent: "prod",
-              error_description: `Sorry the refresh token '${refresh_token}' is invalid`,
-              error: "invalid_refresh_token",
-            });
-            responseSent = true;
-          } else {
-            await Users.findOne({
-              accountId: refreshTokenObject.accountId,
-            }).lean();
-          }
+          // if (refreshTokenObject === undefined) {
+          //   res.status(400).json({
+          //     errorCode:
+          //       "errors.com.epicgames.account.auth_token.invalid_refresh_token",
+          //     errorMessage: `Sorry the refresh token '${refresh_token}' is invalid`,
+          //     messageVars: undefined,
+          //     numericErrorCode: 18036,
+          //     originatingService: "any",
+          //     intent: "prod",
+          //     error_description: `Sorry the refresh token '${refresh_token}' is invalid`,
+          //     error: "invalid_refresh_token",
+          //   });
+          //   responseSent = true;
+          // } else {
+          //   await Users.findOne({
+          //     accountId: refreshTokenObject.accountId,
+          //   }).lean();
+          // }
 
           break;
 

@@ -2,6 +2,8 @@ import { DateTime } from "luxon";
 import Accounts from "../../../../models/Accounts";
 import { createDefaultResponse, getSeason } from "../../../../utils";
 import { getProfile } from "../../utils/getProfile";
+import fs from "node:fs";
+import path from "node:path";
 
 export default async function MarkItemSeen(
   profileId: string,
@@ -25,13 +27,14 @@ export default async function MarkItemSeen(
   const userProfiles = getProfile(accountId);
 
   for (let item in itemIds) {
-    userProfiles.profileChanges[0].profile.items[
-      itemIds[item]
-    ].attributes.item_seen = true;
+    const itemId = itemIds[item];
+
+    userProfiles.profileChanges[0].profile.items[itemId].attributes.item_seen =
+      true;
 
     applyProfileChanges.push({
       changeType: "itemAttrChanged",
-      itemId: itemIds[item],
+      itemId: itemId,
       attributeName: "item_seen",
       attributeValue: true,
     });
@@ -65,6 +68,21 @@ export default async function MarkItemSeen(
           ["items"]: items,
         },
       }
+    );
+
+    const UserProfile = path.join(
+      __dirname,
+      "..",
+      "..",
+      "utils",
+      "profiles",
+      `profile-${accountId}.json`
+    );
+
+    fs.writeFileSync(
+      UserProfile,
+      JSON.stringify(userProfiles, null, 2),
+      "utf-8"
     );
   }
 

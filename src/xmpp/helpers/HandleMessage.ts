@@ -1,11 +1,13 @@
 import WebSocket from "ws";
 import { IncomingMessage } from "http";
-import { Received } from "../types/Saves";
+import { Saves } from "../types/Saves";
 import xmlparser from "xml-parser";
 import open from "../roots/open";
 import { Globals } from "../types/XmppTypes";
 import auth from "../roots/auth";
 import log from "../../utils/log";
+import iq from "../roots/iq";
+import presence from "../roots/presence";
 
 export default {
   async handleMessage(
@@ -15,14 +17,12 @@ export default {
   ): Promise<void> {
     let document: xmlparser.Document;
 
-    let received: string = Received;
-
     socket.on("message", async (chunk: WebSocket.Data | string) => {
       if (Buffer.isBuffer(chunk)) chunk = chunk.toString();
 
-      received += chunk;
+      Saves.Received += chunk;
 
-      document = xmlparser(received);
+      document = xmlparser(Saves.Received);
 
       if (!document) {
         log.error("An Error has occured.", "XMPP");
@@ -30,15 +30,50 @@ export default {
 
       switch (document.root.name) {
         case "open":
-          open(socket, Globals.isAuthenticated, id);
+          await open(socket, Globals.isAuthenticated, id);
           break;
 
         case "auth":
-          auth(socket, document.root, id);
+          await auth(socket, document.root, id);
+          break;
+
+        case "iq":
+          await iq(socket, document.root, id);
+          break;
+
+        case "presence":
+          await presence(socket, document.root, id);
           break;
       }
 
-      received = "";
+      if (!Saves.clientExists && socket.readyState === WebSocket.OPEN) {
+        if (
+          Globals.accountId !== "" &&
+          Globals.displayName !== "" &&
+          Globals.token !== "" &&
+          Globals.jid !== "" &&
+          id !== "" &&
+          Saves.resource !== "" &&
+          Globals.isAuthenticated
+        ) {
+          Saves.clientExists = true;
+
+          Globals.Clients.push({
+            accountId: Globals.accountId,
+            displayName: Globals.displayName,
+            token: Globals.token,
+            jid: Globals.jid,
+            resource: Saves.resource,
+            lastPresenceUpdate: {
+              away: false,
+              status: "{}",
+            },
+            socket,
+          });
+          return;
+        }
+      }
+      Saves.Received = "";
     });
 
     socket.on("close", async () => {

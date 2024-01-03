@@ -2,6 +2,7 @@ import { Router } from "express";
 import Users from "../models/Users";
 import log from "../utils/log";
 import verifyToken from "../middleware/verifyToken";
+import { DateTime } from "luxon";
 
 export default function initRoute(router: Router): void {
   router.get(
@@ -14,14 +15,30 @@ export default function initRoute(router: Router): void {
       try {
         if (!user) {
           return res.json({});
-        } else if (user.banned === true) {
+        } else if (user.banned) {
           return res.json({});
         }
 
         return res.json({
           id: user.accountId,
           displayName: user.username,
-          externalAuths: {},
+          name: user.username,
+          email: user.email,
+          failedLoginAttempts: 0,
+          lastLogin: DateTime.utc().toFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'"),
+          numberOfDisplayNameChanges: 0,
+          ageGroup: "UNKNOWN",
+          headless: false,
+          country: "US",
+          lastName: "User",
+          links: {},
+          preferredLanguage: "en",
+          canUpdateDisplayName: false,
+          tfaEnabled: true,
+          emailVerified: true,
+          minorVerified: true,
+          minorExpected: true,
+          minorStatus: "UNKNOWN",
         });
       } catch (error) {
         let err: Error = error as Error;
@@ -34,33 +51,49 @@ export default function initRoute(router: Router): void {
     }
   );
 
-  router.get("/account/api/public/account", verifyToken, async (req, res) => {
+  router.get("/account/api/public/account", async (req, res) => {
     try {
-      const accountId = req.query.accountId;
+      const accountIdQuery = req.query.accountId?.toString();
 
-      if (!accountId) {
-        return res.json({});
+      if (!accountIdQuery) {
+        return res.status(404).json([]);
       }
 
-      const accountIds = Array.isArray(accountId) ? accountId : [accountId];
+      const response: any[] = [];
 
-      const data: any[] = [];
+      if (accountIdQuery!.includes(",")) {
+        const accountIds: string[] = accountIdQuery.split(",");
 
-      for (const id of accountIds) {
-        const account = await Users.findOne({ accountId: id });
+        for (const accountId of accountIds) {
+          const user = await Users.findOne({ accountId }).lean();
 
-        if (account) {
-          data.push({
-            id: account.accountId,
-            links: {},
-            displayName: account.username,
-            cabinMode: false,
-            externalAuths: {},
+          if (!user) {
+            return res.status(404).json({ error: "User not found." });
+          }
+
+          response.push({
+            id: user.accountId,
+            displayName: user.username,
+            externalAuth: {},
           });
         }
+      } else {
+        const user = await Users.findOne({ accountId: accountIdQuery }).lean();
+
+        if (!user) {
+          return res.status(404).json({ error: "User not found." });
+        }
+
+        response.push({
+          id: user.accountId,
+          links: {},
+          displayName: user.username,
+          cabinedMode: false,
+          externalAuth: {},
+        });
       }
 
-      return res.json(data);
+      return res.json(response);
     } catch (error) {
       const err: Error = error as Error;
       log.error(
@@ -100,6 +133,35 @@ export default function initRoute(router: Router): void {
     verifyToken,
     async (req, res) => {
       res.json([]);
+    }
+  );
+
+  router.get(
+    "/account/api/public/account/displayName/:displayName",
+    async (req, res) => {
+      const { displayName } = req.params;
+      const user = await Users.findOne({
+        username: displayName,
+      }).lean();
+
+      if (!user) {
+        return res.status(404).json({
+          errorCode: "errors.com.epicgames.account.account_not_found",
+          errorMessage: `Sorry, we couldn't find an account for ${displayName}`,
+          messageVars: undefined,
+          numericErrorCode: 18007,
+          originatingService: "any",
+          intent: "prod",
+          error_description: `Sorry, we couldn't find an account for ${displayName}`,
+          error: "account_not_found",
+        });
+      }
+
+      res.json({
+        id: user.accountId,
+        displayName,
+        externalAuths: {},
+      });
     }
   );
 }

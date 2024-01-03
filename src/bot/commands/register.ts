@@ -8,6 +8,7 @@ import log from "../../utils/log";
 import { DateTime } from "luxon";
 import fs from "node:fs";
 import path from "node:path";
+import Friends from "../../models/Friends";
 
 export default async function execute(interaction: any) {
   await interaction.deferReply({ ephemeral: true });
@@ -101,6 +102,18 @@ export default async function execute(interaction: any) {
       account.save();
       log.log(
         `Created account with the username ${username}`,
+        "Bot",
+        "magentaBright"
+      );
+
+      const friends = new Friends({
+        accountId: acc.accountId,
+      });
+
+      friends.save();
+
+      log.log(
+        `Created friends model for user with the username ${username}`,
         "Bot",
         "magentaBright"
       );
