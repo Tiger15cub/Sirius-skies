@@ -1,17 +1,22 @@
 {
-  "expiration": "2024-01-04T00:00:00.000Z",
-  "cacheExpire": "2024-01-04T00:00:00.000Z",
+  "expiration": "2024-01-05T00:00:00.000Z",
+  "cacheExpire": "2024-01-05T00:00:00.000Z",
   "catalogItems": {
     "BRWeeklyStorefront": [
       {
         "section": "Daily",
-        "id": "x1plpl9fr3q",
-        "item": "AthenaDance:EID_PopDance01",
-        "name": "Star Power",
-        "items": [],
-        "price": 800,
-        "rarity": "epic",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_EID_PopDance01.DA_Featured_EID_PopDance01",
+        "id": "c4uk209has9",
+        "item": "AthenaCharacter:CID_143_Athena_Commando_F_DarkNinja",
+        "name": "Fate",
+        "items": [
+          {
+            "item": "AthenaBackpack:BID_060_DarkNinja",
+            "name": "Ominous Orb"
+          }
+        ],
+        "price": 2000,
+        "rarity": "legendary",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_143_Athena_Commando_F_DarkNinja.DA_Featured_CID_143_Athena_Commando_F_DarkNinja",
         "metaInfo": [
           {
             "key": "SectionId",
@@ -25,53 +30,13 @@
       },
       {
         "section": "Daily",
-        "id": "5jbke1sc4sh",
-        "item": "AthenaPickaxe:Pickaxe_ID_037_Stealth",
-        "name": "Spectre",
-        "items": [],
-        "price": 800,
-        "rarity": "rare",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Pickaxe_ID_037_Stealth.DA_Featured_Pickaxe_ID_037_Stealth",
-        "metaInfo": [
-          {
-            "key": "SectionId",
-            "value": "Featured"
-          },
-          {
-            "key": "TileSize",
-            "value": "Normal"
-          }
-        ]
-      },
-      {
-        "section": "Daily",
-        "id": "89y7x7fvxe",
-        "item": "AthenaDance:EID_PureSalt",
-        "name": "Pure Salt",
-        "items": [],
-        "price": 500,
-        "rarity": "rare",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_EID_PureSalt.DA_Featured_EID_PureSalt",
-        "metaInfo": [
-          {
-            "key": "SectionId",
-            "value": "Daily"
-          },
-          {
-            "key": "TileSize",
-            "value": "Small"
-          }
-        ]
-      },
-      {
-        "section": "Daily",
-        "id": "rfd3clsucje",
-        "item": "AthenaCharacter:CID_552_Athena_Commando_F_TaxiUpgrade",
-        "name": "Slingshot",
+        "id": "a0bhvh249oh",
+        "item": "AthenaCharacter:CID_397_Athena_Commando_F_TreasureHunterFashion",
+        "name": "Aura",
         "items": [],
         "price": 800,
         "rarity": "uncommon",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_552_Athena_Commando_F_TaxiUpgrade.DA_Featured_CID_552_Athena_Commando_F_TaxiUpgrade",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_397_Athena_Commando_F_TreasureHunterFashion.DA_Featured_CID_397_Athena_Commando_F_TreasureHunterFashion",
         "metaInfo": [
           {
             "key": "SectionId",
@@ -85,18 +50,13 @@
       },
       {
         "section": "Daily",
-        "id": "gv5g594jsto",
-        "item": "AthenaCharacter:CID_497_Athena_Commando_F_WildWest",
-        "name": "Rio Grande",
-        "items": [
-          {
-            "item": "AthenaBackpack:BID_329_WildWestFemale",
-            "name": "Grande Pack"
-          }
-        ],
-        "price": 1200,
-        "rarity": "rare",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_497_Athena_Commando_F_WildWest.DA_Featured_CID_497_Athena_Commando_F_WildWest",
+        "id": "mqomevlrin",
+        "item": "AthenaCharacter:CID_548_Athena_Commando_M_YellowCamoA",
+        "name": "Snakepit",
+        "items": [],
+        "price": 800,
+        "rarity": "uncommon",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_548_Athena_Commando_M_YellowCamoA.DA_Featured_CID_548_Athena_Commando_M_YellowCamoA",
         "metaInfo": [
           {
             "key": "SectionId",
@@ -105,6 +65,51 @@
           {
             "key": "TileSize",
             "value": "Normal"
+          }
+        ]
+      },
+      {
+        "section": "Daily",
+        "id": "djoczw50qw",
+        "item": "AthenaCharacter:CID_505_Athena_Commando_M_MilitiaMascotBurger",
+        "name": "Gutbomb",
+        "items": [
+          {
+            "item": "AthenaBackpack:BID_336_MascotMilitiaBurger",
+            "name": "Takeout"
+          }
+        ],
+        "price": 1500,
+        "rarity": "epic",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_505_Athena_Commando_M_MilitiaMascotBurger.DA_Featured_CID_505_Athena_Commando_M_MilitiaMascotBurger",
+        "metaInfo": [
+          {
+            "key": "SectionId",
+            "value": "Daily"
+          },
+          {
+            "key": "TileSize",
+            "value": "Small"
+          }
+        ]
+      },
+      {
+        "section": "Daily",
+        "id": "a968oinnjh",
+        "item": "AthenaCharacter:CID_466_Athena_Commando_M_WeirdObjectsCreature",
+        "name": "Demogorgon",
+        "items": [],
+        "price": 1200,
+        "rarity": "rare",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_466_Athena_Commando_M_WeirdObjectsCreature.DA_Featured_CID_466_Athena_Commando_M_WeirdObjectsCreature",
+        "metaInfo": [
+          {
+            "key": "SectionId",
+            "value": "Daily"
+          },
+          {
+            "key": "TileSize",
+            "value": "Small"
           }
         ]
       }
@@ -112,24 +117,78 @@
     "BRDailyStorefront": [
       {
         "section": "Daily",
-        "id": "mzm8ajcyetq",
-        "item": "AthenaCharacter:CID_123_Athena_Commando_F_Metal",
-        "name": "Chromium",
+        "id": "eyg7l97pl6f",
+        "item": "AthenaCharacter:CID_431_Athena_Commando_F_StormPilot",
+        "name": "Bolt",
+        "items": [],
+        "price": 800,
+        "rarity": "uncommon",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_431_Athena_Commando_F_StormPilot.DA_Featured_CID_431_Athena_Commando_F_StormPilot",
+        "metaInfo": [
+          {
+            "key": "SectionId",
+            "value": "Daily"
+          },
+          {
+            "key": "TileSize",
+            "value": "Small"
+          }
+        ]
+      },
+      {
+        "section": "Daily",
+        "id": "l6vzdk7ns5n",
+        "item": "AthenaPickaxe:Pickaxe_ID_114_BadassCowboyCowSkull",
+        "name": "Longhorn",
+        "items": [],
+        "price": 800,
+        "rarity": "rare",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Pickaxe_ID_114_BadassCowboyCowSkull.DA_Featured_Pickaxe_ID_114_BadassCowboyCowSkull",
+        "metaInfo": [
+          {
+            "key": "SectionId",
+            "value": "Daily"
+          },
+          {
+            "key": "TileSize",
+            "value": "Small"
+          }
+        ]
+      },
+      {
+        "section": "Daily",
+        "id": "ripi07hnxds",
+        "item": "AthenaCharacter:CID_315_Athena_Commando_M_TeriyakiFish",
+        "name": "Fishstick",
+        "items": [
+          {
+            "item": "AthenaBackpack:BID_193_TeriyakiFishMale",
+            "name": "Saltwater Satchel"
+          }
+        ],
+        "price": 1200,
+        "rarity": "rare",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_315_Athena_Commando_M_TeriyakiFish.DA_Featured_CID_315_Athena_Commando_M_TeriyakiFish",
+        "metaInfo": [
+          {
+            "key": "SectionId",
+            "value": "Daily"
+          },
+          {
+            "key": "TileSize",
+            "value": "Small"
+          }
+        ]
+      },
+      {
+        "section": "Daily",
+        "id": "1eqzc558p4p",
+        "item": "AthenaCharacter:CID_072_Athena_Commando_M_Scout",
+        "name": "Sash Sergeant",
         "items": [],
         "price": 1200,
         "rarity": "rare",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_123_Athena_Commando_F_Metal.DA_Featured_CID_123_Athena_Commando_F_Metal",
-        "metaInfo": []
-      },
-      {
-        "section": "Daily",
-        "id": "m6e8bth8aag",
-        "item": "AthenaGlider:Glider_ID_083_DarkBomber",
-        "name": "Dark Glyph",
-        "items": [],
-        "price": 500,
-        "rarity": "dark",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Glider_ID_083_DarkBomber.DA_Featured_Glider_ID_083_DarkBomber",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_072_Athena_Commando_M_Scout.DA_Featured_CID_072_Athena_Commando_M_Scout",
         "metaInfo": [
           {
             "key": "SectionId",
@@ -143,13 +202,24 @@
       },
       {
         "section": "Daily",
-        "id": "duel3rl8xo",
-        "item": "AthenaDance:EID_WhereIsMatt",
-        "name": "Where Is Matt?",
+        "id": "0rkiyyarebeh",
+        "item": "AthenaGlider:Glider_ID_086_BlackWidow",
+        "name": "Hatchling",
+        "items": [],
+        "price": 1200,
+        "rarity": "epic",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Glider_ID_086_BlackWidow.DA_Featured_Glider_ID_086_BlackWidow",
+        "metaInfo": []
+      },
+      {
+        "section": "Daily",
+        "id": "oh3bmupsegs",
+        "item": "AthenaGlider:Glider_ID_136_Bullseye",
+        "name": "Targeted",
         "items": [],
         "price": 500,
-        "rarity": "rare",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_EID_WhereIsMatt.DA_Featured_EID_WhereIsMatt",
+        "rarity": "uncommon",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Glider_ID_136_Bullseye.DA_Featured_Glider_ID_136_Bullseye",
         "metaInfo": [
           {
             "key": "SectionId",
@@ -160,38 +230,6 @@
             "value": "Small"
           }
         ]
-      },
-      {
-        "section": "Daily",
-        "id": "dvj66cqp6a5",
-        "item": "AthenaCharacter:CID_344_Athena_Commando_M_IceCream",
-        "name": "Lil Whip",
-        "items": [
-          {
-            "item": "AthenaBackpack:BID_213_IceCream",
-            "name": "Sno Cone"
-          }
-        ],
-        "price": 1500,
-        "rarity": "epic",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_344_Athena_Commando_M_IceCream.DA_Featured_CID_344_Athena_Commando_M_IceCream",
-        "metaInfo": []
-      },
-      {
-        "section": "Daily",
-        "id": "87eqnvexk0p",
-        "item": "AthenaCharacter:CID_277_Athena_Commando_M_Moth",
-        "name": "Mothmando",
-        "items": [
-          {
-            "item": "AthenaBackpack:BID_157_MothMale",
-            "name": "Wingback"
-          }
-        ],
-        "price": 1500,
-        "rarity": "epic",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_277_Athena_Commando_M_Moth.DA_Featured_CID_277_Athena_Commando_M_Moth",
-        "metaInfo": []
       }
     ]
   }

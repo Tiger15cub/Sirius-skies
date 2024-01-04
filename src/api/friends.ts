@@ -163,22 +163,6 @@ export default function initRoute(router: Router) {
     async (req, res) => {
       const { accountId, friendId } = req.params;
 
-      const token = req.headers["authorization"]
-        ?.toString()
-        .split("bearer ")[1];
-
-      if (!token) {
-        return res
-          .status(404)
-          .json({ error: "Authorization token not found." });
-      }
-
-      const accessToken = token.replace("eg1~", "");
-      const decodedToken = jwt.verify(
-        accessToken,
-        getEnv("CLIENT_SECRET")
-      ) as JwtPayload;
-
       const user = await Friends.findOne({ accountId });
       const friend = await Friends.findOne({ accountId: friendId });
 
@@ -406,10 +390,56 @@ export default function initRoute(router: Router) {
           );
 
           if (userClient !== undefined && friendClient !== undefined) {
-            // TODO
-          } else {
-            res.json({}).status(400);
+            await userClient.socket.send(
+              xmlbuilder
+                .create("message")
+                .attribute("from", "xmpp-admin@prod.ol.epicgames.com")
+                .attribute("to", userClient.jid)
+                .attribute("xmlns", "jabber:client")
+                .element(
+                  "body",
+                  JSON.stringify({
+                    payload: {
+                      accountId: friend.accountId,
+                      status: "ACCEPTED",
+                      direction: "OUTBOUND",
+                      created: DateTime.utc(),
+                      favorite: false,
+                    },
+                    type: "com.epicgames.friends.core.apiobjects.Friend",
+                    timestamp: DateTime.utc(),
+                  })
+                )
+                .up()
+                .toString()
+            );
+
+            await friendClient.socket.send(
+              xmlbuilder
+                .create("message")
+                .attribute("from", "xmpp-admin@prod.ol.epicgames.com")
+                .attribute("to", friendClient.jid)
+                .element(
+                  "body",
+                  JSON.stringify({
+                    payload: {
+                      accountId: userClient.accountId,
+                      status: "PENDING",
+                      direction: "INBOUND",
+                      created: DateTime.utc(),
+                      favorite: false,
+                    },
+                    type: "com.epicgames.friends.core.apiobjects.Friend",
+                    timestamp: DateTime.utc(),
+                  })
+                )
+                .up()
+                .toString()
+            );
           }
+          res.status(204).end();
+        } else {
+          res.json({}).status(400);
         }
       }
     }

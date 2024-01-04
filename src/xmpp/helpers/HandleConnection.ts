@@ -20,10 +20,18 @@ export default {
           const clientIndex = Globals.Clients.findIndex(
             (client) => client.socket === socket
           );
+          const client = Globals.Clients.find((c) => c.socket === socket);
+
+          if (!client) return;
 
           if (clientIndex !== -1) {
             Globals.Clients.splice(clientIndex, 1);
           }
+
+          log.custom(
+            `XMPP Client with the displayName ${client.displayName}`,
+            "XMPP"
+          );
         });
 
         Saves.ConnectedClients.set(id, socket);

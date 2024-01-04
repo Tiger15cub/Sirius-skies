@@ -4,8 +4,8 @@ import { Saves } from "../xmpp/types/Saves";
 export default function initRoute(router: Router) {
   router.post(
     [
-      "/fortnite/api/game/v2/chat/:accountId/reserveGeneralChatRooms/Athena/:platform",
-      "/fortnite/api/game/v2/chat/:accountId/recommendGeneralChatRooms/Athena/:platform",
+      "/fortnite/api/game/v2/chat/:accountId/reserveGeneralChatRooms/:worldType/:platform",
+      "/fortnite/api/game/v2/chat/:accountId/recommendGeneralChatRooms/:worldType/:platform",
     ],
     (req, res) => {
       res.json({
