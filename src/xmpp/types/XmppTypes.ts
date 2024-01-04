@@ -19,10 +19,6 @@ export interface XmppClients extends AccessToken {
   socket: WebSocket;
 }
 
-export interface MUCs {
-  members: [];
-}
-
 export let UUID: string = uuid();
 export let accountId: string = "";
 export let isAuthenticated: boolean = false;
@@ -36,7 +32,7 @@ export interface Globals {
   AccessTokens: AccessToken[];
   Clients: XmppClients[];
   refreshTokens: any[];
-  MUCs: Record<string, any>;
+  MUCs: { members: any[] };
   parties: any[];
   invites: any[];
   pings: any[];
@@ -52,7 +48,7 @@ export let exchangeCodes: Globals["exchangeCodes"] = [];
 export let clientTokens: Globals["clientTokens"] = [];
 export let AccessTokens: Globals["AccessTokens"] = [];
 export let Clients: Globals["Clients"] = [];
-export let MUCs: Globals["MUCs"] = {};
+export let MUCs: Globals["MUCs"] = { members: [] };
 export let parties: Globals["parties"] = [];
 export let invites: Globals["invites"] = [];
 export let pings: Globals["pings"] = [];

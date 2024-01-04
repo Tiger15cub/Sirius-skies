@@ -139,6 +139,33 @@ export default async function PurchaseCatalogEntry(
           } else {
             const itemUUID = uuid();
 
+            for (const item of matchedStorefront.item) {
+              multiUpdate.push({
+                changeType: "itemAdded",
+                itemId: itemUUID,
+                item: {
+                  templateId: item.item,
+                  attributes: {
+                    favorite: false,
+                    item_seen: false,
+                    level: 1,
+                    max_level_bonus: 0,
+                    rnd_sel_cnt: 0,
+                    variants: [],
+                    xp: 0,
+                  },
+                  quantity: 1,
+                },
+              });
+
+              notifications.push({
+                itemType: item.item,
+                itemGuid: itemUUID,
+                itemProfile: "athena",
+                quantity: 1,
+              });
+            }
+
             multiUpdate.push({
               changeType: "itemAdded",
               itemId: itemUUID,

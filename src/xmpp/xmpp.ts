@@ -31,6 +31,8 @@ app.use("/clients", async (req, res) => {
         accountId: client.accountId,
         displayName: client.displayName,
         lastPresenceUpdate: client.lastPresenceUpdate,
+        resource: client.resource,
+        jid: client.jid,
       })),
     });
   } else {

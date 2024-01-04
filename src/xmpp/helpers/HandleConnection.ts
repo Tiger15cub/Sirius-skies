@@ -13,17 +13,21 @@ export default {
     if (request.url === "//") {
       try {
         Saves.ConnectedClients.set(id, socket);
+
+        socket.on("close", () => {
+          Saves.ConnectedClients.delete(id);
+
+          const clientIndex = Globals.Clients.findIndex(
+            (client) => client.socket === socket
+          );
+
+          if (clientIndex !== -1) {
+            Globals.Clients.splice(clientIndex, 1);
+          }
+        });
+
+        Saves.ConnectedClients.set(id, socket);
         await HandleMessage.handleMessage(socket, request, id);
-
-        // Saves.ConnectedClients.delete(id);
-
-        const clientIndex = Globals.Clients.findIndex(
-          (client) => client.socket === socket
-        );
-
-        if (clientIndex !== -1) {
-          Globals.Clients.splice(clientIndex, 1);
-        }
       } catch (error) {
         log.error(`Error handling message: ${error}`, "XMPP");
       }
