@@ -36,7 +36,7 @@ export default function initRoute(router: Router, next: NextFunction): void {
         );
 
         if (Clients) {
-          Clients.socket.close();
+          Clients.socket?.close();
         }
       }
 
@@ -217,19 +217,19 @@ export default function initRoute(router: Router, next: NextFunction): void {
           break;
 
         case "refresh_token":
-          if (!refresh_token) {
-            res.status(400).json({
-              errorCode: "errors.com.epicgames.common.oauth.invalid_request",
-              errorMessage: "RefreshToken is required.",
-              messageVars: undefined,
-              numericErrorCode: 1013,
-              originatingService: "any",
-              intent: "prod",
-              error_description: "RefreshToken is required.",
-              error: "invalid_request",
-            });
-            responseSent = true;
-          }
+          // if (!refresh_token) {
+          //   res.status(400).json({
+          //     errorCode: "errors.com.epicgames.common.oauth.invalid_request",
+          //     errorMessage: "RefreshToken is required.",
+          //     messageVars: undefined,
+          //     numericErrorCode: 1013,
+          //     originatingService: "any",
+          //     intent: "prod",
+          //     error_description: "RefreshToken is required.",
+          //     error: "invalid_request",
+          //   });
+          //   responseSent = true;
+          // }
 
           // const refreshTokenObject =
           //   Globals.refreshTokens[

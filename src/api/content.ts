@@ -14,20 +14,21 @@ export default function initRoute(router: Router): void {
       return 2;
     }
 
-    let backgrounds: any[] = [
-      {
-        stage: `season${season.season}`,
-        _type: "DynamicBackground",
-        key: "lobby",
-      },
-      {
-        stage: `season${season.season}`,
-        _type: "DynamicBackground",
-        key: "vault",
-      },
-    ];
+    // let backgrounds: any[] = [
+    //   {
+    //     stage: `season${season.season}`,
+    //     _type: "DynamicBackground",
+    //     key: "lobby",
+    //   },
+    //   {
+    //     stage: `season${season.season}`,
+    //     _type: "DynamicBackground",
+    //     key: "vault",
+    //   },
+    // ];
 
-    getSeasonBackground(season.buildUpdate, backgrounds);
+    let backgrounds: any[] = [];
+    getSeasonBackground(season.buildUpdate, season.season, backgrounds);
 
     res.json({
       "jcr:isCheckedOut": true,

@@ -24,7 +24,6 @@ export default function initRoute(router: Router): void {
       try {
         const { accountId } = req.params;
         const {
-          profileId,
           slotName,
           itemToSlot,
           indexWithinSlot,
@@ -35,15 +34,15 @@ export default function initRoute(router: Router): void {
         } = req.body;
 
         if (slotName !== undefined) {
-          return res.json(
-            await EquipBattleRoyaleCustomization(
-              accountId,
-              slotName,
-              itemToSlot,
-              indexWithinSlot,
-              variantUpdates,
-              rvn
-            )
+          return await EquipBattleRoyaleCustomization(
+            accountId,
+            slotName,
+            itemToSlot,
+            slotIndex,
+            indexWithinSlot,
+            variantUpdates,
+            rvn as any,
+            res
           );
         } else {
           return res.json(
@@ -67,18 +66,10 @@ export default function initRoute(router: Router): void {
 
   router.post(
     "/fortnite/api/game/v2/profile/:accountId/*/:command",
+    verifyToken,
     async (req, res) => {
       const { accountId, command } = req.params;
       const { rvn, profileId } = req.query;
-      const {
-        slotName,
-        itemToSlot,
-        indexWithinSlot,
-        category,
-        variantUpdates,
-        slotIndex,
-      } = req.body;
-
       const userAgent = req.headers["user-agent"];
       let season = getSeason(userAgent);
 
@@ -123,16 +114,13 @@ export default function initRoute(router: Router): void {
             break;
 
           case "MarkItemSeen":
-            res
-              .status(204)
-              .json(
-                await MarkItemSeen(
-                  profileId as string,
-                  accountId,
-                  rvn as any,
-                  req
-                )
-              );
+            await MarkItemSeen(
+              profileId as string,
+              accountId,
+              rvn as any,
+              res,
+              req
+            );
             break;
 
           case "ClientQuestLogin":

@@ -68,6 +68,9 @@ export default function initRoute(router: Router): void {
                   stwEventStoreEnd: "9999-01-01T00:00:00.000Z",
                   stwWeeklyStoreEnd: "9999-01-01T00:00:00.000Z",
                   dailyStoreEnd: Data.expiration.toString(),
+                  sectionStoreEnds: {
+                    Featured: Data.expiration.toString(),
+                  },
                 },
               },
             ],

@@ -10,11 +10,6 @@ export default async function presence(
   document: xmlparser.Node,
   id: string
 ): Promise<void> {
-  if (!id) {
-    await socket.close();
-    return;
-  }
-
   const rootType = document.attributes.type;
   const to = document.attributes.to;
   const children = document.children;
@@ -112,17 +107,13 @@ export default async function presence(
 
         if (MUCs) {
           MUCs.members = MUCs.members || [];
-
-          MUCs.members.push({
-            accountId: Globals.accountId,
-          });
         } else {
           log.error(`MUC with roomName ${roomName} does not exist.`, "XMPP");
         }
 
-        // MUCs.members.push({
-        //   accountId: Globals.accountId,
-        // });
+        MUCs.members.push({
+          accountId: Globals.accountId,
+        });
         Saves.JoinedMUCs.push(roomName);
 
         socket.send(
@@ -175,7 +166,6 @@ export default async function presence(
           );
 
           if (!client) {
-            await socket.close();
             return;
           }
 
@@ -210,7 +200,7 @@ export default async function presence(
               .toString({ pretty: true })
           );
 
-          client.socket.send(
+          client.socket?.send(
             xmlbuilder
               .create("presence")
               .attribute(

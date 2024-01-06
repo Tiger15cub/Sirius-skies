@@ -1,0 +1,307 @@
+{
+  "_id": "",
+  "Created": "",
+  "Updated": "",
+  "rvn": 0,
+  "wipeNumber": 1,
+  "accountId": "",
+  "profileId": "athena",
+  "version": "no_version",
+  "items": {
+    "sandbox_loadout": {
+      "templateId": "CosmeticLocker:cosmeticlocker_athena",
+      "attributes": {
+        "locker_slots_data": {
+          "slots": {
+            "MusicPack": {
+              "items": [""]
+            },
+            "Character": {
+              "items": ["AthenaCharacter:cid_001_athena_commando_f_default"],
+              "activeVariants": []
+            },
+            "Backpack": {
+              "items": [""],
+              "activeVariants": [[]]
+            },
+            "SkyDiveContrail": {
+              "items": [""],
+              "activeVariants": [[]]
+            },
+            "Dance": {
+              "items": ["", "", "", "", "", "", ""]
+            },
+            "LoadingScreen": {
+              "items": [""]
+            },
+            "Pickaxe": {
+              "items": [""],
+              "activeVariants": [[]]
+            },
+            "Glider": {
+              "items": [""],
+              "activeVariants": [[]]
+            },
+            "ItemWrap": {
+              "items": ["", "", "", "", "", "", ""],
+              "activeVariants": [[]]
+            }
+          }
+        },
+        "use_count": 0,
+        "banner_icon_template": "BRSeason01",
+        "banner_color_template": "DefaultColor1",
+        "locker_name": "",
+        "item_seen": false,
+        "favorite": false
+      },
+      "quantity": 1
+    },
+    "loadout_1": {
+      "templateId": "CosmeticLocker:cosmeticlocker_athena",
+      "attributes": {
+        "locker_slots_data": {
+          "slots": {
+            "MusicPack": {
+              "items": [""]
+            },
+            "Character": {
+              "items": ["AthenaCharacter:cid_001_athena_commando_f_default"],
+              "activeVariants": []
+            },
+            "Backpack": {
+              "items": [""],
+              "activeVariants": [[]]
+            },
+            "SkyDiveContrail": {
+              "items": [""],
+              "activeVariants": [[]]
+            },
+            "Dance": {
+              "items": ["", "", "", "", "", "", ""]
+            },
+            "LoadingScreen": {
+              "items": [""]
+            },
+            "Pickaxe": {
+              "items": [""],
+              "activeVariants": [[]]
+            },
+            "Glider": {
+              "items": [""],
+              "activeVariants": [[]]
+            },
+            "ItemWrap": {
+              "items": ["", "", "", "", "", "", ""],
+              "activeVariants": [[]]
+            }
+          }
+        },
+        "use_count": 0,
+        "banner_icon_template": "BRSeason01",
+        "banner_color_template": "DefaultColor1",
+        "locker_name": "Sirius",
+        "item_seen": false,
+        "favorite": false
+      },
+      "quantity": 1
+    },
+    "AthenaPickaxe:DefaultPickaxe": {
+      "attributes": {
+        "favorite": false,
+        "item_seen": true,
+        "level": 0,
+        "max_level_bonus": 0,
+        "rnd_sel_cnt": 0,
+        "variants": [],
+        "xp": 0
+      },
+      "templateId": "AthenaPickaxe:DefaultPickaxe"
+    },
+    "AthenaGlider:DefaultGlider": {
+      "attributes": {
+        "favorite": false,
+        "item_seen": true,
+        "level": 0,
+        "max_level_bonus": 0,
+        "rnd_sel_cnt": 0,
+        "variants": [],
+        "xp": 0
+      },
+      "templateId": "AthenaGlider:DefaultGlider"
+    },
+    "AthenaDance:EID_DanceMoves": {
+      "attributes": {
+        "favorite": false,
+        "item_seen": true,
+        "level": 0,
+        "max_level_bonus": 0,
+        "rnd_sel_cnt": 0,
+        "variants": [],
+        "xp": 0
+      },
+      "templateId": "AthenaDance:EID_DanceMoves"
+    },
+    "AthenaCharacter:CID_397_Athena_Commando_F_TreasureHunterFashion": {
+      "attributes": {
+        "favorite": false,
+        "item_seen": true,
+        "level": 1,
+        "max_level_bonus": 0,
+        "rnd_sel_cnt": 0,
+        "variants": [],
+        "xp": 0
+      },
+      "templateId": "AthenaCharacter:CID_397_Athena_Commando_F_TreasureHunterFashion"
+    },
+    "AthenaPickaxe:Pickaxe_ID_114_BadassCowboyCowSkull": {
+      "attributes": {
+        "favorite": false,
+        "item_seen": true,
+        "level": 1,
+        "max_level_bonus": 0,
+        "rnd_sel_cnt": 0,
+        "variants": [],
+        "xp": 0
+      },
+      "templateId": "AthenaPickaxe:Pickaxe_ID_114_BadassCowboyCowSkull"
+    },
+    "AthenaGlider:Glider_ID_136_Bullseye": {
+      "attributes": {
+        "favorite": false,
+        "item_seen": true,
+        "level": 1,
+        "max_level_bonus": 0,
+        "rnd_sel_cnt": 0,
+        "variants": [],
+        "xp": 0
+      },
+      "templateId": "AthenaGlider:Glider_ID_136_Bullseye"
+    },
+    "AthenaGlider:Glider_ID_086_BlackWidow": {
+      "attributes": {
+        "favorite": false,
+        "item_seen": true,
+        "level": 1,
+        "max_level_bonus": 0,
+        "rnd_sel_cnt": 0,
+        "variants": [],
+        "xp": 0
+      },
+      "templateId": "AthenaGlider:Glider_ID_086_BlackWidow"
+    },
+    "AthenaCharacter:CID_072_Athena_Commando_M_Scout": {
+      "attributes": {
+        "favorite": false,
+        "item_seen": true,
+        "level": 1,
+        "max_level_bonus": 0,
+        "rnd_sel_cnt": 0,
+        "variants": [],
+        "xp": 0
+      },
+      "templateId": "AthenaCharacter:CID_072_Athena_Commando_M_Scout"
+    },
+    "AthenaBackpack:BID_060_DarkNinja": {
+      "attributes": {
+        "favorite": false,
+        "item_seen": true,
+        "level": 1,
+        "max_level_bonus": 0,
+        "rnd_sel_cnt": 0,
+        "variants": [],
+        "xp": 0
+      },
+      "templateId": "AthenaBackpack:BID_060_DarkNinja"
+    },
+    "AthenaCharacter:CID_143_Athena_Commando_F_DarkNinja": {
+      "attributes": {
+        "favorite": false,
+        "item_seen": true,
+        "level": 1,
+        "max_level_bonus": 0,
+        "rnd_sel_cnt": 0,
+        "variants": [],
+        "xp": 0
+      },
+      "templateId": "AthenaCharacter:CID_143_Athena_Commando_F_DarkNinja"
+    },
+    "AthenaBackpack:BID_193_TeriyakiFishMale": {
+      "attributes": {
+        "favorite": false,
+        "item_seen": true,
+        "level": 1,
+        "max_level_bonus": 0,
+        "rnd_sel_cnt": 0,
+        "variants": [],
+        "xp": 0
+      },
+      "templateId": "AthenaBackpack:BID_193_TeriyakiFishMale"
+    },
+    "AthenaCharacter:CID_315_Athena_Commando_M_TeriyakiFish": {
+      "attributes": {
+        "favorite": false,
+        "item_seen": true,
+        "level": 1,
+        "max_level_bonus": 0,
+        "rnd_sel_cnt": 0,
+        "variants": [],
+        "xp": 0
+      },
+      "templateId": "AthenaCharacter:CID_315_Athena_Commando_M_TeriyakiFish"
+    }
+  },
+  "stats": {
+    "attributes": {
+      "use_random_loadout": false,
+      "past_seasons": [],
+      "season_match_boost": 0,
+      "loadouts": ["sandbox_loadout", "loadout_1"],
+      "mfa_reward_claimed": true,
+      "rested_xp_overflow": 0,
+      "current_mtx_platform": "Epic",
+      "last_xp_interaction": "2022-12-10T22:14:37.647Z",
+      "quest_manager": {
+        "dailyLoginInterval": "0001-01-01T00:00:00.000Z",
+        "dailyQuestRerolls": 1
+      },
+      "book_level": 1,
+      "season_num": 14,
+      "book_xp": 0,
+      "creative_dynamic_xp": {},
+      "season": {
+        "numWins": 0,
+        "numHighBracket": 0,
+        "numLowBracket": 0
+      },
+      "vote_data": {},
+      "lifetime_wins": 0,
+      "book_purchased": false,
+      "rested_xp_exchange": 1,
+      "level": 1,
+      "rested_xp": 2500,
+      "rested_xp_mult": 4.4,
+      "accountLevel": 1,
+      "rested_xp_cumulative": 52500,
+      "xp": 0,
+      "season_friend_match_boost": 0,
+      "active_loadout_index": 1,
+      "purchased_bp_offers": [],
+      "last_match_end_datetime": "",
+      "mtx_purchase_history_copy": [],
+      "last_applied_loadout": "sandbox_loadout",
+      "favorite_musicpack": "",
+      "banner_icon": "BRSeason01",
+      "favorite_character": "AthenaCharacter:cid_001_athena_commando_f_default",
+      "favorite_itemwraps": ["", "", "", "", "", "", ""],
+      "favorite_skydivecontrail": "",
+      "favorite_pickaxe": "",
+      "favorite_glider": "",
+      "favorite_backpack": "",
+      "favorite_dance": ["", "", "", "", "", "", ""],
+      "favorite_loadingscreen": "",
+      "banner_color": "DefaultColor1"
+    }
+  },
+  "commandRevision": 5
+}

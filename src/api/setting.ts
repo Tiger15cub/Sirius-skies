@@ -21,7 +21,7 @@ export default function initRoute(router: Router) {
       {
         accountId: user.accountId,
         key: "avatar",
-        value: account.character.items.toString().toLowerCase(),
+        value: "cid_001_athena_commando_f_default",
       },
       {
         accountId: user.accountId,

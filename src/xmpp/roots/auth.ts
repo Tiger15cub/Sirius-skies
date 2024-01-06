@@ -66,11 +66,10 @@ export default async function auth(
   ) {
     Globals.isAuthenticated = true;
 
-    // @ts-ignore
-    Globals.Clients[Globals.accountId] = {
-      accountId: Globals.accountId,
-      displayName: Globals.displayName,
-    };
+    log.custom(
+      `XMPP Client with the displayName ${Globals.displayName} has logged in.`,
+      "XMPP"
+    );
 
     socket.send(
       xmlbuilder
@@ -92,7 +91,4 @@ export default async function auth(
     );
     log.error("Password not verified.", "Auth");
   }
-
-  // await socket.close();
-  // console.log("connection closed?");
 }

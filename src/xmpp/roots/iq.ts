@@ -33,14 +33,12 @@ export default async function iq(
       );
 
       if (existingClient) {
-        await socket.close();
         return;
       }
 
       const resourceElement = bindElement.children.find(
         (child) => child.name === "resource"
       );
-
       if (!resourceElement || !resourceElement.content) return;
 
       Saves.resource = resourceElement.content;

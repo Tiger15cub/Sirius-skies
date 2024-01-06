@@ -1,27 +1,23 @@
 import fs from "node:fs";
 import path from "node:path";
+import Accounts from "../../../models/Accounts";
 
-export function getProfile(accountId: string) {
-  let userProfiles: any = {};
-  const profilesDir = path.join(__dirname, "profiles");
-  const profileFilePath = path.join(
-    __dirname,
-    "..",
-    "utils",
-    "profiles",
-    `profile-${accountId}.json`
-  );
+export async function getProfile(accountId: string) {
+  const existingProfile = await Accounts.findOne({ accountId }).lean();
 
-  try {
-    const data = fs.readFileSync(profileFilePath, "utf-8");
-    userProfiles = JSON.parse(data);
-
-    if (!userProfiles[accountId].profileChanges) {
-      userProfiles[accountId].profileChanges = [];
-    }
-  } catch (error) {
-    if (!fs.existsSync(profilesDir)) fs.mkdirSync(profilesDir);
+  if (!existingProfile) {
+    return { error: "not found" };
   }
 
-  return userProfiles;
+  return existingProfile.athena;
+}
+
+export async function getCommonCore(accountId: string) {
+  const existingProfile = await Accounts.findOne({ accountId }).lean();
+
+  if (!existingProfile) {
+    return { error: "not found" };
+  }
+
+  return existingProfile.common_core;
 }

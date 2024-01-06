@@ -1,15 +1,8 @@
-import path from "node:path";
-import fs from "node:fs";
 import log from "../../../../utils/log";
-import { AthenaData, SeasonData } from "../../../../interface";
-import { AddProfileItem } from "../../utils/profile";
-import { DateTime } from "luxon";
+import { SeasonData } from "../../../../interface";
 import { v4 as uuid } from "uuid";
 import { getProfile } from "../../utils/getProfile";
-
-export let level: number = 1;
-export let hasPurchasedBP: boolean = false;
-export let XP: number = 0;
+import Accounts from "../../../../models/Accounts";
 
 export default async function Athena(
   User: any,
@@ -19,11 +12,9 @@ export default async function Athena(
   client: boolean,
   season: number | string,
   rvn: any
-): Promise<AthenaData | { errorCode: string; message: string }> {
+) {
   try {
     rvn = 0;
-
-    let userProfiles = getProfile(accountId);
 
     const [athena, user] = await Promise.all([
       Account.findOne({ accountId }).lean(),
@@ -51,6 +42,14 @@ export default async function Athena(
     };
 
     await Promise.all([
+      initializeField("Season", [
+        {
+          seasonNumber: season,
+          book_level: 1,
+          book_xp: 0,
+          book_purchased: false,
+        },
+      ]),
       initializeField("stats", {
         solos: { wins: 0, kills: 0, matchplayed: 0 },
         duos: { wins: 0, kills: 0, matchplayed: 0 },
@@ -66,6 +65,9 @@ export default async function Athena(
     );
 
     const selectedSeason: string | number = season;
+    let level: number = 1;
+    let hasPurchasedBP: boolean = false;
+    let XP: number = 0;
 
     if (selectedSeason === season) {
       athena.Season.forEach((e: SeasonData) => {
@@ -77,114 +79,58 @@ export default async function Athena(
       });
     }
 
-    await AddProfileItem(
-      athena,
-      profileId,
-      rvn,
-      level,
-      XP,
-      season,
-      hasPurchasedBP
-    );
+    const userProfiles = await getProfile(accountId);
 
     if (user.hasFL) {
       const athena = require("../../../resources/mcp/AllCosmetics.json");
 
-      userProfiles.profileChanges[0].profile.items = {
-        ...userProfiles.profileChanges[0].profile.items,
+      userProfiles.items = {
+        ...userProfiles.items,
         ...athena,
       };
     } else {
       const athena = require("../../../resources/mcp/Athena.json");
 
-      userProfiles.profileChanges[0].profile.items = {
-        ...userProfiles.profileChanges[0].profile.items,
+      userProfiles.items = {
+        ...userProfiles.items,
         ...athena,
       };
 
       if (client) {
         const defaultAthena = require("../../../resources/mcp/DefaultAthena.json");
 
-        userProfiles.profileChanges[0].profile.items = {
-          ...userProfiles.profileChanges[0].profile.items,
+        userProfiles.items = {
+          ...userProfiles.items,
           ...defaultAthena,
         };
       }
     }
 
-    const favorites = [
-      "favorite_character",
-      "favorite_itemwraps",
-      "favorite_skydivecontrail",
-      "favorite_pickaxe",
-      "favorite_glider",
-      "favorite_backpack",
-      "favorite_dance",
-      "favorite_loadingscreen",
-      "favorite_musicpack",
-    ];
+    userProfiles.stats.attributes.season_num = season as number;
 
-    const lockerSlots = ["sandbox_loadout", "loadout_1"];
-
-    for (const favorite of favorites) {
-      if (
-        athena[favorite.replace("favorite_", "")]?.items &&
-        userProfiles.profileChanges?.[0]?.profile?.stats?.attributes
-      ) {
-        userProfiles.profileChanges[0].profile.stats.attributes[favorite] =
-          athena[favorite.replace("favorite_", "")]?.items;
-      }
-    }
-
-    for (const slot of lockerSlots) {
-      const lockerData = {
-        templateId: "CosmeticLocker:cosmeticlocker_athena",
-        attributes: {
-          locker_slots_data: {
-            slots: {
-              MusicPack: { items: [athena.musicpack.items] },
-              Character: {
-                items: [athena.character.items],
-                activeVariants: athena.character.activeVariants,
-              },
-              Backpack: {
-                items: [athena.backpack.items],
-                activeVariants: [athena.backpack.activeVariants],
-              },
-              SkyDiveContrail: {
-                items: [athena.skydivecontrail.items],
-                activeVariants: [athena.skydivecontrail.activeVariants],
-              },
-              Dance: { items: athena.dance.items },
-              LoadingScreen: { items: [athena.loadingscreen.items] },
-              Pickaxe: {
-                items: [athena.pickaxe.items],
-                activeVariants: [athena.pickaxe.activeVariants],
-              },
-              Glider: {
-                items: [athena.glider.items],
-                activeVariants: [athena.glider.activeVariants],
-              },
-              ItemWrap: {
-                items: athena.itemwrap.items,
-                activeVariants: [athena.itemwrap.activeVariants],
-              },
-            },
-          },
-          use_count: 0,
-          banner_icon_template: athena.Banner.banner_icon,
-          banner_color_template: athena.Banner.banner_color,
-          locker_name: "Sirius",
-          item_seen: false,
-          favorite: false,
+    await Accounts.updateOne(
+      { accountId },
+      {
+        $set: {
+          athena: userProfiles,
         },
-        quantity: 1,
-      };
+      }
+    );
 
-      userProfiles.profileChanges[0].profile.items[slot] = lockerData;
-    }
-
-    return userProfiles;
+    return {
+      profileRevision: userProfiles.rvn || 0,
+      profileId: "athena",
+      profileChangesBaseRevision: athena.baseRevision || 0,
+      profileChanges: [
+        {
+          changeType: "fullProfileUpdate",
+          _id: uuid(),
+          profile: {
+            ...userProfiles,
+          },
+        },
+      ],
+    };
   } catch (error) {
     let err: Error = error as Error;
     log.error(`Error in ProfileAthena: ${err.message}`, "ProfileAthena");

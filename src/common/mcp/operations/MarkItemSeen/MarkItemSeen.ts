@@ -4,12 +4,14 @@ import { createDefaultResponse, getSeason } from "../../../../utils";
 import { getProfile } from "../../utils/getProfile";
 import fs from "node:fs";
 import path from "node:path";
+import { Response, Request } from "express";
 
 export default async function MarkItemSeen(
   profileId: string,
   accountId: string,
   rvn: number,
-  req: any
+  res: Response,
+  req: Request
 ) {
   const userAgent = req.headers["user-agent"];
   let season = getSeason(userAgent);
@@ -22,15 +24,11 @@ export default async function MarkItemSeen(
 
   const { itemIds } = req.body;
 
-  const items = account.items;
-
-  const userProfiles = getProfile(accountId);
-
+  const userProfiles: any = await getProfile(accountId);
   for (let item in itemIds) {
     const itemId = itemIds[item];
 
-    userProfiles.profileChanges[0].profile.items[itemId].attributes.item_seen =
-      true;
+    userProfiles.items[itemId].attributes.item_seen = true;
 
     applyProfileChanges.push({
       changeType: "itemAttrChanged",
@@ -42,6 +40,9 @@ export default async function MarkItemSeen(
 
   if (applyProfileChanges.length > 0) {
     rvn += 1;
+    userProfiles.rvn += 1;
+    userProfiles.commandRevision += 1;
+    userProfiles.Updated = DateTime.utc().toISO();
     account.RVN += 1;
     account.baseRevision += 1;
 
@@ -60,39 +61,24 @@ export default async function MarkItemSeen(
     );
   }
 
-  if (applyProfileChanges.length > 0) {
-    Accounts.updateOne(
-      { accountId },
-      {
-        $set: {
-          ["items"]: items,
-        },
-      }
-    );
-
-    const UserProfile = path.join(
-      __dirname,
-      "..",
-      "..",
-      "utils",
-      "profiles",
-      `profile-${accountId}.json`
-    );
-
-    fs.writeFileSync(
-      UserProfile,
-      JSON.stringify(userProfiles, null, 2),
-      "utf-8"
-    );
-  }
-
-  return {
-    profileRevision: account.profilerevision,
+  res.json({
+    profileRevision: userProfiles.rvn || 0,
     profileId,
     profileChangesBaseRevision: account.baseRevision,
     profileChanges: applyProfileChanges,
-    profileCommandRevision: rvn,
+    profileCommandRevision: userProfiles.commandRevision,
     serverTime: DateTime.now().toISO(),
     responseVersion: 1,
-  };
+  });
+
+  if (applyProfileChanges.length > 0) {
+    await Accounts.updateOne(
+      { accountId },
+      {
+        $set: {
+          athena: userProfiles,
+        },
+      }
+    );
+  }
 }

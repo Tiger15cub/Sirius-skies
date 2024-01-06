@@ -1,25 +1,36 @@
 import { DateTime } from "luxon";
 import Account from "../../../../models/Accounts";
-import User from "../../../../models/Users";
 import log from "../../../../utils/log";
+import { Response } from "express";
+import { getProfile } from "../../utils/getProfile";
+
+interface ProfileChange {
+  changeType: string;
+  name: string;
+  value: any;
+}
 
 export default async function EquipBattleRoyaleCustomization(
   accountId: string,
   slotName: string,
   itemToSlot: string,
   slotIndex: string,
+  indexWithinSlot: number,
   variantUpdates: any[],
-  rvn: number
+  rvn: number,
+  res: Response
 ) {
   try {
     const account = await Account.findOne({
       accountId,
     }).lean();
-    const category = slotName;
 
     if (!account) {
-      return {};
+      return res.status(404).json({ error: "Failed to find Account." });
     }
+
+    const profile: any = await getProfile(accountId);
+    const applyProfileChanges: ProfileChange[] = [];
 
     await Account.updateOne(
       { accountId },
@@ -35,79 +46,95 @@ export default async function EquipBattleRoyaleCustomization(
       }
     );
 
-    const profileChanges: any[] = [];
+    const updateFavoriteSlot = (slotType: string, index: number) => {
+      profile.stats.attributes[`favorite_${slotType.toLowerCase()}`] =
+        itemToSlot;
+      profile.items[activeLoadoutId].attributes.locker_slots_data.slots[
+        slotType
+      ].items = [cosmeticTemplateId];
 
-    if (category === "ItemWrap" || category === "Dance") {
-      if (parseInt(slotIndex ?? "0", 10) === -1) {
-        if (itemToSlot === "Dance") {
-          return {};
+      applyProfileChanges.push({
+        changeType: "statModified",
+        name: `favorite_${slotType.toLowerCase()}`,
+        value: profile.stats.attributes[`favorite_${slotType.toLowerCase()}`],
+      });
+
+      if (indexWithinSlot === -1) {
+        for (let i = 0; i < index; i++) {
+          profile.stats.attributes[`favorite_${slotType.toLowerCase()}`] =
+            itemToSlot;
+          profile.items[activeLoadoutId].attributes.locker_slots_data.slots[
+            slotType
+          ].items[i] = cosmeticTemplateId;
         }
-      } else {
-        if (itemToSlot === "") {
-          await Account.updateOne(
-            { accountId },
-            {
-              $set: {
-                [`${category.toString().toLowerCase()}.items.${slotIndex}`]: "",
-              },
-            }
-          );
-        } else {
-          await Account.updateOne(
-            { accountId },
-            {
-              $set: {
-                [`${category.toString().toLowerCase()}.items.${slotIndex}`]:
-                  itemToSlot.toLowerCase(),
-              },
-            }
-          );
-        }
+
+        applyProfileChanges.push({
+          changeType: "statModified",
+          name: `favorite_${slotType.toLowerCase()}`,
+          value: profile.stats.attributes[`favorite_${slotType.toLowerCase()}`],
+        });
       }
+    };
+
+    const activeLoadoutId =
+      profile.stats.attributes.loadouts[
+        profile.stats.attributes.active_loadout_index
+      ];
+    const cosmeticTemplateId = profile.items[itemToSlot]
+      ? profile.items[itemToSlot].templateId
+      : itemToSlot;
+
+    if (slotName === "Dance" && indexWithinSlot >= 0 && indexWithinSlot <= 5) {
+      profile.stats.attributes.favorite_dance[indexWithinSlot] = itemToSlot;
+      profile.items[
+        activeLoadoutId
+      ].attributes.locker_slots_data.slots.Dance.items[indexWithinSlot] =
+        cosmeticTemplateId;
+
+      applyProfileChanges.push({
+        changeType: "statModified",
+        name: "favorite_dance",
+        value: profile.stats.attributes["favorite_dance"],
+      });
+    } else if (
+      slotName === "ItemWrap" &&
+      indexWithinSlot >= 0 &&
+      indexWithinSlot <= 7
+    ) {
+      updateFavoriteSlot("ItemWrap", indexWithinSlot);
     } else {
-      if (itemToSlot === "") {
-        await Account.updateOne(
-          { accountId },
-          {
-            $set: {
-              [`${category.toString().toLowerCase()}.items`]: "",
-            },
-          }
-        );
-      } else {
-        await Account.updateOne(
-          { accountId },
-          {
-            $set: {
-              [`${category.toString().toLowerCase()}.items`]:
-                itemToSlot.toString(),
-            },
-          }
-        );
-      }
+      updateFavoriteSlot(slotName, 1);
     }
 
     const newProfileData = await Account.findOne({ accountId });
 
     if (!newProfileData) {
-      return { error: "Failed to find New Profile." };
+      return res.status(404).json({ error: "Failed to find new Profile." });
     }
 
-    profileChanges.push({
-      changeType: "statModified",
-      name: `favorite_${category.toString().toLowerCase()}`,
-      value: itemToSlot,
-    });
+    if (applyProfileChanges.length > 0) {
+      profile.rvn += 1;
+      profile.commandRevision += 1;
+      profile.Updated = DateTime.now().toISO();
+    }
 
-    return {
-      profileRevision: newProfileData.profilerevision,
+    res.json({
+      profileRevision: profile.rvn || 0,
       profileId: "athena",
       profileChangesBaseRevision: newProfileData.baseRevision,
-      profileChanges,
-      profileCommandRevision: rvn,
+      profileChanges: applyProfileChanges,
+      profileCommandRevision: profile.commandRevision || 0,
       serverTime: DateTime.now().toISO(),
       responseVersion: 1,
-    };
+    });
+
+    if (applyProfileChanges.length > 0) {
+      await Account.updateOne({
+        $set: {
+          athena: profile,
+        },
+      });
+    }
   } catch (error) {
     let err = error as Error;
     log.error(err.message, "EquipBattleRoyaleCustomization");

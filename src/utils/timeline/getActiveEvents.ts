@@ -6,6 +6,36 @@ export default function getActiveEvents(
   activeEvents: ActiveEvents[]
 ) {
   switch (buildUpdate) {
+    case "4.0":
+      activeEvents = [
+        {
+          eventType: `EventFlag.LobbySeason${season}`,
+          activeUntil: "9999-12-31T23:59:59.999Z",
+          activeSince: "2020-01-01T23:59:59.999Z",
+        },
+        {
+          eventType: "EventFlag.Blockbuster2018",
+          activeUntil: "9999-12-31T23:59:59.999Z",
+          activeSince: "2020-01-01T00:00:00.000Z",
+        },
+        {
+          eventType: "EventFlag.Blockbuster2018Phase1",
+          activeUntil: "9999-12-31T23:59:59.999Z",
+          activeSince: "2020-01-01T00:00:00.000Z",
+        },
+      ];
+      break;
+
+    case "4.3":
+      activeEvents = [
+        {
+          eventType: "EventFlag.Blockbuster2018Phase2",
+          activeUntil: "9999-12-31T23:59:59.999Z",
+          activeSince: "2020-01-01T00:00:00.000Z",
+        },
+      ];
+      break;
+
     case "11.31":
     case "11.40":
       activeEvents = [

@@ -47,17 +47,16 @@ export default {
       }
 
       if (!Saves.clientExists && socket.readyState === WebSocket.OPEN) {
+        const resource = Saves.resource;
         if (
           Globals.accountId !== "" &&
           Globals.displayName !== "" &&
           Globals.token !== "" &&
           Globals.jid !== "" &&
           id !== "" &&
-          Saves.resource !== "" &&
+          resource !== "" &&
           Globals.isAuthenticated
         ) {
-          Saves.clientExists = true;
-
           Globals.Clients.push({
             accountId: Globals.accountId,
             displayName: Globals.displayName,
@@ -70,20 +69,11 @@ export default {
             },
             socket,
           });
-          return;
+
+          Saves.clientExists = true;
         }
       }
       Saves.Received = "";
-    });
-
-    socket.on("close", async () => {
-      if (
-        socket.readyState === WebSocket.OPEN ||
-        socket.readyState === WebSocket.CLOSING
-      ) {
-        await socket.close(0, "WebSocket Connection has been terminated.");
-      }
-      socket.terminate();
     });
   },
 };

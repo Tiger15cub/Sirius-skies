@@ -16,7 +16,7 @@ export interface XmppClients extends AccessToken {
     away: boolean;
     status: {};
   };
-  socket: WebSocket;
+  socket?: WebSocket;
 }
 
 export let UUID: string = uuid();

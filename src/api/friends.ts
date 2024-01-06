@@ -273,7 +273,7 @@ export default function initRoute(router: Router) {
         );
 
         if (userClient !== undefined && friendClient !== undefined) {
-          await userClient.socket.send(
+          await userClient.socket?.send(
             xmlbuilder
               .create("message")
               .attribute("from", "xmpp-admin@prod.ol.epicgames.com")
@@ -297,7 +297,7 @@ export default function initRoute(router: Router) {
               .toString()
           );
 
-          await friendClient.socket.send(
+          await friendClient.socket?.send(
             xmlbuilder
               .create("message")
               .attribute("from", "xmpp-admin@prod.ol.epicgames.com")
@@ -321,7 +321,7 @@ export default function initRoute(router: Router) {
               .toString()
           );
 
-          await userClient.socket.send(
+          await userClient.socket?.send(
             xmlbuilder
               .create("message")
               .attribute("from", "xmpp-admin@prod.ol.epicgames.com")
@@ -331,7 +331,7 @@ export default function initRoute(router: Router) {
               .toString()
           );
 
-          await friendClient.socket.send(
+          await friendClient.socket?.send(
             xmlbuilder
               .create("message")
               .attribute("from", "xmpp-admin@prod.ol.epicgames.com")
@@ -390,7 +390,7 @@ export default function initRoute(router: Router) {
           );
 
           if (userClient !== undefined && friendClient !== undefined) {
-            await userClient.socket.send(
+            await userClient.socket?.send(
               xmlbuilder
                 .create("message")
                 .attribute("from", "xmpp-admin@prod.ol.epicgames.com")
@@ -414,7 +414,7 @@ export default function initRoute(router: Router) {
                 .toString()
             );
 
-            await friendClient.socket.send(
+            await friendClient.socket?.send(
               xmlbuilder
                 .create("message")
                 .attribute("from", "xmpp-admin@prod.ol.epicgames.com")

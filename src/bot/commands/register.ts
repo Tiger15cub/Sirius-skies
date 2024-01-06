@@ -9,6 +9,10 @@ import { DateTime } from "luxon";
 import fs from "node:fs";
 import path from "node:path";
 import Friends from "../../models/Friends";
+import {
+  CreateAthenaProfileItem,
+  CreateCommonCoreProfileItem,
+} from "../../common/mcp/utils/profile";
 
 export default async function execute(interaction: any) {
   await interaction.deferReply({ ephemeral: true });
@@ -96,7 +100,8 @@ export default async function execute(interaction: any) {
         accountId: acc.accountId,
         discordId: acc.discordId,
         banned: acc.banned,
-        vbucks: 0,
+        athena: await CreateAthenaProfileItem(acc),
+        common_core: await CreateCommonCoreProfileItem(acc),
       });
 
       account.save();
