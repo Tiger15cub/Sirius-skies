@@ -37,7 +37,7 @@ export default async function PurchaseCatalogEntry(
 
     const shop = JSON.parse(fs.readFileSync(shopPath, "utf-8"));
 
-    const account = await Accounts.findOne({ accountId }).lean();
+    const account = await Accounts.findOne({ accountId });
 
     const applyProfileChanges: Object[] = [];
     const notifications: any[] = [];
@@ -210,6 +210,19 @@ export default async function PurchaseCatalogEntry(
             error: undefined,
           });
         }
+
+        if (multiUpdate.length > 0) {
+          rvn += 1;
+          userProfiles.rvn += 1;
+          userProfiles.commandRevision += 1;
+          userProfiles.Updated = DateTime.utc().toISO();
+
+          Accounts.updateOne({ accountId }, { $set: { RVN: account.RVN } });
+          Accounts.updateOne(
+            { accountId },
+            { $set: { baseRevision: account.baseRevision } }
+          );
+        }
       }
     } else {
       // TODO: Battle Pass
@@ -219,19 +232,10 @@ export default async function PurchaseCatalogEntry(
       userProfiles.rvn += 1;
       userProfiles.commandRevision += 1;
       userProfiles.Updated = DateTime.utc().toISO();
-    }
 
-    if (multiUpdate.length > 0) {
-      rvn += 1;
-      userProfiles.rvn += 1;
-      userProfiles.commandRevision += 1;
-      userProfiles.Updated = DateTime.utc().toISO();
-
-      Accounts.updateOne({ accountId }, { $set: { RVN: account.RVN } });
-      Accounts.updateOne(
-        { accountId },
-        { $set: { baseRevision: account.baseRevision } }
-      );
+      commonCore.rvn += 1;
+      commonCore.commandRevision += 1;
+      commonCore.Updated = DateTime.utc().toISO();
     }
 
     res.json({
@@ -263,15 +267,12 @@ export default async function PurchaseCatalogEntry(
     });
 
     if (applyProfileChanges.length > 0) {
-      await Accounts.updateMany(
-        { accountId },
-        {
-          $set: {
-            common_core: commonCore,
-            athena: userProfiles,
-          },
-        }
-      );
+      await account.updateOne({
+        $set: {
+          common_core: commonCore,
+          athena: userProfiles,
+        },
+      });
     }
   } catch (error) {
     log.error(`${error}`, "PurchaseCatalogEntry");

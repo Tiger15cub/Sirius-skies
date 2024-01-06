@@ -3,16 +3,11 @@ import { ActiveEvents } from "../../interface";
 export default function getActiveEvents(
   buildUpdate: string | number | undefined,
   season: number,
-  activeEvents: ActiveEvents[]
+  activeEvents: any[]
 ) {
   switch (buildUpdate) {
     case "4.0":
-      activeEvents = [
-        {
-          eventType: `EventFlag.LobbySeason${season}`,
-          activeUntil: "9999-12-31T23:59:59.999Z",
-          activeSince: "2020-01-01T23:59:59.999Z",
-        },
+      activeEvents.push([
         {
           eventType: "EventFlag.Blockbuster2018",
           activeUntil: "9999-12-31T23:59:59.999Z",
@@ -23,27 +18,22 @@ export default function getActiveEvents(
           activeUntil: "9999-12-31T23:59:59.999Z",
           activeSince: "2020-01-01T00:00:00.000Z",
         },
-      ];
+      ]);
       break;
 
     case "4.3":
-      activeEvents = [
+      activeEvents.push([
         {
           eventType: "EventFlag.Blockbuster2018Phase2",
           activeUntil: "9999-12-31T23:59:59.999Z",
           activeSince: "2020-01-01T00:00:00.000Z",
         },
-      ];
+      ]);
       break;
 
     case "11.31":
     case "11.40":
-      activeEvents = [
-        {
-          eventType: `EventFlag.LobbySeason${season}`,
-          activeUntil: "9999-12-31T23:59:59.999Z",
-          activeSince: "2020-01-01T23:59:59.999Z",
-        },
+      activeEvents.push([
         {
           eventType: "EventFlag.Winterfest.Tree",
           activeUntil: "9999-12-31T23:59:59.999Z",
@@ -59,16 +49,11 @@ export default function getActiveEvents(
           activeUntil: "9999-12-31T23:59:59.999Z",
           activeSince: "2020-01-01T23:59:59.999Z",
         },
-      ];
+      ]);
       break;
 
     case "12":
-      activeEvents = [
-        {
-          eventType: `EventFlag.LobbySeason${season}`,
-          activeUntil: "9999-12-31T23:59:59.999Z",
-          activeSince: "2020-01-01T23:59:59.999Z",
-        },
+      activeEvents.push([
         {
           eventType: "EventFlag.LTE_SpyGames",
           activeUntil: "9999-12-31T23:59:59.999Z",
@@ -89,25 +74,20 @@ export default function getActiveEvents(
           activeUntil: "9999-12-31T23:59:59.999Z",
           activeSince: "2020-01-01T00:00:00.000Z",
         },
-      ];
+      ]);
       break;
 
     case "13":
       break;
 
     case "14":
-      activeEvents = [
-        {
-          eventType: `EventFlag.LobbySeason${season}`,
-          activeUntil: "9999-12-31T23:59:59.999Z",
-          activeSince: "2020-01-01T23:59:59.999Z",
-        },
+      activeEvents.push([
         {
           eventType: "EventFlag.LTE_Fortnitemares_2020",
           activeUntil: "9999-12-31T23:59:59.999Z",
           activeSince: "2020-01-01T00:00:00.000Z",
         },
-      ];
+      ]);
       break;
 
     case "15":
@@ -123,7 +103,7 @@ export default function getActiveEvents(
       break;
 
     case "19":
-      activeEvents = [
+      activeEvents.push([
         {
           eventType: `EventFlag.LobbySeason${season}`,
           activeUntil: "9999-12-31T23:59:59.999Z",
@@ -204,6 +184,14 @@ export default function getActiveEvents(
           activeUntil: "9999-12-31T23:59:59.999Z",
           activeSince: "2020-01-01T00:00:00.000Z",
         },
-      ];
+      ]);
+      break;
+
+    default:
+      activeEvents.push({
+        eventType: `EventFlag.LobbySeason${season}`,
+        activeUntil: "9999-12-31T23:59:59.999Z",
+        activeSince: "2020-01-01T23:59:59.999Z",
+      });
   }
 }

@@ -34,7 +34,7 @@ export default function initRoute(router: Router): void {
         return 2;
       }
 
-      let activeEvents: ActiveEvents[] = [
+      let activeEvents: any[] = [
         {
           eventType: `EventFlag.LobbySeason${season.season}`,
           activeUntil: "9999-12-31T23:59:59.999Z",
