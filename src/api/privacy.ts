@@ -16,6 +16,11 @@ export default function initRoute(router: Router) {
       res.json({
         accountId: account.accountId,
         optOutOfPublicLeaderboards: account.optOutOfPublicLeaderboards,
+        acceptInvites: "public",
+        acceptInvitesFrom: "public",
+        joinConfirmation: "public",
+        joinability: "open",
+        partyType: "PUBLIC",
       });
     }
   );
@@ -34,6 +39,11 @@ export default function initRoute(router: Router) {
       res.json({
         accountId: account.accountId,
         optOutOfPublicLeaderboards: account.optOutOfPublicLeaderboards,
+        acceptInvites: "public",
+        acceptInvitesFrom: "public",
+        joinConfirmation: "public",
+        joinability: "open",
+        partyType: "PUBLIC",
       });
     }
   );
