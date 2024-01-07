@@ -5,6 +5,8 @@ let Received = "";
 let resource: string = "";
 let clientExists: boolean = false;
 let JoinedMUCs: any[] = [];
+let members: any[] = [];
+let parties: any[] = [];
 
 export const Saves = {
   ConnectedClients,
@@ -12,4 +14,6 @@ export const Saves = {
   resource,
   clientExists,
   JoinedMUCs,
+  members,
+  parties,
 };

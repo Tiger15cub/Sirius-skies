@@ -15,6 +15,7 @@ export default function initRoute(router: Router) {
       const leaderboardTypeToMode: { [key: string]: string } = {
         br_placetop1_keyboardmouse_m0_playlist_defaultduo: "duos",
         br_placetop1_keyboardmouse_m0_playlist_defaultsquad: "squad",
+        br_placetop1_keyboardmouse_m0_playlist_defaultsolo: "solos",
         default: "solos",
       };
 

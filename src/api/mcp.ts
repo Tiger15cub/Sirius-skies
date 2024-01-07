@@ -31,6 +31,7 @@ export default function initRoute(router: Router): void {
           variantUpdates,
           rvn,
           slotIndex,
+          lockerItem,
         } = req.body;
 
         if (slotName !== undefined) {
@@ -52,7 +53,9 @@ export default function initRoute(router: Router): void {
               itemToSlot,
               slotIndex,
               variantUpdates,
-              rvn as any
+              lockerItem,
+              rvn as any,
+              res
             )
           );
         }
@@ -66,7 +69,6 @@ export default function initRoute(router: Router): void {
 
   router.post(
     "/fortnite/api/game/v2/profile/:accountId/*/:command",
-    verifyToken,
     async (req, res) => {
       const { accountId, command } = req.params;
       const { rvn, profileId } = req.query;
@@ -87,7 +89,8 @@ export default function initRoute(router: Router): void {
                   profileId,
                   false,
                   season?.season as number,
-                  rvn
+                  rvn,
+                  res
                 );
                 return res.json(athenaProfile);
 

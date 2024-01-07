@@ -10,5 +10,41 @@
       "xp": 0
     },
     "templateId": "AthenaCharacter:CID_001_Athena_Commando_F_Default"
+  },
+  "AthenaPickaxe:DefaultPickaxe": {
+    "attributes": {
+      "favorite": false,
+      "item_seen": true,
+      "level": 0,
+      "max_level_bonus": 0,
+      "rnd_sel_cnt": 0,
+      "variants": [],
+      "xp": 0
+    },
+    "templateId": "AthenaPickaxe:DefaultPickaxe"
+  },
+  "AthenaGlider:DefaultGlider": {
+    "attributes": {
+      "favorite": false,
+      "item_seen": true,
+      "level": 0,
+      "max_level_bonus": 0,
+      "rnd_sel_cnt": 0,
+      "variants": [],
+      "xp": 0
+    },
+    "templateId": "AthenaGlider:DefaultGlider"
+  },
+  "AthenaDance:EID_DanceMoves": {
+    "attributes": {
+      "favorite": false,
+      "item_seen": true,
+      "level": 0,
+      "max_level_bonus": 0,
+      "rnd_sel_cnt": 0,
+      "variants": [],
+      "xp": 0
+    },
+    "templateId": "AthenaDance:EID_DanceMoves"
   }
 }

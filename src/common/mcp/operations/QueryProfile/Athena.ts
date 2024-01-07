@@ -3,6 +3,8 @@ import { SeasonData } from "../../../../interface";
 import { v4 as uuid } from "uuid";
 import { getProfile } from "../../utils/getProfile";
 import Accounts from "../../../../models/Accounts";
+import { Response } from "express";
+import { DateTime } from "luxon";
 
 export default async function Athena(
   User: any,
@@ -11,7 +13,8 @@ export default async function Athena(
   profileId: string,
   client: boolean,
   season: number | string,
-  rvn: any
+  rvn: any,
+  res: Response
 ) {
   try {
     rvn = 0;
@@ -80,6 +83,7 @@ export default async function Athena(
     }
 
     const userProfiles = await getProfile(accountId);
+    let applyProfileChanges: any[] = [];
 
     if (user.hasFL) {
       const athena = require("../../../resources/mcp/AllCosmetics.json");
@@ -107,6 +111,32 @@ export default async function Athena(
     }
 
     userProfiles.stats.attributes.season_num = season as number;
+    userProfiles.stats.attributes.accountLevel = level;
+    userProfiles.stats.attributes.level = level;
+    userProfiles.stats.attributes.xp = XP;
+    userProfiles.stats.attributes.book_purchased = hasPurchasedBP;
+
+    applyProfileChanges.push({
+      changeType: "fullProfileUpdate",
+      _id: uuid(),
+      profile: {
+        ...userProfiles,
+      },
+    });
+
+    userProfiles.rvn += 1;
+    userProfiles.commandRevision += 1;
+    userProfiles.Updated = DateTime.now().toISO();
+
+    res.json({
+      profileRevision: userProfiles.rvn || 0,
+      profileId: "athena",
+      profileChangesBaseRevision: athena.baseRevision || 0,
+      profileChanges: applyProfileChanges,
+      profileCommandRevision: userProfiles.commandRevision,
+      serverTime: DateTime.now().toISO(),
+      responseVersion: 1,
+    });
 
     await Accounts.updateOne(
       { accountId },
@@ -116,21 +146,6 @@ export default async function Athena(
         },
       }
     );
-
-    return {
-      profileRevision: userProfiles.rvn || 0,
-      profileId: "athena",
-      profileChangesBaseRevision: athena.baseRevision || 0,
-      profileChanges: [
-        {
-          changeType: "fullProfileUpdate",
-          _id: uuid(),
-          profile: {
-            ...userProfiles,
-          },
-        },
-      ],
-    };
   } catch (error) {
     let err: Error = error as Error;
     log.error(`Error in ProfileAthena: ${err.message}`, "ProfileAthena");
