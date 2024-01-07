@@ -69,6 +69,7 @@ export default function initRoute(router: Router): void {
 
   router.post(
     "/fortnite/api/game/v2/profile/:accountId/*/:command",
+    verifyToken,
     async (req, res) => {
       const { accountId, command } = req.params;
       const { rvn, profileId } = req.query;

@@ -33,9 +33,6 @@ export interface Globals {
   Clients: XmppClients[];
   refreshTokens: any[];
   MUCs: { members: any[] };
-  parties: any[];
-  invites: any[];
-  pings: any[];
   UUID: string;
   isAuthenticated: boolean;
   accountId: string;
@@ -49,9 +46,6 @@ export let clientTokens: Globals["clientTokens"] = [];
 export let AccessTokens: Globals["AccessTokens"] = [];
 export let Clients: Globals["Clients"] = [];
 export let MUCs: Globals["MUCs"] = { members: [] };
-export let parties: Globals["parties"] = [];
-export let invites: Globals["invites"] = [];
-export let pings: Globals["pings"] = [];
 export let refreshTokens: Globals["refreshTokens"] = [];
 
 export const Globals: Globals = {
@@ -60,9 +54,6 @@ export const Globals: Globals = {
   AccessTokens,
   Clients,
   MUCs,
-  parties,
-  invites,
-  pings,
   UUID,
   isAuthenticated,
   accountId,
