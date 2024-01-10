@@ -7,6 +7,7 @@ let clientExists: boolean = false;
 let JoinedMUCs: any[] = [];
 let members: any[] = [];
 let parties: any[] = [];
+let pings: any[] = [];
 
 export const Saves = {
   ConnectedClients,
@@ -16,4 +17,5 @@ export const Saves = {
   JoinedMUCs,
   members,
   parties,
+  pings,
 };

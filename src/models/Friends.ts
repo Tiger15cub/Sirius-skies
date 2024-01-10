@@ -1,11 +1,16 @@
 import { DateTime } from "luxon";
 import { Schema, model, Document } from "mongoose";
 
+interface Friend {
+  accountId: string;
+  createdAt: string;
+}
+
 interface Friends {
-  accepted: Array<Record<string, any>>;
-  incoming: Array<Record<string, any>>;
-  outgoing: Array<Record<string, any>>;
-  blocked: Array<Record<string, any>>;
+  accepted: Friend[];
+  incoming: Friend[];
+  outgoing: Friend[];
+  blocked: Friend[];
 }
 
 export interface IFriends extends Document {

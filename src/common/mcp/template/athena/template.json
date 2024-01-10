@@ -17,7 +17,7 @@
               "items": [""]
             },
             "Character": {
-              "items": ["AthenaCharacter:cid_001_athena_commando_f_default"],
+              "items": ["AthenaCharacter:CID_001_Athena_Commando_F_Default"],
               "activeVariants": []
             },
             "Backpack": {
@@ -66,7 +66,7 @@
               "items": [""]
             },
             "Character": {
-              "items": ["AthenaCharacter:cid_001_athena_commando_f_default"],
+              "items": ["AthenaCharacter:CID_001_Athena_Commando_F_Default"],
               "activeVariants": []
             },
             "Backpack": {
@@ -196,7 +196,7 @@
       "last_applied_loadout": "sandbox_loadout",
       "favorite_musicpack": "",
       "banner_icon": "BRSeason01",
-      "favorite_character": "AthenaCharacter:cid_001_athena_commando_f_default",
+      "favorite_character": "AthenaCharacter:CID_001_Athena_Commando_F_Default",
       "favorite_itemwraps": ["", "", "", "", "", "", ""],
       "favorite_skydivecontrail": "",
       "favorite_pickaxe": "",

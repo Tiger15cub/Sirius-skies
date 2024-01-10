@@ -1,22 +1,17 @@
 {
-  "expiration": "2024-01-05T00:00:00.000Z",
-  "cacheExpire": "2024-01-05T00:00:00.000Z",
+  "expiration": "2024-01-10T00:00:00.000Z",
+  "cacheExpire": "2024-01-10T00:00:00.000Z",
   "catalogItems": {
     "BRWeeklyStorefront": [
       {
         "section": "Daily",
-        "id": "c4uk209has9",
-        "item": "AthenaCharacter:CID_143_Athena_Commando_F_DarkNinja",
-        "name": "Fate",
-        "items": [
-          {
-            "item": "AthenaBackpack:BID_060_DarkNinja",
-            "name": "Ominous Orb"
-          }
-        ],
-        "price": 2000,
-        "rarity": "legendary",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_143_Athena_Commando_F_DarkNinja.DA_Featured_CID_143_Athena_Commando_F_DarkNinja",
+        "id": "wl7pm4axf9b",
+        "item": "AthenaCharacter:CID_465_Athena_Commando_M_PuffyVest",
+        "name": "Gage",
+        "items": [],
+        "price": 800,
+        "rarity": "uncommon",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_465_Athena_Commando_M_PuffyVest.DA_Featured_CID_465_Athena_Commando_M_PuffyVest",
         "metaInfo": [
           {
             "key": "SectionId",
@@ -30,13 +25,13 @@
       },
       {
         "section": "Daily",
-        "id": "a0bhvh249oh",
-        "item": "AthenaCharacter:CID_397_Athena_Commando_F_TreasureHunterFashion",
-        "name": "Aura",
+        "id": "1xof8t0l1us",
+        "item": "AthenaPickaxe:Pickaxe_ID_108_PumpkinSlice",
+        "name": "Carver",
         "items": [],
         "price": 800,
-        "rarity": "uncommon",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_397_Athena_Commando_F_TreasureHunterFashion.DA_Featured_CID_397_Athena_Commando_F_TreasureHunterFashion",
+        "rarity": "rare",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Pickaxe_ID_108_PumpkinSlice.DA_Featured_Pickaxe_ID_108_PumpkinSlice",
         "metaInfo": [
           {
             "key": "SectionId",
@@ -50,38 +45,38 @@
       },
       {
         "section": "Daily",
-        "id": "mqomevlrin",
-        "item": "AthenaCharacter:CID_548_Athena_Commando_M_YellowCamoA",
-        "name": "Snakepit",
+        "id": "b4k7obt6aks",
+        "item": "AthenaCharacter:CID_331_Athena_Commando_M_Taxi",
+        "name": "Cabbie",
         "items": [],
         "price": 800,
         "rarity": "uncommon",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_548_Athena_Commando_M_YellowCamoA.DA_Featured_CID_548_Athena_Commando_M_YellowCamoA",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_331_Athena_Commando_M_Taxi.DA_Featured_CID_331_Athena_Commando_M_Taxi",
         "metaInfo": [
           {
             "key": "SectionId",
-            "value": "Featured"
+            "value": "Daily"
           },
           {
             "key": "TileSize",
-            "value": "Normal"
+            "value": "Small"
           }
         ]
       },
       {
         "section": "Daily",
-        "id": "djoczw50qw",
-        "item": "AthenaCharacter:CID_505_Athena_Commando_M_MilitiaMascotBurger",
-        "name": "Gutbomb",
+        "id": "k5a2s3b05mq",
+        "item": "AthenaCharacter:CID_310_Athena_Commando_F_StreetGoth",
+        "name": "Lace",
         "items": [
           {
-            "item": "AthenaBackpack:BID_336_MascotMilitiaBurger",
-            "name": "Takeout"
+            "item": "AthenaBackpack:BID_190_StreetGothFemale",
+            "name": "Stitches"
           }
         ],
         "price": 1500,
         "rarity": "epic",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_505_Athena_Commando_M_MilitiaMascotBurger.DA_Featured_CID_505_Athena_Commando_M_MilitiaMascotBurger",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_310_Athena_Commando_F_StreetGoth.DA_Featured_CID_310_Athena_Commando_F_StreetGoth",
         "metaInfo": [
           {
             "key": "SectionId",
@@ -95,13 +90,13 @@
       },
       {
         "section": "Daily",
-        "id": "a968oinnjh",
-        "item": "AthenaCharacter:CID_466_Athena_Commando_M_WeirdObjectsCreature",
-        "name": "Demogorgon",
+        "id": "drcrbel290e",
+        "item": "AthenaDance:EID_Intensity",
+        "name": "Intensity",
         "items": [],
-        "price": 1200,
-        "rarity": "rare",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_466_Athena_Commando_M_WeirdObjectsCreature.DA_Featured_CID_466_Athena_Commando_M_WeirdObjectsCreature",
+        "price": 800,
+        "rarity": "epic",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_EID_Intensity.DA_Featured_EID_Intensity",
         "metaInfo": [
           {
             "key": "SectionId",
@@ -117,33 +112,13 @@
     "BRDailyStorefront": [
       {
         "section": "Daily",
-        "id": "eyg7l97pl6f",
-        "item": "AthenaCharacter:CID_431_Athena_Commando_F_StormPilot",
-        "name": "Bolt",
-        "items": [],
-        "price": 800,
-        "rarity": "uncommon",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_431_Athena_Commando_F_StormPilot.DA_Featured_CID_431_Athena_Commando_F_StormPilot",
-        "metaInfo": [
-          {
-            "key": "SectionId",
-            "value": "Daily"
-          },
-          {
-            "key": "TileSize",
-            "value": "Small"
-          }
-        ]
-      },
-      {
-        "section": "Daily",
-        "id": "l6vzdk7ns5n",
-        "item": "AthenaPickaxe:Pickaxe_ID_114_BadassCowboyCowSkull",
-        "name": "Longhorn",
+        "id": "7ohqcs3elts",
+        "item": "AthenaPickaxe:Pickaxe_ID_082_SushiChef",
+        "name": "Filet Axe",
         "items": [],
         "price": 800,
         "rarity": "rare",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Pickaxe_ID_114_BadassCowboyCowSkull.DA_Featured_Pickaxe_ID_114_BadassCowboyCowSkull",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Pickaxe_ID_082_SushiChef.DA_Featured_Pickaxe_ID_082_SushiChef",
         "metaInfo": [
           {
             "key": "SectionId",
@@ -157,38 +132,13 @@
       },
       {
         "section": "Daily",
-        "id": "ripi07hnxds",
-        "item": "AthenaCharacter:CID_315_Athena_Commando_M_TeriyakiFish",
-        "name": "Fishstick",
-        "items": [
-          {
-            "item": "AthenaBackpack:BID_193_TeriyakiFishMale",
-            "name": "Saltwater Satchel"
-          }
-        ],
-        "price": 1200,
-        "rarity": "rare",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_315_Athena_Commando_M_TeriyakiFish.DA_Featured_CID_315_Athena_Commando_M_TeriyakiFish",
-        "metaInfo": [
-          {
-            "key": "SectionId",
-            "value": "Daily"
-          },
-          {
-            "key": "TileSize",
-            "value": "Small"
-          }
-        ]
-      },
-      {
-        "section": "Daily",
-        "id": "1eqzc558p4p",
-        "item": "AthenaCharacter:CID_072_Athena_Commando_M_Scout",
-        "name": "Sash Sergeant",
+        "id": "54u95gyd24g",
+        "item": "AthenaDance:EID_TapShuffle",
+        "name": "Hootenanny",
         "items": [],
-        "price": 1200,
+        "price": 500,
         "rarity": "rare",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_CID_072_Athena_Commando_M_Scout.DA_Featured_CID_072_Athena_Commando_M_Scout",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_EID_TapShuffle.DA_Featured_EID_TapShuffle",
         "metaInfo": [
           {
             "key": "SectionId",
@@ -202,24 +152,53 @@
       },
       {
         "section": "Daily",
-        "id": "0rkiyyarebeh",
-        "item": "AthenaGlider:Glider_ID_086_BlackWidow",
-        "name": "Hatchling",
+        "id": "bdfiwsbmbyu",
+        "item": "AthenaDance:EID_RockGuitar",
+        "name": "Rock Out",
         "items": [],
-        "price": 1200,
+        "price": 800,
         "rarity": "epic",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Glider_ID_086_BlackWidow.DA_Featured_Glider_ID_086_BlackWidow",
-        "metaInfo": []
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_EID_RockGuitar.DA_Featured_EID_RockGuitar",
+        "metaInfo": [
+          {
+            "key": "SectionId",
+            "value": "Featured"
+          },
+          {
+            "key": "TileSize",
+            "value": "Normal"
+          }
+        ]
       },
       {
         "section": "Daily",
-        "id": "oh3bmupsegs",
-        "item": "AthenaGlider:Glider_ID_136_Bullseye",
-        "name": "Targeted",
+        "id": "c9ontk3pkxc",
+        "item": "AthenaGlider:Glider_ID_111_MilitaryFashion",
+        "name": "Diverge",
+        "items": [],
+        "price": 800,
+        "rarity": "rare",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Glider_ID_111_MilitaryFashion.DA_Featured_Glider_ID_111_MilitaryFashion",
+        "metaInfo": [
+          {
+            "key": "SectionId",
+            "value": "Daily"
+          },
+          {
+            "key": "TileSize",
+            "value": "Small"
+          }
+        ]
+      },
+      {
+        "section": "Daily",
+        "id": "6c73run06rh",
+        "item": "AthenaGlider:Glider_ID_020_Fighter",
+        "name": "Fighter Kite",
         "items": [],
         "price": 500,
         "rarity": "uncommon",
-        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Glider_ID_136_Bullseye.DA_Featured_Glider_ID_136_Bullseye",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Glider_ID_020_Fighter.DA_Featured_Glider_ID_020_Fighter",
         "metaInfo": [
           {
             "key": "SectionId",
@@ -230,6 +209,17 @@
             "value": "Small"
           }
         ]
+      },
+      {
+        "section": "Daily",
+        "id": "m8l4ytzsn8",
+        "item": "AthenaGlider:Glider_ID_016_Tactical",
+        "name": "Carbon",
+        "items": [],
+        "price": 500,
+        "rarity": "uncommon",
+        "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_Featured_Glider_ID_016_Tactical.DA_Featured_Glider_ID_016_Tactical",
+        "metaInfo": []
       }
     ]
   }

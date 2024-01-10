@@ -22,6 +22,8 @@ export default class VivoxTokenGenerator {
   async generateToken(
     applicationId: string,
     userId: string,
+    channelUrl: string,
+    userUrl: string,
     options?: SignOptions
   ): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -30,6 +32,10 @@ export default class VivoxTokenGenerator {
       const claims: VivoxTokenClaims = {
         iss: applicationId,
         sub: userId,
+        exp: Math.floor(DateTime.local().plus({ hours: 2 }).toSeconds()),
+        vxa: "join",
+        t: channelUrl,
+        f: userUrl,
       };
 
       const tokenOptions: SignOptions = {
@@ -45,7 +51,7 @@ export default class VivoxTokenGenerator {
           reject(error);
         } else {
           resolve(token as string);
-        }   
+        }
       });
     });
   }

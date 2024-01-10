@@ -1,15 +1,22 @@
-import { Router } from "express";
+import { Router, application } from "express";
 import { DateTime } from "luxon";
 import crypto from "node:crypto";
 import { Saves } from "../xmpp/types/Saves";
 import { Globals, UUID } from "../xmpp/types/XmppTypes";
 import xmlbuilder from "xmlbuilder";
 import PartyHandler from "../utils/party/PartyHandler";
+import VivoxTokenGenerator from "../utils/voicechat/vivox";
+import { getEnv } from "../utils";
+import os from "node:os";
+import axios from "axios";
+import verifyToken from "../middleware/verifyToken";
 
 export default function initRoute(router: Router) {
   router.get("/party/api/v1/Fortnite/parties", async (req, res) => {
     const { join_info: JoinInfo, config, meta } = req.body;
     const { connection: JoinInfoConnection } = JoinInfo;
+
+    new PartyHandler(JoinInfoConnection, JoinInfo);
 
     const newMember = PartyHandler.addMemberToParty(JoinInfoConnection);
     const newParty = PartyHandler.createParty();
@@ -60,12 +67,13 @@ export default function initRoute(router: Router) {
     const { accountId } = req.params;
 
     const currentParty = Saves.parties.find((party) => party.id === accountId);
+    const currentPings = Saves.pings.find((ping) => ping.id === accountId);
 
     res.json({
       current: currentParty ? [currentParty] : [],
       pending: [],
       invites: [],
-      pings: [],
+      pings: currentPings ? [currentPings] : [],
     });
   });
 
@@ -76,6 +84,7 @@ export default function initRoute(router: Router) {
       const { connection, meta } = req.body;
 
       const client = Globals.Clients[accountId as any];
+      // new PartyHandler(JoinInfoConnection, JoinInfo);
 
       PartyHandler.addMemberToParty(connection);
       PartyHandler.updateParty(partyId);
@@ -117,4 +126,49 @@ export default function initRoute(router: Router) {
       });
     }
   );
+
+  // router.post(
+  //   "/party/api/v1/Fortnite/parties/:partyId/members/:accountId/conferences/connection",
+  //   async (req, res, next) => {
+  //     const { partyId, accountId } = req.params;
+
+  //     const domain = getEnv("VIVOX_DOMAIN");
+  //     const appName = getEnv("VIVOX_APP_NAME");
+  //     const deploymentId = getEnv("EOS_DEPLOYMENT_ID");
+  //     let { vivox, rtcp } = req.body.providers;
+
+  //     const party = Saves.parties.find((p) => p.id === partyId);
+  //     console.log(partyId);
+  //     console.log(party.id);
+
+  //     const vivoxToken = new VivoxTokenGenerator(
+  //       getEnv("CLIENT_SECRET")
+  //     ).generateToken(
+  //       appName,
+  //       accountId,
+  //       `sip:confctl-g-${appName}.p-${party.id}@${domain}`,
+  //       `sip:.${appName}.${accountId}.@${domain}`
+  //     );
+
+  //     console.log(vivoxToken);
+
+  //     rtcp = {};
+
+  //     vivox = {
+  //       authorization_token: vivoxToken,
+  //       channel_uri: `sip:confctl-g-${appName}.p-${party.id}@${domain}`,
+  //       user_uri: `sip:.${appName}.${accountId}.@${domain}`,
+  //     };
+
+  //     console.log(rtcp);
+  //     console.log(vivox);
+
+  //     res.json({
+  //       providers: {
+  //         rtcp,
+  //         vivox,
+  //       },
+  //     });
+  //   }
+  // );
 }
