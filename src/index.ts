@@ -50,9 +50,7 @@ const PORT = getEnv("PORT") || 5555;
       const endTime = process.hrtime(startTime);
       const durationInMs = (endTime[0] * 1e9 + endTime[1]) / 1e6;
 
-      const fullUrl = `${req.protocol}://${req.get("host")}${
-        req.originalUrl.split("?")[0]
-      }`;
+      const fullUrl = `${req.originalUrl.split("?")[0]}`;
 
       const methodColor = getMethodColor(req.method);
       const statusCodeColor = getStatusCodeColor(res.statusCode);

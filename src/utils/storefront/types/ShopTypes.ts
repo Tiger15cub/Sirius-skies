@@ -10,7 +10,7 @@ export interface ShopItem {
   rarity: number;
   displayAssetPath?: string;
   newDisplayAssetPath?: string;
-  meta?: string[];
+  meta?: MetaInfoItem[];
   metaInfo?: MetaInfoItem[];
   categories?: string[];
 }

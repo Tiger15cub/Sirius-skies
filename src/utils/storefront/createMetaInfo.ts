@@ -14,6 +14,8 @@ export enum Section {
 export default class MetaInfoBuilder {
   private meta: MetaInfoItem[] = [];
   private dailyMeta: MetaInfoBuilder[] = [];
+  private newDisplayAssetPath: string = "";
+  private displayAssetPath: string = "";
 
   addMetaInfo(key: string, value: string): MetaInfoBuilder {
     this.meta.push({ key, value });
@@ -22,6 +24,16 @@ export default class MetaInfoBuilder {
 
   setTileSize(size: TileSize): MetaInfoBuilder {
     return this.addMetaInfo("TileSize", size);
+  }
+
+  setDisplayAsset(asset: string): MetaInfoBuilder {
+    this.displayAssetPath = asset;
+    return this.addMetaInfo("displayAssetPath", asset);
+  }
+
+  setNewDisplayAsset(asset: string): MetaInfoBuilder {
+    this.newDisplayAssetPath = asset;
+    return this.addMetaInfo("newDisplayAssetPath", asset);
   }
 
   setSection(section: Section): MetaInfoBuilder {
@@ -61,6 +73,14 @@ export default class MetaInfoBuilder {
     const isDaily = this.meta.some((data) => data.value === Section.Daily);
 
     return [
+      {
+        key: "newDisplayAssetPath",
+        value: this.newDisplayAssetPath,
+      },
+      {
+        key: "displayAssetPath",
+        value: this.displayAssetPath,
+      },
       {
         key: "SectionId",
         value: isDaily ? Section.Daily : Section.Featured,

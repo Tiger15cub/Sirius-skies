@@ -104,11 +104,6 @@ export default class Shop {
       );
     }
 
-    if (!randomShopItem.meta) {
-      // TODO
-      randomShopItem.meta = [];
-    }
-
     const shopData = JSON.parse(
       fs.readFileSync(
         path.join(
@@ -125,28 +120,6 @@ export default class Shop {
       )
     );
 
-    if (!randomShopItem.section) {
-      const isWeekly = shopData.catalogItems.BRWeeklyStorefront.some(
-        (data: any) => data.item === randomShopItem.item
-      );
-
-      const sectionValue = isWeekly ? "Weekly" : "Daily";
-
-      randomShopItem.section = sectionValue;
-
-      shopData.catalogItems.BRWeeklyStorefront.forEach((data: any) => {
-        if (!data.section) {
-          data.section = "Weekly";
-        }
-      });
-
-      shopData.catalogItems.BRDailyStorefront.forEach((data: any) => {
-        if (!data.section) {
-          data.section = "Daily";
-        }
-      });
-    }
-
     if (!randomShopItem.metaInfo) {
       const uniqueKeys = new Set<string>();
       randomShopItem.metaInfo = [];
@@ -160,6 +133,8 @@ export default class Shop {
 
         meta.setTileSize(isChosenSection ? TileSize.Normal : TileSize.Small);
         meta.setSection(section);
+        meta.setDisplayAsset(randomShopItem.displayAssetPath);
+        meta.setNewDisplayAsset(randomShopItem.newDisplayAssetPath);
 
         const newMetaInfo = meta.createMetaInfo();
 
@@ -218,6 +193,23 @@ export default class Shop {
         shopData.catalogItems.BRWeeklyStorefront.concat(remainingItems);
     }
 
+    if (!randomShopItem.meta) {
+      randomShopItem.meta = {
+        displayAssetPath: randomShopItem.displayAssetPath,
+        newDisplayAssetPath: randomShopItem.newDisplayAssetPath,
+        SectionId: randomShopItem.metaInfo.find(
+          (data: any) => data.key === "SectionId"
+        )?.value,
+        TitleSize: randomShopItem.metaInfo.find(
+          (data: any) => data.key === "TileSize"
+        )?.value,
+      };
+    }
+
+    if (!randomShopItem.categories) {
+      randomShopItem.categories = [randomShopItem.name];
+    }
+
     randomShopItem.lastUpdatedDate = DateTime.local().toISODate();
 
     const updatedContent = JSON.stringify(Items, null, 2);
@@ -245,7 +237,6 @@ export default class Shop {
     });
 
     shopCollection.push({
-      section: randomShopItem.section || "Failed: Section Is Missing",
       id: Math.random().toString(36).substring(2),
       item: randomShopItem.item || "Failed: Item Type Missing",
       name: randomShopItem.name || "Failed: Item Name Missing",
@@ -255,8 +246,17 @@ export default class Shop {
       ...(randomShopItem.displayAssetPath !== "" && {
         displayAssetPath: randomShopItem.displayAssetPath,
       }),
+      ...(randomShopItem.newDisplayAssetPath !== "" && {
+        newDisplayAssetPath: randomShopItem.newDisplayAssetPath,
+      }),
       ...(randomShopItem.metaInfo !== "" && {
         metaInfo: randomShopItem.metaInfo,
+      }),
+      ...(randomShopItem.meta !== "" && {
+        meta: randomShopItem.meta,
+      }),
+      ...(randomShopItem.categories !== "" && {
+        categories: randomShopItem.categories,
       }),
     });
   }

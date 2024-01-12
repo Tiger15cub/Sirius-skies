@@ -10,6 +10,7 @@ export interface StorefrontEntry {
     currencyType: string;
     currencySubType: string;
     regularPrice: number;
+    dynamicRegularPrice: number;
     finalPrice: number;
     saleExpiration: string;
     basePrice: number;
@@ -33,7 +34,10 @@ export interface StorefrontEntry {
   metaInfo: any[] | undefined;
   meta: any[] | undefined;
   displayAssetPath: string | undefined;
+  newDisplayAssetPath: string | undefined;
   itemGrants: { templateId: string; quantity: number }[];
+  title: string;
+  shortDescription: string;
   sortPriority: number;
   catalogGroupPriority: number;
 }

@@ -1,14 +1,63 @@
 import { Router, Request, Response } from "express";
 import Accounts from "../models/Accounts";
 import log from "../utils/log";
+import verifyToken from "../middleware/verifyToken";
 
 export default function initRoute(router: Router) {
-  router.get("/statsproxy/api/statsv2/query", (req, res) => {
-    const { collection_fish, collection_character } = req.query;
-  });
+  router.all(
+    ["/statsproxy/api/statsv2/query", "/fortnite/api/statsv2/query"],
+    verifyToken,
+    async (req: Request, res: Response) => {
+      // https://github.com/LeleDerGrasshalmi/FortniteEndpointsDocumentation/blob/60127cdbc8aad6fd029b2f486509718bf89d149d/EpicGames/StatsProxyService/Stats/UserStats.md
+      const { collection } = req.query;
+      const { appId, startDate, endDate, owners, stats } = req.body;
+
+      const account = await Accounts.findOne().lean();
+
+      if (!account) {
+        return res.status(404).json({ error: "Account does not exist." });
+      }
+
+      if (collection) {
+        const collectionResponse = [
+          {
+            startTime: 0,
+            endTime: 9223372036854775807,
+            stats: {
+              br_collection_fish_gas_purple_length_s16: 51421,
+              br_collection_fish_zeropoint_tidal_length_s21: 77466,
+              br_collection_fish_jellyfish_purple_length_s17: 46166,
+              br_collection_fish_lesseffectiveflopper_blue_length_s17: 18923,
+              br_collection_fish_jellyfish_pink_length_s19: 47579,
+              br_collection_fish_flameyfish_black_length_s16: 53010,
+              br_collection_fish_rift_volcanic_length_s15: 62649,
+              br_collection_fish_flameyfish_black_length_s17: 39315,
+              br_collection_fish_flopper_blue_length_s19: 47376,
+              "br_collection_fish_shieldfish.lightblue__length_s20": 41965,
+            },
+            accountId: account.accountId,
+          },
+        ];
+        res.json(collectionResponse);
+      } else {
+        const statsResponse = [
+          {
+            startTime: 0,
+            endTime: 9223372036854775807,
+            stats: {
+              s23_social_bp_level: 2274,
+            },
+            accountId: account.accountId,
+          },
+        ];
+        res.json(statsResponse);
+      }
+    }
+  );
 
   router.get(
     "/statsproxy/api/statsv2/leaderboards/:leaderboardName",
+    verifyToken,
     async (req, res) => {
       const { leaderboardName } = req.params;
 
@@ -49,6 +98,7 @@ export default function initRoute(router: Router) {
       "/statsproxy/api/statsv2/account/:accountId",
       "/fortnite/api/statsv2/account/:accountId",
     ],
+    verifyToken,
     async (req: Request, res: Response) => {
       try {
         const { accountId } = req.params;

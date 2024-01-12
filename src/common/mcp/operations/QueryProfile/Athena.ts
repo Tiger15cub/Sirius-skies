@@ -88,10 +88,7 @@ export default async function Athena(
     if (user.hasFL) {
       const athena = require("../../../resources/mcp/AllCosmetics.json");
 
-      userProfiles.items = {
-        ...userProfiles.items,
-        ...athena,
-      };
+      userProfiles.items = Object.assign(userProfiles.items, athena);
     } else {
       const athena = require("../../../resources/mcp/Athena.json");
 

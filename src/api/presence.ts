@@ -31,4 +31,22 @@ export default function initRoute(router: Router): void {
       res.json([]);
     }
   );
+
+  router.get(
+    "/presence/api/v1/_/:accountId/subscriptions",
+    verifyToken,
+    (req, res) => {
+      res.contentType("application/json");
+      res.json([]);
+    }
+  );
+
+  router.get(
+    "/presence/api/v1/Fortnite/:accountId/subscriptions/nudged",
+    verifyToken,
+    (req, res) => {
+      res.contentType("application/json");
+      res.json([]);
+    }
+  );
 }
