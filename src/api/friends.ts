@@ -164,10 +164,14 @@ export default function initRoute(router: Router) {
   });
 
   router.post(
+<<<<<<< HEAD
     [
       "/friends/api/v1/:accountId/friends/:friendId",
       "/friends/api/public/friends/:accountId/:friendId",
     ],
+=======
+    "/friends/api/v1/:accountId/friends/:friendId",
+>>>>>>> 18ed170a3aa20c1712504382901ed2c84f6d9efe
     verifyToken,
     async (req, res) => {
       const { accountId, friendId } = req.params;
