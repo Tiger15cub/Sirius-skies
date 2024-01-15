@@ -19,6 +19,14 @@ export default class VivoxTokenGenerator {
     };
   }
 
+  private generateRandomVXI(length: number): number {
+    let result: number = 0;
+    for (let i = 0; i < length; i++) {
+      result = result * 10 + Math.floor(Math.random() * 10);
+    }
+    return result;
+  }
+
   async generateToken(
     applicationId: string,
     userId: string,
@@ -33,8 +41,8 @@ export default class VivoxTokenGenerator {
       const claims: VivoxTokenClaims = {
         iss: applicationId,
         sub: userId,
-        exp: Math.floor(DateTime.local().plus({ hours: 2 }).toSeconds()),
-        vxa: vxa ?? "join",
+        vxa: vxa ?? "login",
+        vxi: this.generateRandomVXI(6),
         t: channelUrl,
         f: userUrl,
       };
@@ -42,7 +50,7 @@ export default class VivoxTokenGenerator {
       const tokenOptions: SignOptions = {
         ...this.defaultOptions,
         ...options,
-        expiresIn: options?.expiresIn || this.defaultExpiration,
+        expiresIn: this.defaultExpiration,
         notBefore: currentTime,
         jwtid: `${userId}-${currentTime}`,
       };
@@ -52,6 +60,7 @@ export default class VivoxTokenGenerator {
           reject(error);
         } else {
           resolve(token as string);
+          // return token;
         }
       });
     });

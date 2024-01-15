@@ -216,13 +216,14 @@ export default function initRoute(router: Router) {
 
       const party = Saves.parties.find((p) => p.id === partyId);
 
-      const vivoxToken = new VivoxTokenGenerator(
+      const vivoxToken = await new VivoxTokenGenerator(
         getEnv("CLIENT_SECRET")
       ).generateToken(
         appName,
         accountId,
         `sip:confctl-g-${appName}.p-${party.id}@${domain}`,
-        `sip:.${appName}.${accountId}.@${domain}`
+        `sip:.${appName}.${accountId}.@${domain}`,
+        "join"
       );
 
       rtcp = {};

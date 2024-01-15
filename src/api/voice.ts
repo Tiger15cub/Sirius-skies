@@ -7,13 +7,12 @@ import verifyToken from "../middleware/verifyToken";
 export default function initRoute(router: Router) {
   router.post(
     "/fortnite/api/game/v2/voice/:accountId/createLoginToken",
-    verifyToken,
     async (req, res) => {
       const domain = getEnv("VIVOX_DOMAIN");
       const appName = getEnv("VIVOX_APP_NAME");
       const { accountId } = req.params;
 
-      const token = new VivoxTokenGenerator(
+      const token = await new VivoxTokenGenerator(
         getEnv("CLIENT_SECRET")
       ).generateToken(
         appName,
@@ -23,7 +22,7 @@ export default function initRoute(router: Router) {
         "login"
       );
 
-      res.status(204).json({ token: `e30.${token}` });
+      res.json({ token: `e30.${token}` }).status(204);
     }
   );
 }
