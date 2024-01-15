@@ -211,7 +211,6 @@ export default function initRoute(router: Router) {
 
       const domain = getEnv("VIVOX_DOMAIN");
       const appName = getEnv("VIVOX_APP_NAME");
-      const deploymentId = getEnv("EOS_DEPLOYMENT_ID");
       let { vivox, rtcp } = req.body.providers;
 
       const party = Saves.parties.find((p) => p.id === partyId);
@@ -233,9 +232,6 @@ export default function initRoute(router: Router) {
         channel_uri: `sip:confctl-g-${appName}.p-${party.id}@${domain}`,
         user_uri: `sip:.${appName}.${accountId}.@${domain}`,
       };
-
-      console.log(rtcp);
-      console.log(vivox);
 
       res.json({
         providers: {
