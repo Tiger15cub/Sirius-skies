@@ -4,6 +4,7 @@ import { DateTime } from "luxon";
 import { Globals } from "../../xmpp/types/XmppTypes";
 import xmlbuilder from "xmlbuilder";
 import log from "../log";
+import sendXmppMessageToClient from "../sendXmppMessageToClient";
 
 interface Connection {
   id: string;
@@ -15,10 +16,12 @@ interface JoinInfo {
 }
 
 export default class PartyHandler {
-  private static id: string = "";
+  static id: string = "";
+  private static meta: any = {};
 
-  constructor(JoinInfoConnection: Connection, JoinInfo: JoinInfo) {
+  constructor(JoinInfoConnection: Connection, JoinInfo: JoinInfo, meta: any) {
     PartyHandler.id = crypto.randomBytes(16).toString("hex");
+    PartyHandler.meta = meta;
 
     Saves.members.push([
       {
@@ -115,7 +118,7 @@ export default class PartyHandler {
 
   static createParty() {
     const party = {
-      id: this.id,
+      id: PartyHandler.id,
       privacy: "OPEN",
       members: Saves.members.map((member) => member.account_id),
       party: PartyHandler,
@@ -124,6 +127,87 @@ export default class PartyHandler {
     Saves.parties.push(party);
 
     return party;
+  }
+
+  static getCaptain(): string {
+    const captain = Saves.members.find((member) => member.role === "CAPTAIN");
+
+    if (!captain) {
+      log.error("Captain not found.", "getCaptain");
+      return "Captain not found.";
+    }
+
+    return captain.account_id;
+  }
+
+  static setLeader(accountId: string) {
+    const captain = Saves.members.find(
+      (member) => member.account_id === PartyHandler.getCaptain()
+    );
+    const member = Saves.members.find(
+      (member) => member.account_id === accountId
+    );
+
+    const captainIndex = Saves.members.findIndex(
+      (member) => member.account_id === PartyHandler.getCaptain()
+    );
+    const memberIndex = Saves.members.findIndex(
+      (member) => member.account_id === accountId
+    );
+
+    if (captain && member) {
+      captain.role = "MEMBER";
+      member.role = "CAPTAIN";
+
+      Saves.members.splice(captainIndex, 1, captain);
+      Saves.members.splice(memberIndex, 1, member);
+    }
+
+    sendXmppMessageToClient(
+      JSON.stringify({
+        account_id: accountId,
+        member_state_update: {},
+        ns: "Fortnite",
+        party_id: PartyHandler.id,
+        revision: 0,
+        sent: DateTime.now().toISO(),
+        type: "com.epicgames.social.party.notification.v0.MEMBER_NEW_CAPTAIN",
+      }),
+      accountId
+    );
+  }
+
+  static updatePartyMember(
+    meta: {
+      update: Record<string, any>;
+      delete: string[];
+    },
+    accountId: string
+  ) {
+    Object.assign(this.meta, meta.update);
+    meta.delete.forEach((key: string) => delete this.meta[key]);
+
+    sendXmppMessageToClient(
+      JSON.stringify({
+        captain_id: PartyHandler.getCaptain(),
+        created_at: DateTime.now().toISO(),
+        invite_ttl_seconds: 14400,
+        max_number_of_members: 16,
+        ns: "Fortnite",
+        party_id: PartyHandler.id,
+        party_privacy_type: "PUBLIC",
+        party_state_overriden: {},
+        party_state_removed: meta.delete,
+        party_state_updated: meta.update,
+        party_sub_type: "default",
+        party_type: "DEFAULT",
+        revision: 0,
+        sent: DateTime.now().toISO(),
+        type: "com.epicgames.social.party.notification.v0.PARTY_UPDATED",
+        updated_at: DateTime.now().toISO(),
+      }),
+      accountId
+    );
   }
 
   static updateParty(partyId: string) {

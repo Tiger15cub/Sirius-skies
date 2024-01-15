@@ -1,22 +1,20 @@
 import { Router, application } from "express";
 import { DateTime } from "luxon";
-import crypto from "node:crypto";
 import { Saves } from "../xmpp/types/Saves";
-import { Globals, UUID } from "../xmpp/types/XmppTypes";
+import { Globals } from "../xmpp/types/XmppTypes";
 import xmlbuilder from "xmlbuilder";
 import PartyHandler from "../utils/party/PartyHandler";
 import VivoxTokenGenerator from "../utils/voicechat/vivox";
 import { getEnv } from "../utils";
-import os from "node:os";
-import axios from "axios";
 import verifyToken from "../middleware/verifyToken";
+import sendXmppMessageToClient from "../utils/sendXmppMessageToClient";
 
 export default function initRoute(router: Router) {
   router.get("/party/api/v1/Fortnite/parties", async (req, res) => {
     const { join_info: JoinInfo, config, meta } = req.body;
     const { connection: JoinInfoConnection } = JoinInfo;
 
-    new PartyHandler(JoinInfoConnection, JoinInfo);
+    new PartyHandler(JoinInfoConnection, JoinInfo, meta);
 
     const newMember = PartyHandler.addMemberToParty(JoinInfoConnection);
     const newParty = PartyHandler.createParty();
@@ -127,48 +125,123 @@ export default function initRoute(router: Router) {
     }
   );
 
-  // router.post(
-  //   "/party/api/v1/Fortnite/parties/:partyId/members/:accountId/conferences/connection",
-  //   async (req, res, next) => {
-  //     const { partyId, accountId } = req.params;
+  router.patch(
+    "/party/api/v1/Fortnite/parties/:partyId",
+    verifyToken,
+    async (req, res) => {
+      const { partyId } = req.params;
+      const { meta } = req.body;
+      const party = Saves.parties.find((party) => party.id === partyId);
 
-  //     const domain = getEnv("VIVOX_DOMAIN");
-  //     const appName = getEnv("VIVOX_APP_NAME");
-  //     const deploymentId = getEnv("EOS_DEPLOYMENT_ID");
-  //     let { vivox, rtcp } = req.body.providers;
+      if (!party) {
+        return res.status(404).json({
+          errorCode: "errors.com.epicgames.social.party.party_not_found",
+          errorMessage: `The user ${res.locals.user.accountId} has no right to make changes to party ${partyId}`,
+          messageVars: undefined,
+          numericErrorCode: 51015,
+          originatingService: "any",
+          intent: "prod",
+          error_description: `The user ${res.locals.user.accountId} has no right to make changes to party ${partyId}`,
+          error: "party",
+        });
+      }
 
-  //     const party = Saves.parties.find((p) => p.id === partyId);
-  //     console.log(partyId);
-  //     console.log(party.id);
+      PartyHandler.updatePartyMember(meta, res.locals.user.accountId);
+      res.status(204).send();
+    }
+  );
 
-  //     const vivoxToken = new VivoxTokenGenerator(
-  //       getEnv("CLIENT_SECRET")
-  //     ).generateToken(
-  //       appName,
-  //       accountId,
-  //       `sip:confctl-g-${appName}.p-${party.id}@${domain}`,
-  //       `sip:.${appName}.${accountId}.@${domain}`
-  //     );
+  router.post(
+    "/party/api/v1/Fortnite/user/:accountId/pings/:pingerId",
+    verifyToken,
+    async (req, res) => {
+      const { accountId, pingerId } = req.params;
+      const ping = Saves.pings.find(
+        (ping) => ping.sent_to === accountId && ping.sent_by === pingerId
+      );
 
-  //     console.log(vivoxToken);
+      Saves.pings.push({
+        sent_by: pingerId,
+        sent_to: accountId,
+        sent_at: DateTime.now().toISO(),
+        expires_at: DateTime.now().plus({ hours: 1 }).toISO(),
+        meta: {},
+      });
 
-  //     rtcp = {};
+      const clientIndex = Globals.Clients.findIndex(
+        (client) => client.accountId === accountId
+      );
 
-  //     vivox = {
-  //       authorization_token: vivoxToken,
-  //       channel_uri: `sip:confctl-g-${appName}.p-${party.id}@${domain}`,
-  //       user_uri: `sip:.${appName}.${accountId}.@${domain}`,
-  //     };
+      if (clientIndex !== -1) {
+        const client = Globals.Clients[clientIndex];
 
-  //     console.log(rtcp);
-  //     console.log(vivox);
+        sendXmppMessageToClient(
+          {
+            expires: ping.expires_at,
+            meta: {},
+            ns: "Fortnite",
+            pinger_dn: client.displayName,
+            pinger_id: pingerId,
+            sent: ping.sent_at,
+            type: "com.epicgames.social.party.notification.v0.PING",
+          },
+          client.accountId
+        );
+      }
 
-  //     res.json({
-  //       providers: {
-  //         rtcp,
-  //         vivox,
-  //       },
-  //     });
-  //   }
-  // );
+      res.status(204).json(ping);
+    }
+  );
+
+  router.post(
+    "/party/api/v1/Fortnite/parties/:partyId/members/:accountId/promote",
+    verifyToken,
+    async (req, res) => {
+      const { partyId, accountId } = req.params;
+
+      PartyHandler.setLeader(accountId);
+      res.status(204).send();
+    }
+  );
+
+  router.post(
+    "/party/api/v1/Fortnite/parties/:partyId/members/:accountId/conferences/connection",
+    async (req, res, next) => {
+      const { partyId, accountId } = req.params;
+
+      const domain = getEnv("VIVOX_DOMAIN");
+      const appName = getEnv("VIVOX_APP_NAME");
+      const deploymentId = getEnv("EOS_DEPLOYMENT_ID");
+      let { vivox, rtcp } = req.body.providers;
+
+      const party = Saves.parties.find((p) => p.id === partyId);
+
+      const vivoxToken = new VivoxTokenGenerator(
+        getEnv("CLIENT_SECRET")
+      ).generateToken(
+        appName,
+        accountId,
+        `sip:confctl-g-${appName}.p-${party.id}@${domain}`,
+        `sip:.${appName}.${accountId}.@${domain}`
+      );
+
+      rtcp = {};
+
+      vivox = {
+        authorization_token: vivoxToken,
+        channel_uri: `sip:confctl-g-${appName}.p-${party.id}@${domain}`,
+        user_uri: `sip:.${appName}.${accountId}.@${domain}`,
+      };
+
+      console.log(rtcp);
+      console.log(vivox);
+
+      res.json({
+        providers: {
+          rtcp,
+          vivox,
+        },
+      });
+    }
+  );
 }

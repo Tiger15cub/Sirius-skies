@@ -14,20 +14,6 @@ export default function initRoute(router: Router): void {
     async (req, res) => {
       const userAgent = req.headers["user-agent"];
 
-      const Data = JSON.parse(
-        fs.readFileSync(
-          path.join(
-            __dirname,
-            "..",
-            "common",
-            "resources",
-            "storefront",
-            "shop.json"
-          ),
-          "utf-8"
-        )
-      );
-
       let season = getSeason(userAgent);
 
       if (!season) {
@@ -44,11 +30,14 @@ export default function initRoute(router: Router): void {
 
       getActiveEvents(season.buildUpdate, season.season, activeEvents);
 
+      const date = DateTime.utc().setZone("GMT");
+      const expiration = date.startOf("day").plus({ days: 1 }).toISO();
+
       res.json({
         channels: {
           "client-matchmaking": {
             states: [],
-            cacheExpire: Data.expiration.toString(),
+            cacheExpire: expiration,
           },
           "client-events": {
             states: [
@@ -64,17 +53,17 @@ export default function initRoute(router: Router): void {
                   seasonBegin: "2020-01-01T00:00:00Z",
                   seasonEnd: "9999-01-01T00:00:00Z",
                   seasonDisplayedEnd: "9999-01-01T00:00:00Z",
-                  weeklyStoreEnd: Data.expiration.toString(),
+                  weeklyStoreEnd: expiration,
                   stwEventStoreEnd: "9999-01-01T00:00:00.000Z",
                   stwWeeklyStoreEnd: "9999-01-01T00:00:00.000Z",
-                  dailyStoreEnd: Data.expiration.toString(),
+                  dailyStoreEnd: expiration,
                   sectionStoreEnds: {
-                    Featured: Data.expiration.toString(),
+                    Featured: expiration,
                   },
                 },
               },
             ],
-            cacheExpire: Data.expiration.toString(),
+            cacheExpire: expiration,
           },
         },
         eventsTimeOffsetHrs: 0,

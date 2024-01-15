@@ -1,16 +1,11 @@
 import { Router } from "express";
-import { Friend, IFriends, NewFriend } from "../interface";
+import { Friend, IFriends } from "../interface";
 import { DateTime } from "luxon";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import { getEnv } from "../utils";
 import Friends from "../models/Friends";
 import { Globals } from "../xmpp/types/XmppTypes";
 import xmlbuilder from "xmlbuilder";
-import Accounts from "../models/Accounts";
-import Users from "../models/Users";
 import sendXmppMessageToClient from "../utils/sendXmppMessageToClient";
 import verifyToken from "../middleware/verifyToken";
-import log from "../utils/log";
 
 export default function initRoute(router: Router) {
   router.get("/friends/api/public/friends/:accountId", async (req, res) => {
@@ -156,12 +151,110 @@ export default function initRoute(router: Router) {
   });
 
   router.get("/friends/api/v1/:accountId/settings", async (req, res) => {
+    res.json({
+      acceptInvites: "public",
+    });
+  });
+
+  router.get("/friends/api/v1/:accountId/recent/:type", async (req, res) => {
     res.json([]);
   });
 
-  router.get("/friends/api/v1/:accountId/recent/fortnite", async (req, res) => {
-    res.json([]);
-  });
+  router.get(
+    "/friends/api/v1/:accountId/friends/:friendId",
+    verifyToken,
+    async (req, res) => {
+      const { friendId, accountId } = req.params;
+
+      const user = await Friends.findOne({ accountId });
+      const friend = await Friends.findOne({ accountId: friendId });
+
+      if (!user || !friend) {
+        return res.status(404).json({ error: "User or Friend not found" });
+      }
+
+      const acceptedFriends = user.friends.accepted.find(
+        (accepted) => accepted.accountId === friend.accountId
+      );
+
+      if (acceptedFriends !== undefined) {
+        res.json({
+          accountId: user.accountId,
+          groups: [],
+          mutual: 0,
+          alias: "",
+          note: "",
+          favorite: false,
+          created: acceptedFriends.createdAt,
+        });
+      } else {
+        res.status(404).json({
+          errorCode: "errors.com.epicgames.friends.friendship_not_found",
+          errorMessage: `Friendship between ${user.accountId} and ${friend.accountId} does not exist.`,
+          messageVars: undefined,
+          numericErrorCode: 14004,
+          originatingService: "any",
+          intent: "prod",
+          error_description: `Friendship between ${user.accountId} and ${friend.accountId} does not exist.`,
+          error: "friends",
+        });
+      }
+    }
+  );
+
+  router.get(
+    "/friends/api/v1/:accountId/incoming",
+    verifyToken,
+    async (req, res) => {
+      const { accountId } = req.params;
+
+      const user = await Friends.findOne({ accountId }).lean();
+
+      if (!user) {
+        return res.status(404).json({ error: "Failed to find user." });
+      }
+
+      const incomingFriends = user.friends.incoming.map((friend) => {
+        return {
+          accountId: friend.accountId,
+          groups: [],
+          alias: "",
+          note: "",
+          favorite: false,
+          created: friend.createdAt,
+        };
+      });
+
+      res.json(incomingFriends);
+    }
+  );
+
+  router.get(
+    "/friends/api/v1/:accountId/outgoing",
+    verifyToken,
+    async (req, res) => {
+      const { accountId } = req.params;
+
+      const user = await Friends.findOne({ accountId }).lean();
+
+      if (!user) {
+        return res.status(404).json({ error: "Failed to find user." });
+      }
+
+      const outgoingFriends = user.friends.outgoing.map((friend) => {
+        return {
+          accountId: friend.accountId,
+          groups: [],
+          alias: "",
+          note: "",
+          favorite: false,
+          created: friend.createdAt,
+        };
+      });
+
+      res.json(outgoingFriends);
+    }
+  );
 
   router.post(
     [
@@ -183,9 +276,43 @@ export default function initRoute(router: Router) {
         (incoming) => incoming.accountId === friend.accountId
       );
 
+      const acceptedFriends = user.friends.accepted.find(
+        (accepted) => accepted.accountId === friend.accountId
+      );
+
+      const outgoingFriends = user.friends.outgoing.find(
+        (outgoing) => outgoing.accountId === friend.accountId
+      );
+
       const incomingFriendsIndex = user.friends.incoming.findIndex(
         (incoming) => incoming.accountId === friend.accountId
       );
+
+      if (acceptedFriends !== undefined) {
+        res.status(409).json({
+          errorCode: "errors.com.epicgames.friends.friend_request_already_sent",
+          errorMessage: `Friendship between ${user.accountId} and ${friend.accountId} already exists.`,
+          messageVars: undefined,
+          numericErrorCode: 14014,
+          originatingService: "any",
+          intent: "prod",
+          error_description: `Friendship between ${user.accountId} and ${friend.accountId} already exists.`,
+          error: "friends",
+        });
+      }
+
+      if (outgoingFriends !== undefined) {
+        res.status(409).json({
+          errorCode: "errors.com.epicgames.friends.friend_request_already_sent",
+          errorMessage: `Friendship request has already been sent to ${friend.accountId}`,
+          messageVars: undefined,
+          numericErrorCode: 14014,
+          originatingService: "any",
+          intent: "prod",
+          error_description: `Friendship request has already been sent to ${friend.accountId}`,
+          error: "friends",
+        });
+      }
 
       if (incomingFriends && incomingFriendsIndex !== -1) {
         user.friends.incoming.splice(incomingFriendsIndex, 1);

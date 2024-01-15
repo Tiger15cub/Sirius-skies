@@ -24,6 +24,7 @@ export default class VivoxTokenGenerator {
     userId: string,
     channelUrl: string,
     userUrl: string,
+    vxa?: string,
     options?: SignOptions
   ): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -33,7 +34,7 @@ export default class VivoxTokenGenerator {
         iss: applicationId,
         sub: userId,
         exp: Math.floor(DateTime.local().plus({ hours: 2 }).toSeconds()),
-        vxa: "join",
+        vxa: vxa ?? "join",
         t: channelUrl,
         f: userUrl,
       };
