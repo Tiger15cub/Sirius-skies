@@ -4,6 +4,7 @@ import xmlparser from "xml-parser";
 import { Globals } from "../types/XmppTypes";
 import Users from "../../models/Users";
 import log from "../../utils/log";
+import { Saves } from "../types/Saves";
 
 export default async function auth(
   socket: WebSocket,
@@ -70,6 +71,19 @@ export default async function auth(
       `XMPP Client with the displayName ${Globals.displayName} has logged in.`,
       "XMPP"
     );
+
+    const accountId: number = parseInt(Globals.accountId, 10);
+
+    Globals.Clients[accountId] = {
+      accountId: Globals.accountId,
+      displayName: Globals.displayName,
+      jid: Globals.jid,
+      resource: Saves.resource,
+      socket,
+      token: Globals.token,
+    };
+
+    console.log(Globals.Clients[accountId]);
 
     socket.send(
       xmlbuilder
