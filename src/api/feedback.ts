@@ -15,4 +15,8 @@ export default function initRoute(router: Router) {
 
     res.status(204).json({});
   });
+
+  router.put("/fortnite/api/feedback/log-snapshot/:log", (req, res) => {
+    res.status(204).json({ feedback_log: req.params.log });
+  });
 }

@@ -104,13 +104,9 @@ export default function initRoute(router: Router): void {
     }
   });
 
-  router.all(
-    "/fortnite/api/game/v2/world/info",
-    verifyToken,
-    async (req, res) => {
-      res.json({});
-    }
-  );
+  router.get("/fortnite/api/game/v2/world/info", async (req, res) => {
+    res.json(require("../common/resources/world/stw_world.json"));
+  });
 
   router.post(
     "/fortnite/api/game/v2/tryPlayOnPlatform/account/*",
@@ -164,4 +160,14 @@ export default function initRoute(router: Router): void {
       });
     }
   );
+
+  router.get("/account/api/epicdomains/ssodomains", (req, res) => {
+    res.json(["fortnite.com", "epicgames.com"]);
+  });
+
+  router.get("/account/api/accounts/:accountId/metadata", (req, res) => {
+    res.json({
+      FGOnboarded: true,
+    });
+  });
 }

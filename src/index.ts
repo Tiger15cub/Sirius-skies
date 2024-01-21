@@ -30,6 +30,32 @@ const PORT = getEnv("PORT") || 5555;
 
 (async () => {
   try {
+    app.use((req, res, next) => {
+      if (
+        req.originalUrl === "/images/icons/gear.png" ||
+        req.originalUrl === "/favicon.ico"
+      ) {
+        next();
+      } else {
+        const startTime = process.hrtime();
+        const endTime = process.hrtime(startTime);
+        const durationInMs = (endTime[0] * 1e9 + endTime[1]) / 1e6;
+
+        const methodColor = getMethodColor(req.method);
+        const statusCodeColor = getStatusCodeColor(res.statusCode);
+
+        logger.info(req.originalUrl);
+
+        log.info(
+          `(${methodColor(req.method)}) (${statusCodeColor(
+            res.statusCode
+          )}) (     ${durationInMs}ms) ${req.originalUrl}`,
+          "Server"
+        );
+        next();
+      }
+    });
+
     app.use(cookieParser());
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
@@ -67,13 +93,6 @@ const PORT = getEnv("PORT") || 5555;
           url: req.url,
         });
       }
-
-      log.info(
-        `(${methodColor(req.method)}) (${statusCodeColor(
-          res.statusCode
-        )}) (   ${durationInMs}ms) ${fullUrl}`,
-        "Server"
-      );
 
       next();
     });

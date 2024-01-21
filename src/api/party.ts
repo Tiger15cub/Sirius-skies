@@ -8,6 +8,8 @@ import VivoxTokenGenerator from "../utils/voicechat/vivox";
 import { getEnv } from "../utils";
 import verifyToken from "../middleware/verifyToken";
 import sendXmppMessageToClient from "../utils/sendXmppMessageToClient";
+import { findByProperty } from "../xmpp/functions/findByProperty";
+import { findInIterable } from "../xmpp/functions/findInIterable";
 
 export default function initRoute(router: Router) {
   router.get("/party/api/v1/Fortnite/parties", async (req, res) => {
@@ -81,7 +83,7 @@ export default function initRoute(router: Router) {
       const { partyId, accountId } = req.params;
       const { connection, meta } = req.body;
 
-      const client = Globals.Clients[accountId as any];
+      const client = findByProperty(Globals.Clients, "accountId", accountId);
       // new PartyHandler(JoinInfoConnection, JoinInfo);
 
       PartyHandler.addMemberToParty(connection);
@@ -90,7 +92,7 @@ export default function initRoute(router: Router) {
         xmlbuilder
           .create("message")
           .attribute("xmlns", "jabber:client")
-          .attribute("to", client.jid)
+          .attribute("to", client?.jid)
           .attribute("from", "xmpp-admin@prod.ol.epicgames.com")
           .attribute("id", Globals.UUID.replace(/-/g, ""))
           .element(
@@ -168,26 +170,23 @@ export default function initRoute(router: Router) {
         meta: {},
       });
 
-      const clientIndex = Globals.Clients.findIndex(
+      const client = findInIterable(
+        Globals.Clients,
         (client) => client.accountId === accountId
       );
 
-      if (clientIndex !== -1) {
-        const client = Globals.Clients[clientIndex];
-
-        sendXmppMessageToClient(
-          {
-            expires: ping.expires_at,
-            meta: {},
-            ns: "Fortnite",
-            pinger_dn: client.displayName,
-            pinger_id: pingerId,
-            sent: ping.sent_at,
-            type: "com.epicgames.social.party.notification.v0.PING",
-          },
-          client.accountId
-        );
-      }
+      sendXmppMessageToClient(
+        {
+          expires: ping.expires_at,
+          meta: {},
+          ns: "Fortnite",
+          pinger_dn: client?.displayName,
+          pinger_id: pingerId,
+          sent: ping.sent_at,
+          type: "com.epicgames.social.party.notification.v0.PING",
+        },
+        client?.accountId as string
+      );
 
       res.status(204).json(ping);
     }

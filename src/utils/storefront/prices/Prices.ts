@@ -21,6 +21,7 @@ interface Prices {
     dark: number;
     frozen: number;
     slurp: number;
+    dc: number;
   };
   gliders: {
     uncommon: number;
@@ -72,6 +73,7 @@ const Prices: Prices = {
     dark: 1200,
     frozen: 1000,
     slurp: 1500,
+    dc: 1800, // might change to 800 if i feel kind
   },
   gliders: {
     uncommon: 500,

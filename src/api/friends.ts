@@ -6,6 +6,8 @@ import { Globals } from "../xmpp/types/XmppTypes";
 import xmlbuilder from "xmlbuilder";
 import sendXmppMessageToClient from "../utils/sendXmppMessageToClient";
 import verifyToken from "../middleware/verifyToken";
+import getPresence from "../xmpp/functions/updateUserPresence";
+import updateUserPresence from "../xmpp/functions/updateUserPresence";
 
 export default function initRoute(router: Router) {
   router.get("/friends/api/public/friends/:accountId", async (req, res) => {
@@ -256,6 +258,17 @@ export default function initRoute(router: Router) {
     }
   );
 
+  router.get(
+    "/friends/api/public/list/fortnite/:accountId/recentPlayers",
+    (req, res) => {
+      res.json([]);
+    }
+  );
+
+  router.get("/friends/api/public/blocklist/:accountId", (req, res) => {
+    res.json([]);
+  });
+
   router.post(
     [
       "/friends/api/v1/:accountId/friends/:friendId",
@@ -362,42 +375,8 @@ export default function initRoute(router: Router) {
           createdAt: DateTime.now().toISO(),
         });
 
-        const clientIndex = Globals.Clients.findIndex(
-          (client) => client.accountId === friendId
-        );
-        const friendIndex = Globals.Clients.findIndex(
-          (client) => client.accountId === accountId
-        );
-
-        if (clientIndex !== -1) {
-          const client = Globals.Clients[clientIndex];
-          const friendClient = Globals.Clients[friendIndex];
-
-          console.log(JSON.stringify(client));
-          console.log(JSON.stringify(friendClient));
-
-          client.socket?.send(
-            xmlbuilder
-              .create("presence")
-              .attribute("to", client.jid)
-              .attribute("xmlns", "jabber:client")
-              .attribute("from", friendClient.jid)
-              .attribute("type", "available")
-              .element("status", friendClient.lastPresenceUpdate?.status)
-              .toString({ pretty: true })
-          );
-
-          friendClient.socket?.send(
-            xmlbuilder
-              .create("presence")
-              .attribute("to", friendClient.jid)
-              .attribute("xmlns", "jabber:client")
-              .attribute("from", client.jid)
-              .attribute("type", "available")
-              .element("status", client.lastPresenceUpdate?.status)
-              .toString({ pretty: true })
-          );
-        }
+        updateUserPresence(user.accountId, friend.accountId, false);
+        updateUserPresence(friend.accountId, user.accountId, false);
 
         await user.updateOne({ $set: { friends: user.friends } });
         await friend.updateOne({ $set: { friends: friend.friends } });

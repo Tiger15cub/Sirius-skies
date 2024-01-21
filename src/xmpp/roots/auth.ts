@@ -5,6 +5,8 @@ import { Globals } from "../types/XmppTypes";
 import Users from "../../models/Users";
 import log from "../../utils/log";
 import { Saves } from "../types/Saves";
+import { findInIterable } from "../functions/findInIterable";
+import { addOrUpdateClient } from "../functions/addOrUpdateClient";
 
 export default async function auth(
   socket: WebSocket,
@@ -32,8 +34,9 @@ export default async function auth(
     return;
   }
 
-  const existingClient = Globals.Clients.find(
-    (client) => client.accountId === accessToken.accountId
+  const existingClient = findInIterable(
+    Globals.Clients,
+    (client) => client.accountId === Globals.accountId
   );
 
   if (existingClient) {
@@ -72,18 +75,12 @@ export default async function auth(
       "XMPP"
     );
 
-    const accountId: number = parseInt(Globals.accountId, 10);
-
-    Globals.Clients[accountId] = {
+    addOrUpdateClient(Globals.Clients, {
       accountId: Globals.accountId,
       displayName: Globals.displayName,
-      jid: Globals.jid,
-      resource: Saves.resource,
-      socket,
       token: Globals.token,
-    };
-
-    console.log(Globals.Clients[accountId]);
+      socket,
+    });
 
     socket.send(
       xmlbuilder

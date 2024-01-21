@@ -5,6 +5,7 @@ import { Globals } from "../../xmpp/types/XmppTypes";
 import xmlbuilder from "xmlbuilder";
 import log from "../log";
 import sendXmppMessageToClient from "../sendXmppMessageToClient";
+import { findByProperty } from "../../xmpp/functions/findByProperty";
 
 interface Connection {
   id: string;
@@ -58,13 +59,9 @@ export default class PartyHandler {
   private notify(JoinInfoConnection: Connection, JoinInfo: JoinInfo) {
     log.debug(`Test: ${JoinInfoConnection.id.split("@")[0]}`, "PartyHandler");
     const accountId = JoinInfoConnection.id.split("@")[0];
-    const clientIndex = Globals.Clients.findIndex(
-      (client) => client.accountId === accountId
-    );
-
     const member = Saves.members.find((m) => m.account_id === accountId);
 
-    const client = Globals.Clients[clientIndex];
+    const client = findByProperty(Globals.Clients, "accountId", accountId);
 
     if (!client) {
       log.error(
@@ -79,7 +76,7 @@ export default class PartyHandler {
       return;
     }
 
-    if (client && clientIndex !== -1) {
+    if (client) {
       // client.socket.send("xmpp-admin@prod.ol.epicgames");
       PartyHandler.sendXmppMessageToClient(
         xmlbuilder
@@ -258,8 +255,12 @@ export default class PartyHandler {
 
   static sendXmppMessageToClient(data: string) {
     Saves.members.forEach((member) => {
-      const client = Globals.Clients[member.account_id];
-      const socket = client.socket;
+      const client = findByProperty(
+        Globals.Clients,
+        "accountId",
+        member.account_id
+      );
+      const socket = client?.socket;
 
       if (socket) {
         socket.send(data);

@@ -34,6 +34,9 @@ interface AccountsModel extends Document {
   accountId: string;
   athena: any;
   common_core?: any;
+  metadata: any;
+  outpost0: any;
+  theater0: any;
   BattleStars: number;
   gifts: any;
   banned: boolean;
@@ -58,6 +61,9 @@ const accountsSchema = new Schema<AccountsModel>({
   accountId: { type: String, required: true },
   athena: { type: Object, default: {} },
   common_core: { type: Object, default: {} },
+  metadata: { type: Object, default: {} },
+  theater0: { type: Object, default: {} },
+  outpost0: { type: Object, default: {} },
   gifts: { type: Array, default: [] },
   banned: { type: Boolean, default: false },
   optOutOfPublicLeaderboards: { type: Boolean, default: false },

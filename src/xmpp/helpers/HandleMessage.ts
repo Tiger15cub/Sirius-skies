@@ -8,6 +8,10 @@ import auth from "../roots/auth";
 import log from "../../utils/log";
 import iq from "../roots/iq";
 import presence from "../roots/presence";
+import {
+  UpdateClientProps,
+  addOrUpdateClient,
+} from "../functions/addOrUpdateClient";
 
 export default {
   async handleMessage(
@@ -46,7 +50,7 @@ export default {
           break;
       }
 
-      if (!Saves.clientExists && socket.readyState === WebSocket.OPEN) {
+      if (!Saves.clientExists && !Saves.activeConnection) {
         const resource = Saves.resource;
         if (
           Globals.accountId !== "" &&
@@ -57,20 +61,21 @@ export default {
           resource !== "" &&
           Globals.isAuthenticated
         ) {
-          Globals.Clients.push({
+          Saves.clientExists = true;
+          Saves.activeConnection = true;
+
+          addOrUpdateClient(Globals.Clients, {
+            socket,
             accountId: Globals.accountId,
             displayName: Globals.displayName,
             token: Globals.token,
             jid: Globals.jid,
-            resource: Saves.resource,
+            resource,
             lastPresenceUpdate: {
               away: false,
               status: "{}",
             },
-            socket,
-          });
-
-          Saves.clientExists = true;
+          } as UpdateClientProps);
         }
       }
       Saves.Received = "";

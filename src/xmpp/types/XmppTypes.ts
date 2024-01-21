@@ -1,5 +1,6 @@
 import { v4 as uuid } from "uuid";
 import WebSocket from "ws";
+import { Saves } from "./Saves";
 
 export interface AccessToken {
   accountId: string;
@@ -14,7 +15,7 @@ export interface XmppClients extends AccessToken {
   token: string;
   lastPresenceUpdate?: {
     away: boolean;
-    status: {};
+    status: string;
   };
   socket?: WebSocket;
 }
@@ -26,11 +27,21 @@ export let token: string = "";
 export let jid: string = "";
 export let displayName: string = "";
 
+const clientPropertyKeys: Set<string> = new Set([
+  "accountId",
+  "isAuthenticated",
+  "token",
+  "jid",
+  "displayName",
+]);
+
+export let clientProperties: Set<string> = new Set(clientPropertyKeys);
+
 export interface Globals {
   exchangeCodes: any[];
   clientTokens: any[];
   AccessTokens: AccessToken[];
-  Clients: XmppClients[];
+  Clients: Set<XmppClients>;
   refreshTokens: any[];
   MUCs: { members: any[] };
   UUID: string;
@@ -44,7 +55,18 @@ export interface Globals {
 export let exchangeCodes: Globals["exchangeCodes"] = [];
 export let clientTokens: Globals["clientTokens"] = [];
 export let AccessTokens: Globals["AccessTokens"] = [];
-export let Clients: Globals["Clients"] = [];
+export let Clients: Globals["Clients"] = new Set([
+  {
+    accountId,
+    displayName,
+    token,
+    resource: Saves.resource,
+    lastPresenceUpdate: {
+      away: false,
+      status: "{}",
+    },
+  },
+]);
 export let MUCs: Globals["MUCs"] = { members: [] };
 export let refreshTokens: Globals["refreshTokens"] = [];
 

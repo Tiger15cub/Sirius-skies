@@ -8,10 +8,13 @@ import SetCosmeticLockerSlot from "../common/mcp/operations/SetCosmeticLockerSlo
 import EquipBattleRoyaleCustomization from "../common/mcp/operations/EquipBattleRoyaleCustomization/EquipBattleRoyaleCustomization";
 import ClaimMfaEnabled from "../common/mcp/operations/ClaimMfaEnabled/ClaimMfaEnabled";
 import MarkItemSeen from "../common/mcp/operations/MarkItemSeen/MarkItemSeen";
-import ClientQuestLogin from "../common/mcp/operations/ClientQuestLogin/ClientQuestLogin";
 import PurchaseCatalogEntry from "../common/mcp/operations/PurchaseCatalogEntry/PurchaseCatalogEntry";
 import verifyToken from "../middleware/verifyToken";
 import log from "../utils/log";
+import { getProfile } from "../common/mcp/utils/getProfile";
+import MetaData from "../common/mcp/operations/QueryProfile/MetaData";
+import OutPost from "../common/mcp/operations/QueryProfile/Outpost0";
+import Theater from "../common/mcp/operations/QueryProfile/Theater0";
 
 export default function initRoute(router: Router): void {
   router.post(
@@ -76,7 +79,10 @@ export default function initRoute(router: Router): void {
       const userAgent = req.headers["user-agent"];
       let season = getSeason(userAgent);
 
+      const userProfiles: any = await getProfile(accountId);
+
       try {
+        console.log(profileId);
         switch (command) {
           case "QueryProfile":
           case "SetHardcoreModifier":
@@ -104,10 +110,56 @@ export default function initRoute(router: Router): void {
                 );
                 return res.json(commonCoreProfile);
 
-              default:
-                return res.json(
-                  createDefaultResponse([], profileId, (rvn as any) + 1)
+              case "creative":
+                res.json(
+                  createDefaultResponse([], profileId, userProfiles.rvn)
                 );
+                break;
+              case "collection_book_schematics0":
+                res.json(
+                  createDefaultResponse([], profileId, userProfiles.rvn)
+                );
+                break;
+              case "collection_book_people0":
+                res.json(
+                  createDefaultResponse([], profileId, userProfiles.rvn)
+                );
+                break;
+
+              case "theater0":
+                const theater0Profile = await Theater(accountId, res);
+                res.json(theater0Profile);
+                break;
+
+              case "outpost0":
+                const outpost0Profile = await OutPost(accountId, res);
+                res.json(outpost0Profile);
+                break;
+
+              case "metadata":
+                const metaDataProfile = await MetaData(accountId, res);
+                res.json(metaDataProfile);
+                break;
+
+              case "QuestLogin":
+                res.json(
+                  createDefaultResponse([], profileId, userProfiles.rvn)
+                );
+                break;
+
+              default:
+                console.log(profileId);
+                res.status(400).json({
+                  errorCode:
+                    "errors.com.epicgames.modules.profiles.operation_forbidden",
+                  errorMessage: `Unable to find template configuration for profile ${profileId}`,
+                  messageVars: undefined,
+                  numericErrorCode: 12813,
+                  originatingService: "fortnite",
+                  intent: "prod-live",
+                  error_description: `Unable to find template configuration for profile ${profileId}`,
+                  error: "invalid_client",
+                });
             }
             break;
 
@@ -128,14 +180,7 @@ export default function initRoute(router: Router): void {
             break;
 
           case "ClientQuestLogin":
-            const result = await ClientQuestLogin(
-              accountId,
-              profileId as string,
-              rvn as any,
-              req
-            );
-
-            res.json(result).status(204);
+            // TODO: Rewrite
             break;
 
           case "SetMtxPlatform":

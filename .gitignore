@@ -131,3 +131,5 @@ dist
 .pnp.*
 
 athena.json*
+*.rar*
+DefaultGame.dev.ini*

@@ -12,10 +12,15 @@ import verifyToken from "../middleware/verifyToken";
 import { DateTime } from "luxon";
 import { v4 as uuid } from "uuid";
 import ExchangeCodes from "../models/ExchangeCodes";
+import { findInIterable } from "../xmpp/functions/findInIterable";
 
 export default function initRoute(router: Router, next: NextFunction): void {
   router.delete("/account/api/oauth/sessions/kill", (req, res) => {
-    res.status(204).end();
+    const { killType } = req.query;
+
+    if (killType === "OTHERS_ACCOUNT_CLIENT_SERVICE") res.status(400).end();
+
+    res.json(204).json({});
   });
 
   router.delete(
@@ -31,7 +36,8 @@ export default function initRoute(router: Router, next: NextFunction): void {
         const AccessToken = Globals.AccessTokens[accessTokenIndex];
         Globals.AccessTokens.splice(accessTokenIndex, 1);
 
-        const Clients = Globals.Clients.find(
+        const Clients = findInIterable(
+          Globals.Clients,
           (client) => client.token === AccessToken.token
         );
 
@@ -195,7 +201,7 @@ export default function initRoute(router: Router, next: NextFunction): void {
           await Accounts.updateOne(
             { accountId },
             {
-              $push: {
+              $set: {
                 clientToken: Globals.clientTokens,
               },
             }
@@ -385,7 +391,7 @@ export default function initRoute(router: Router, next: NextFunction): void {
         await Accounts.updateOne(
           { accountId },
           {
-            $push: {
+            $set: {
               refreshToken: Globals.refreshTokens,
               accessToken: Globals.AccessTokens,
             },
@@ -426,7 +432,7 @@ export default function initRoute(router: Router, next: NextFunction): void {
     }
   });
 
-  router.get("/account/api/oauth/verify", verifyToken, (req, res) => {
+  router.get("/account/api/oauth/verify", (req, res) => {
     const token = req.headers["authorization"]?.split("bearer ")[1];
 
     if (!token) {

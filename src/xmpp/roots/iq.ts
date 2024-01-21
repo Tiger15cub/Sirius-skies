@@ -5,6 +5,9 @@ import { Globals } from "../types/XmppTypes";
 import xmlbuilder from "xmlbuilder";
 import Users from "../../models/Users";
 import Friends from "../../models/Friends";
+import log from "../../utils/log";
+import sendPresenceUpdate from "../functions/sendPresenceUpdate";
+import { findInIterable } from "../functions/findInIterable";
 
 export default async function iq(
   socket: WebSocket,
@@ -28,7 +31,8 @@ export default async function iq(
 
       if (!bindElement) return;
 
-      const existingClient = Globals.Clients.find(
+      const existingClient = findInIterable(
+        Globals.Clients,
         (client) => client.accountId === Globals.accountId
       );
 
@@ -44,18 +48,15 @@ export default async function iq(
       Saves.resource = resourceElement.content;
       Globals.jid = `${Globals.accountId}@prod.ol.epicgames.com/${Saves.resource}`;
 
-      const clientNamespace = "jabber:client";
-      const bindNamespace = "urn:ietf:params:xml:ns:xmpp-bind";
-
       socket.send(
         xmlbuilder
           .create("iq")
           .attribute("to", Globals.jid)
           .attribute("id", "_xmpp_bind1")
-          .attribute("xmlns", clientNamespace)
+          .attribute("xmlns", "jabber:client")
           .attribute("type", "result")
           .element("bind")
-          .attribute("xmlns", bindNamespace)
+          .attribute("xmlns", "urn:ietf:params:xml:ns:xmpp-bind")
           .element("jid", Globals.jid)
           .up()
           .up()
@@ -64,7 +65,7 @@ export default async function iq(
       break;
 
     case "_xmpp_session1":
-      if (!Saves.clientExists) {
+      if (!Saves.clientExists && !Saves.activeConnection) {
         await socket.close();
         return;
       }
@@ -75,6 +76,7 @@ export default async function iq(
           .attribute("to", Globals.jid)
           .attribute("from", "prod.ol.epicgames.com")
           .attribute("id", "_xmpp_session1")
+          .attribute("xmlns", "jabber:client")
           .attribute("type", "result")
           .toString()
       );
@@ -90,31 +92,38 @@ export default async function iq(
 
       const acceptedFriends = user.friends.accepted;
 
-      for (const friendType of acceptedFriends) {
-        const friend = friendType as { accountId: string };
-
-        const friendClient = Globals.Clients.find(
+      acceptedFriends.forEach((friend) => {
+        const client = findInIterable(
+          Globals.Clients,
           (client) => client.accountId === friend.accountId
         );
 
-        if (!friendClient) return;
+        if (!client) {
+          return;
+        }
 
-        // const friendNamespace = "jabber:client";
-
-        socket.send(
-          xmlbuilder
-            .create("presence")
-            .attribute("to", Globals.jid)
-            .attribute("from", friendClient.jid)
-            .attribute("type", "available")
-            .toString()
-        );
-      }
-
+        if (client.lastPresenceUpdate?.away) {
+          sendPresenceUpdate(
+            socket,
+            Globals.jid,
+            client.jid as string,
+            client.lastPresenceUpdate.status,
+            true
+          );
+        } else {
+          sendPresenceUpdate(
+            socket,
+            Globals.jid,
+            client.jid as string,
+            client.lastPresenceUpdate?.status,
+            false
+          );
+        }
+      });
       break;
 
     default:
-      if (!Saves.clientExists) {
+      if (!Saves.clientExists && !Saves.activeConnection) {
         await socket.close();
         return;
       }

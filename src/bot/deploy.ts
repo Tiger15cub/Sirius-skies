@@ -1,19 +1,19 @@
 import { REST, Routes, APIUser } from "discord.js";
-import {
-  changePassword,
-  changeUsername,
-  fullLocker,
-  registerData,
-} from "./data";
 import { getEnv } from "../utils";
+import fs from "node:fs";
+import { join } from "node:path";
+import { Command } from "../interface";
 import log from "../utils/log";
 
-const commands = [
-  registerData.data,
-  changePassword.data,
-  changeUsername.data,
-  fullLocker.data,
-];
+const commands = fs
+  .readdirSync(join(__dirname, "commands"))
+  .filter((file) => file.endsWith(".ts") || file.endsWith(".js"));
+
+const commandData = commands.map((command) => {
+  const CommandClass = require(join(__dirname, "commands", command)).default;
+  const commandInstance = new CommandClass() as Command;
+  return commandInstance.data;
+});
 
 const rest = new REST({ version: "10" }).setToken(getEnv("TOKEN"));
 
@@ -32,7 +32,7 @@ const rest = new REST({ version: "10" }).setToken(getEnv("TOKEN"));
         ? Routes.applicationCommands(currentUser.id)
         : Routes.applicationGuildCommands(currentUser.id, getEnv("GUILD_ID"));
 
-    await rest.put(endpoint, { body: commands });
+    await rest.put(endpoint, { body: commandData });
 
     log.log(
       "Successfully reloaded application (/) commands.",

@@ -4,6 +4,8 @@ import xmlparser from "xml-parser";
 import log from "../../utils/log";
 import { Globals, MUCs } from "../types/XmppTypes";
 import { Saves } from "../types/Saves";
+import sendStatusMessage from "../functions/sendStatusMessage";
+import { findInIterable } from "../functions/findInIterable";
 
 export default async function presence(
   socket: WebSocket,
@@ -161,12 +163,12 @@ export default async function presence(
         );
 
         MUCs.members.forEach(async (member: { accountId: string }) => {
-          const client = Globals.Clients.find(
-            (c) => c.accountId === member.accountId
+          const client = findInIterable(
+            Globals.Clients,
+            (client) => client.accountId === member.accountId
           );
 
           if (!client) {
-            return;
           }
 
           socket.send(
@@ -175,8 +177,8 @@ export default async function presence(
               .attribute(
                 "from",
                 `${roomName}@muc.prod.ol.epicgames.com/${encodeURI(
-                  client.displayName as string
-                )}:${client.accountId}:${client.resource}`
+                  client?.displayName as string
+                )}:${client?.accountId}:${client?.resource}`
               )
               .attribute("to", Globals.jid)
               .attribute("xmlns", "jabber:client")
@@ -192,7 +194,7 @@ export default async function presence(
                   ""
                 )
               )
-              .attribute("jid", client.jid)
+              .attribute("jid", client?.jid)
               .attribute("role", "participant")
               .attribute("affiliation", "none")
               .up()
@@ -200,7 +202,7 @@ export default async function presence(
               .toString({ pretty: true })
           );
 
-          client.socket?.send(
+          client?.socket?.send(
             xmlbuilder
               .create("presence")
               .attribute(
@@ -234,6 +236,8 @@ export default async function presence(
 
         return;
       }
+
+      await sendStatusMessage(socket, Globals.accountId, children);
 
       break;
   }

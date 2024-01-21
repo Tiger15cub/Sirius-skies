@@ -35,3 +35,51 @@ export async function CreateCommonCoreProfileItem(account: any) {
 
   return commonCoreTemplate;
 }
+
+export async function CreateMetaDataProfileItem(account: any) {
+  const metadataTemplate = JSON.parse(
+    fs.readFileSync(
+      path.join(__dirname, "..", "template", "metadata", "template.json"),
+      "utf-8"
+    )
+  );
+
+  metadataTemplate.accountId = account.accountId;
+  metadataTemplate.Created = DateTime.utc();
+  metadataTemplate.Updated = DateTime.utc();
+  metadataTemplate._id = uuid();
+
+  return metadataTemplate;
+}
+
+export async function CreateOutpost0ProfileItem(account: any) {
+  const outpost0Template = JSON.parse(
+    fs.readFileSync(
+      path.join(__dirname, "..", "template", "outpost0", "template.json"),
+      "utf-8"
+    )
+  );
+
+  outpost0Template.accountId = account.accountId;
+  outpost0Template.Created = DateTime.utc();
+  outpost0Template.Updated = DateTime.utc();
+  outpost0Template._id = uuid();
+
+  return outpost0Template;
+}
+
+export async function CreateTheater0ProfileItem(account: any) {
+  const theater0Template = JSON.parse(
+    fs.readFileSync(
+      path.join(__dirname, "..", "template", "theater0", "template.json"),
+      "utf-8"
+    )
+  );
+
+  theater0Template.accountId = account.accountId;
+  theater0Template.Created = DateTime.utc();
+  theater0Template.Updated = DateTime.utc();
+  theater0Template._id = uuid();
+
+  return theater0Template;
+}
