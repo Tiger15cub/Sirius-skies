@@ -8,6 +8,44 @@
 
 Sirius is a universal Fortnite private server backend written in TypeScript.
 
+## Tested / Supported Versions
+- **Chapter 1 Season 4** - `++Fortnite+Release-4.1-CL-405353-Windows`
+- **Chapter 1 Season 7** `++Fortnite+Release-7.40-CL-5046157-Windows`
+- **Chapter 1 Season 8** `++Fortnite+Release-8.51-CL-6165369-Windows`
+- **Chapter 1 Season 9** `++Fortnite+Release-9.10-CL-6639283-Windows`
+- **Chapter 1 Season X** `++Fortnite+Release-10.40-CL-9380822-Windows`
+- **Chapter 2 Season 1** `++Fortnite+Release-11.31-CL-10800459-Windows`
+- **Chapter 2 Season 2** `++Fortnite+Release-12.41-CL-12905909-Windows`
+- **Chapter 2 Season 4** `++Fortnite+Release-14.60-CL-14786821-Windows`
+
+## Features
+
+### TODO
+
+- [ ] Daily Quests
+- [ ] Weekly Quests
+- [ ] BattlePass Purchasing
+- [ ] XP and Leveling up
+- [ ] Variants
+- [ ] Vbucks on Kill (GameServer endpoint)
+
+### Work In Progress (WIP)
+
+- [ ] Voice Chat
+- [ ] Matchmaking Bans
+- [ ] Parties
+- [ ] Item Purchasing from Item shop
+
+
+### Finished
+
+- [x] Basic functionality
+- [x] MultiSeason Shop
+- [x] Item Shop (24/7)
+- [x] OAuth
+- [x] TimeLine
+- [x] CloudStorage
+
 ## Getting Started
 
 To get started with `Sirius`, follow these steps:
@@ -47,5 +85,5 @@ To get started with `Sirius`, follow these steps:
    node .
    ```
    
-## Discord
-[Join the discord if you need help](https://discord.gg/Y3YRVMDxEb)
+## Help
+If you need help, join the [Discord Server](https://discord.gg/Y3YRVMDxEb)
