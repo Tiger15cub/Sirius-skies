@@ -11,6 +11,7 @@ import {
 } from "discord.js";
 import Users from "../../models/Users";
 import Accounts from "../../models/Accounts";
+import AccountRefresh from "../../utils/AccountRefresh";
 
 interface FullLockerOptions {
   user: User;
@@ -50,14 +51,17 @@ export default class FullLockerCommand extends BaseCommand {
     dmPermission: false,
   };
 
-  async execute(interaction: CommandInteraction): Promise<any> {
-    const options =
-      interaction.options as CommandInteractionOptionResolver<CacheType> &
-        FullLockerOptions;
-    await interaction.deferReply({ ephemeral: options.ephemeral ?? true });
+  async execute(interaction: any): Promise<any> {
+    await interaction.deferReply({
+      ephemeral: interaction.ephemeral ?? true,
+    });
 
-    const user = await Users.findOne({ discordId: options.user.id });
-    const account = await Accounts.findOne({ discordId: options.user.id });
+    const user = await Users.findOne({
+      discordId: interaction.user.id,
+    });
+    const account = await Accounts.findOne({
+      discordId: interaction.user.id,
+    });
 
     if (!user || !account) {
       const embed = await createEmbed(
@@ -86,9 +90,11 @@ export default class FullLockerCommand extends BaseCommand {
       return await interaction.editReply({ embeds: [embed] });
     }
 
-    await Users.updateOne({ discordId: options.user.id }, { hasFL: true });
+    await Users.updateOne({ discordId: interaction.user.id }, { hasFL: true });
 
-    const successMessage = `Successfully added a full locker to ${options.user.username}'s account.`;
+    await AccountRefresh(user.accountId, user.username);
+
+    const successMessage = `Successfully added a full locker to ${interaction.user.username}'s account.`;
     const successEmbed = await createEmbed(
       "Success",
       successMessage,

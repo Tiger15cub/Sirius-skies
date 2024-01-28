@@ -133,3 +133,4 @@ dist
 athena.json*
 *.rar*
 DefaultGame.dev.ini*
+xmpp_response.json*

@@ -12,15 +12,14 @@ import verifyToken from "../middleware/verifyToken";
 import { DateTime } from "luxon";
 import { v4 as uuid } from "uuid";
 import ExchangeCodes from "../models/ExchangeCodes";
-import { findInIterable } from "../xmpp/functions/findInIterable";
 
 export default function initRoute(router: Router, next: NextFunction): void {
   router.delete("/account/api/oauth/sessions/kill", (req, res) => {
-    const { killType } = req.query;
+    // const { killType } = req.query;
 
-    if (killType === "OTHERS_ACCOUNT_CLIENT_SERVICE") res.status(400).end();
+    // if (killType === "OTHERS_ACCOUNT_CLIENT_SERVICE") res.status(400).end();
 
-    res.json(204).json({});
+    res.json(204).end();
   });
 
   router.delete(
@@ -36,8 +35,7 @@ export default function initRoute(router: Router, next: NextFunction): void {
         const AccessToken = Globals.AccessTokens[accessTokenIndex];
         Globals.AccessTokens.splice(accessTokenIndex, 1);
 
-        const Clients = findInIterable(
-          Globals.Clients,
+        const Clients = Globals.Clients.find(
           (client) => client.token === AccessToken.token
         );
 

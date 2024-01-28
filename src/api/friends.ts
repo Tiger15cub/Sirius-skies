@@ -8,6 +8,8 @@ import sendXmppMessageToClient from "../utils/sendXmppMessageToClient";
 import verifyToken from "../middleware/verifyToken";
 import getPresence from "../xmpp/functions/updateUserPresence";
 import updateUserPresence from "../xmpp/functions/updateUserPresence";
+import AccountRefresh from "../utils/AccountRefresh";
+import Users from "../models/Users";
 
 export default function initRoute(router: Router) {
   router.get("/friends/api/public/friends/:accountId", async (req, res) => {
@@ -281,7 +283,10 @@ export default function initRoute(router: Router) {
       const user = await Friends.findOne({ accountId });
       const friend = await Friends.findOne({ accountId: friendId });
 
-      if (!user || !friend) {
+      const userAccount = await Users.findOne({ accountId });
+      const friendAccount = await Users.findOne({ accountId: friendId });
+
+      if (!user || !friend || !userAccount || !friendAccount) {
         return res.status(404).json({ error: "User or Friend not found" });
       }
 
@@ -380,6 +385,9 @@ export default function initRoute(router: Router) {
 
         await user.updateOne({ $set: { friends: user.friends } });
         await friend.updateOne({ $set: { friends: friend.friends } });
+
+        await AccountRefresh(user.accountId, userAccount.username);
+        await AccountRefresh(friend.accountId, friendAccount.username);
       } else {
         user.friends.outgoing.push({
           accountId: friend.accountId,
@@ -423,6 +431,9 @@ export default function initRoute(router: Router) {
 
         await user.updateOne({ $set: { friends: user.friends } });
         await friend.updateOne({ $set: { friends: friend.friends } });
+
+        await AccountRefresh(user.accountId, userAccount.username);
+        await AccountRefresh(friend.accountId, friendAccount.username);
       }
 
       res.status(204).end();

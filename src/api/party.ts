@@ -8,8 +8,6 @@ import VivoxTokenGenerator from "../utils/voicechat/vivox";
 import { getEnv } from "../utils";
 import verifyToken from "../middleware/verifyToken";
 import sendXmppMessageToClient from "../utils/sendXmppMessageToClient";
-import { findByProperty } from "../xmpp/functions/findByProperty";
-import { findInIterable } from "../xmpp/functions/findInIterable";
 
 export default function initRoute(router: Router) {
   router.get("/party/api/v1/Fortnite/parties", async (req, res) => {
@@ -83,7 +81,9 @@ export default function initRoute(router: Router) {
       const { partyId, accountId } = req.params;
       const { connection, meta } = req.body;
 
-      const client = findByProperty(Globals.Clients, "accountId", accountId);
+      const client = Globals.Clients.find(
+        (client) => client.accountId === Globals.accountId
+      );
       // new PartyHandler(JoinInfoConnection, JoinInfo);
 
       PartyHandler.addMemberToParty(connection);
@@ -170,8 +170,7 @@ export default function initRoute(router: Router) {
         meta: {},
       });
 
-      const client = findInIterable(
-        Globals.Clients,
+      const client = Globals.Clients.find(
         (client) => client.accountId === accountId
       );
 

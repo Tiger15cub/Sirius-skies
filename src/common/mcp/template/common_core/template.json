@@ -1994,9 +1994,10 @@
       "undo_timeout": "min",
       "monthly_purchases": {},
       "allowed_to_send_gifts": true,
-      "mfa_enabled": true,
+      "mfa_enabled": false,
       "allowed_to_receive_gifts": true,
-      "gift_history": {}
+      "gift_history": {},
+      "ban_status": {}
     }
   },
   "commandRevision": 0

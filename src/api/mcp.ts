@@ -11,17 +11,56 @@ import MarkItemSeen from "../common/mcp/operations/MarkItemSeen/MarkItemSeen";
 import PurchaseCatalogEntry from "../common/mcp/operations/PurchaseCatalogEntry/PurchaseCatalogEntry";
 import verifyToken from "../middleware/verifyToken";
 import log from "../utils/log";
-import { getProfile } from "../common/mcp/utils/getProfile";
+import { getCommonCore, getProfile } from "../common/mcp/utils/getProfile";
 import MetaData from "../common/mcp/operations/QueryProfile/MetaData";
 import OutPost from "../common/mcp/operations/QueryProfile/Outpost0";
 import Theater from "../common/mcp/operations/QueryProfile/Theater0";
+import fs from "node:fs";
+import path from "node:path";
+import Friends from "../models/Friends";
+import { DateTime } from "luxon";
+import { GiftGlobals } from "../types/GiftTypes";
+import xmlbuilder from "xmlbuilder";
+import ClientQuestLogin from "../common/mcp/operations/ClientQuestLogin/ClientQuestLogin";
+import MarkNewQuestNotificationSent from "../common/mcp/operations/MarkNewQuestNotificationSent/MarkNewQuestNotificationSent";
+import { Globals } from "../xmpp/types/XmppTypes";
 
 export default function initRoute(router: Router): void {
   router.post(
-    [
-      "/fortnite/api/game/v2/profile/:accountId/*/EquipBattleRoyaleCustomization",
-      "/fortnite/api/game/v2/profile/:accountId/*/SetCosmeticLockerSlot",
-    ],
+    "/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCustomization",
+    verifyToken,
+    async (req, res) => {
+      const { accountId } = req.params;
+      const {
+        slotName,
+        itemToSlot,
+        indexWithinSlot,
+        category,
+        variantUpdates,
+        rvn,
+        slotIndex,
+        lockerItem,
+      } = req.body;
+
+      const userProfiles: any = await getProfile(accountId);
+
+      return await EquipBattleRoyaleCustomization(
+        accountId,
+        slotName,
+        itemToSlot,
+        slotIndex,
+        indexWithinSlot,
+        variantUpdates,
+        lockerItem,
+        req.query.profileId as string,
+        userProfiles.rvn,
+        res
+      );
+    }
+  );
+
+  router.post(
+    "/fortnite/api/game/v2/profile/:accountId/client/SetCosmeticLockerSlot",
     verifyToken,
     async (req, res) => {
       try {
@@ -37,35 +76,163 @@ export default function initRoute(router: Router): void {
           lockerItem,
         } = req.body;
 
-        if (slotName !== undefined) {
-          return await EquipBattleRoyaleCustomization(
-            accountId,
-            slotName,
-            itemToSlot,
-            slotIndex,
-            indexWithinSlot,
-            variantUpdates,
-            rvn as any,
-            res
-          );
-        } else {
-          return res.json(
-            await SetCosmeticLockerSlot(
-              accountId,
-              category,
-              itemToSlot,
-              slotIndex,
-              variantUpdates,
-              lockerItem,
-              rvn as any,
-              res
-            )
-          );
-        }
+        const userProfiles: any = await getProfile(accountId);
+
+        return await SetCosmeticLockerSlot(
+          accountId,
+          category,
+          itemToSlot,
+          slotIndex,
+          variantUpdates,
+          lockerItem,
+          userProfiles.rvn,
+          res
+        );
       } catch (error) {
         let err = error as Error;
         log.error(`Error updating profile: ${err.message}`, "MCP");
         res.status(500).json({ error: "Internal Server Error" });
+      }
+    }
+  );
+
+  router.post(
+    "/fortnite/api/game/v3/profile/:accountId/client/emptygift",
+    async (req, res) => {
+      try {
+        const {
+          playerName,
+          personalMessage,
+          giftWrapTemplateId,
+          receiverPlayerName,
+        } = req.body;
+        const user = await Users.findOne({ username: playerName });
+
+        const applyProfileChanges: any[] = [];
+
+        if (!user) {
+          return sendErrorResponse(
+            res,
+            "errors.com.epicgames.user.not_found",
+            "Sender not found."
+          );
+        }
+
+        const sender = user.accountId;
+        const commonCore = await getCommonCore(sender);
+        const giftBoxFilePath = path.join(
+          __dirname,
+          "..",
+          "common",
+          "resources",
+          "mcp",
+          "GiftBoxes.json"
+        );
+        const GiftBoxes = JSON.parse(fs.readFileSync(giftBoxFilePath, "utf8"));
+
+        if (personalMessage.length > 100) {
+          return sendErrorResponse(
+            res,
+            "errors.com.epicgames.string.length_check",
+            "Personal message is longer than 100 characters."
+          );
+        }
+
+        if (!GiftBoxes.includes(giftWrapTemplateId)) {
+          return sendErrorResponse(
+            res,
+            "errors.com.epicgames.giftbox.invalid",
+            "Invalid GiftBox. Please provide a valid GiftBox."
+          );
+        }
+
+        const receiverFriend = await Friends.findOne({
+          accountId: receiverPlayerName,
+        });
+        if (!receiverFriend) {
+          return sendErrorResponse(
+            res,
+            "errors.com.epicgames.user.not_found",
+            "Receiver not found."
+          );
+        }
+
+        const receiver = sender;
+        const receiverProfile = await getCommonCore(receiver);
+
+        if (!receiverProfile) {
+          return sendErrorResponse(
+            res,
+            "errors.com.epicgames.profile.not_found",
+            "Receiver Profile not found."
+          );
+        }
+
+        const athena = await getProfile(receiver);
+
+        athena.rvn++;
+        athena.commandRevision++;
+        athena.Updated = DateTime.now().toISO();
+
+        commonCore.rvn++;
+        commonCore.commandRevision++;
+        commonCore.Updated = DateTime.now().toISO();
+
+        await receiverProfile.updateOne({ $set: { athena } });
+        await receiverProfile.updateOne({ $set: { common_core: commonCore } });
+
+        GiftGlobals.GiftsReceived[receiver] = true;
+
+        const client = Globals.Clients.find(
+          (client) => client.accountId === receiver
+        );
+
+        if (client) {
+          client.socket.send(
+            xmlbuilder
+              .create("message")
+              .attribute("from", "xmpp-admin@prod.ol.epicgames.com")
+              .attribute("to", client.jid)
+              .attribute("xmlns", "jabber:client")
+              .attribute(
+                "body",
+                JSON.stringify({
+                  type: "com.epicgames.gift.received",
+                  payload: {},
+                  timestamp: DateTime.now().toISO(),
+                })
+              )
+              .toString({ pretty: true })
+          );
+        }
+
+        if (applyProfileChanges.length > 0 && receiver !== sender) {
+          commonCore.rvn++;
+          commonCore.commandRevision++;
+          commonCore.Updated = DateTime.now().toISO();
+        }
+
+        res.json({
+          profileRevision: commonCore.rvn || 0,
+          profileId: "common_core",
+          profileChangesBaseRevision: commonCore.rvn,
+          profileChanges: applyProfileChanges,
+          notifications: [],
+          profileCommandRevision: commonCore.commandRevision || 0,
+          serverTime: DateTime.now().toISO(),
+          responseVersion: 1,
+        });
+
+        if (applyProfileChanges.length > 0) {
+          await commonCore.updateOne({ $set: { common_core: commonCore } });
+        }
+      } catch (error) {
+        console.log(error);
+        return sendErrorResponse(
+          res,
+          "errors.com.epicgames.generic_error",
+          "An error occurred processing the request."
+        );
       }
     }
   );
@@ -82,7 +249,6 @@ export default function initRoute(router: Router): void {
       const userProfiles: any = await getProfile(accountId);
 
       try {
-        console.log(profileId);
         switch (command) {
           case "QueryProfile":
           case "SetHardcoreModifier":
@@ -106,7 +272,9 @@ export default function initRoute(router: Router): void {
                 const commonCoreProfile = await ProfileCommonCore(
                   Accounts,
                   accountId,
-                  profileId
+                  profileId,
+                  undefined,
+                  res.locals
                 );
                 return res.json(commonCoreProfile);
 
@@ -141,14 +309,7 @@ export default function initRoute(router: Router): void {
                 res.json(metaDataProfile);
                 break;
 
-              case "QuestLogin":
-                res.json(
-                  createDefaultResponse([], profileId, userProfiles.rvn)
-                );
-                break;
-
               default:
-                console.log(profileId);
                 res.status(400).json({
                   errorCode:
                     "errors.com.epicgames.modules.profiles.operation_forbidden",
@@ -163,12 +324,6 @@ export default function initRoute(router: Router): void {
             }
             break;
 
-          case "ClaimMfaEnabled":
-            res
-              .status(204)
-              .json(await ClaimMfaEnabled(res, profileId as string, accountId));
-            break;
-
           case "MarkItemSeen":
             await MarkItemSeen(
               profileId as string,
@@ -179,11 +334,38 @@ export default function initRoute(router: Router): void {
             );
             break;
 
-          case "ClientQuestLogin":
-            // TODO: Rewrite
+          case "ClaimMfaEnabled":
+            res
+              .status(204)
+              .json(await ClaimMfaEnabled(res, profileId as string, accountId));
             break;
 
           case "SetMtxPlatform":
+            res.json(createDefaultResponse([], profileId, userProfiles.rvn));
+            break;
+
+          case "ClientQuestLogin":
+            await ClientQuestLogin(res, req, accountId, profileId as string);
+            break;
+
+          case "MarkNewQuestNotificationSent":
+            await MarkNewQuestNotificationSent(
+              res,
+              req,
+              accountId,
+              profileId as string
+            );
+            break;
+
+          case "FortRerollDailyQuest":
+            break;
+
+          case "SetBansViewed":
+            res.json(createDefaultResponse([], profileId, userProfiles.rvn));
+            break;
+
+          case "SetMatchmakingBansViewed":
+            res.json(createDefaultResponse([], profileId, userProfiles.rvn));
             break;
 
           case "PurchaseCatalogEntry":
@@ -194,6 +376,10 @@ export default function initRoute(router: Router): void {
               req,
               res
             );
+            break;
+
+          case "QuestLogin":
+            res.json(createDefaultResponse([], profileId, userProfiles.rvn));
             break;
 
           default:

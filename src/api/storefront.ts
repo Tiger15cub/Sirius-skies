@@ -5,6 +5,7 @@ import log from "../utils/log";
 import { Storefront } from "../interface";
 import { ProcessStorefrontItems } from "../utils/storefront/ProcessStorefrontItems";
 import verifyToken from "../middleware/verifyToken";
+import { getSeason } from "../utils";
 
 function json(filePath: string): any {
   const fileContent = fs.readFileSync(filePath, "utf8");
@@ -24,6 +25,17 @@ export default function initRoute(router: Router) {
         "storefront",
         "shop.json"
       );
+
+      const season = getSeason(req.headers["user-agent"]);
+
+      if (
+        season?.buildUpdate === "2870186" ||
+        season?.season === 0 ||
+        season?.build === 0 ||
+        season?.netcl === "2870186"
+      ) {
+        return res.status(404).end();
+      }
 
       const BattlePasses = [
         "Season10BattlePass",

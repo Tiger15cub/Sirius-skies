@@ -48,6 +48,7 @@
     "xml-parser": "^1.2.1"
   },
   "dependencies": {
+    "@napi-rs/canvas": "^0.1.44",
     "canvas": "^2.11.2",
     "chalk": "^4.1.2",
     "discord.js": "^14.14.1",

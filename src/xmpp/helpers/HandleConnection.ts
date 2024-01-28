@@ -5,18 +5,13 @@ import HandleMessage from "./HandleMessage";
 import log from "../../utils/log";
 
 export default {
-  async handleConnection(
-    socket: WebSocket,
-    id: string,
-    request: express.Request
-  ) {
+  handleConnection(socket: WebSocket, id: string, request: express.Request) {
     if (request.url === "//") {
       try {
         Saves.ConnectedClients.set(id, socket);
-        await HandleMessage.handleMessage(socket, request, id);
-        Saves.ConnectedClients.set(id, socket);
+        HandleMessage.handleMessage(socket, request, id);
       } catch (error) {
-        log.error(`Error handling message: ${error}`, "XMPP");
+        log.error(`Error handling connection: ${error}`, "XMPP");
       }
     }
   },

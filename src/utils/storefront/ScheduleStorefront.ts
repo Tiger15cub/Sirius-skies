@@ -2,7 +2,7 @@ import { DateTime } from "luxon";
 import log from "../log";
 import Shop from "./generator/Shop";
 import { SavedData } from "./types/ShopTypes";
-import { SendWebhook } from "../discord/SendWebhook";
+import { SendWebhook } from "../discord/SendShopWebhook";
 import { getEnv } from "../getEnv";
 
 export default async function Schedule(maxAttempts?: number): Promise<void> {
@@ -39,7 +39,7 @@ export default async function Schedule(maxAttempts?: number): Promise<void> {
 
       await Shop.Initialize(savedData);
 
-      SendWebhook(savedData);
+      await SendWebhook(savedData);
 
       log.log(
         `Next shop Generates at ${DateTime.utc().toISO()} UTC.`,
@@ -60,8 +60,7 @@ export default async function Schedule(maxAttempts?: number): Promise<void> {
 
       // await new Promise((resolve) => setTimeout(resolve, 10000));
       await Shop.Initialize(savedData);
-
-      SendWebhook(savedData);
+      await SendWebhook(savedData);
 
       attempts++;
       break;

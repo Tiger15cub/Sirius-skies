@@ -4,8 +4,7 @@ import xmlparser from "xml-parser";
 import log from "../../utils/log";
 import { Globals, MUCs } from "../types/XmppTypes";
 import { Saves } from "../types/Saves";
-import sendStatusMessage from "../functions/sendStatusMessage";
-import { findInIterable } from "../functions/findInIterable";
+import updatePresenceForClientFriend from "../functions/updatePresenceForClientFriend";
 
 export default async function presence(
   socket: WebSocket,
@@ -15,6 +14,17 @@ export default async function presence(
   const rootType = document.attributes.type;
   const to = document.attributes.to;
   const children = document.children;
+
+  // if (!Saves.clientExists) {
+  //   socket.send(
+  //     xmlbuilder
+  //       .create("close")
+  //       .attribute("xmlns", "urn:ietf:params:xml:ns:xmpp-framing")
+  //       .toString({ pretty: true })
+  //   );
+  //   socket.close();
+  //   return;
+  // }
 
   switch (rootType) {
     case "unavailable":
@@ -163,13 +173,11 @@ export default async function presence(
         );
 
         MUCs.members.forEach(async (member: { accountId: string }) => {
-          const client = findInIterable(
-            Globals.Clients,
+          const client = Globals.Clients.find(
             (client) => client.accountId === member.accountId
           );
 
-          if (!client) {
-          }
+          if (!client) return;
 
           socket.send(
             xmlbuilder
@@ -201,6 +209,8 @@ export default async function presence(
               .up()
               .toString({ pretty: true })
           );
+
+          if (Globals.accountId === client.accountId) return;
 
           client?.socket?.send(
             xmlbuilder
@@ -237,7 +247,49 @@ export default async function presence(
         return;
       }
 
-      await sendStatusMessage(socket, Globals.accountId, children);
+      const statusElement = document.children.find(
+        (child) => child.name === "status"
+      );
+
+      if (!statusElement || !statusElement.content) {
+        socket.close();
+        return;
+      }
+
+      await updatePresenceForClientFriend(
+        socket,
+        statusElement.content,
+        document.children.find((child) => child.name === "show") ? true : false,
+        false
+      );
+
+      const sender = Globals.Clients.find(
+        (client) => client.accountId === Globals.accountId
+      );
+      const client = Globals.Clients.find(
+        (client) => client.accountId === Globals.accountId
+      );
+
+      if (!client || !sender) return;
+
+      const offline = false;
+
+      let xml = xmlbuilder
+        .create("presence")
+        .attribute("to", client.jid)
+        .attribute("xmlns", "jabber:client")
+        .attribute("from", sender.jid)
+        .attribute("type", offline ? "unavailable" : "available");
+
+      if (sender.lastPresenceUpdate?.away)
+        xml = xml
+          .element("show", "away")
+          .up()
+          .element("status", sender.lastPresenceUpdate.status)
+          .up();
+      else xml = xml.element("status", sender.lastPresenceUpdate?.status).up();
+
+      client.socket?.send(xml.toString({ pretty: true }));
 
       break;
   }

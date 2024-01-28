@@ -2,14 +2,12 @@ import { DateTime } from "luxon";
 import { Globals } from "../xmpp/types/XmppTypes";
 import xmlbuilder from "xmlbuilder";
 import log from "./log";
-import { findInIterable } from "../xmpp/functions/findInIterable";
 
 export default async function sendXmppMessageToClient(
   payload: any,
   accountId: string
 ): Promise<void> {
-  const client = findInIterable(
-    Globals.Clients,
+  const client = Globals.Clients.find(
     (client) => client.accountId === accountId
   );
   if (!client) return;

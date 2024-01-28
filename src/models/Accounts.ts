@@ -29,17 +29,25 @@ const questManager: QuestManager = {
   dailyQuestRerolls: 1,
 };
 
+export const BanTypes = {
+  NONE: 0,
+  Matchmaking: 1,
+  Permanently: 2,
+  HWID: 3,
+};
+
 interface AccountsModel extends Document {
   discordId: string;
   accountId: string;
   athena: any;
-  common_core?: any;
+  common_core: any;
   metadata: any;
   outpost0: any;
   theater0: any;
   BattleStars: number;
   gifts: any;
   banned: boolean;
+  banned_type: number;
   optOutOfPublicLeaderboards: boolean;
   accessToken: any;
   refreshToken: any;
@@ -57,8 +65,8 @@ interface AccountsModel extends Document {
 }
 
 const accountsSchema = new Schema<AccountsModel>({
-  discordId: { type: String, required: true },
-  accountId: { type: String, required: true },
+  discordId: { type: String, required: true, index: true },
+  accountId: { type: String, required: true, index: true },
   athena: { type: Object, default: {} },
   common_core: { type: Object, default: {} },
   metadata: { type: Object, default: {} },
@@ -66,83 +74,52 @@ const accountsSchema = new Schema<AccountsModel>({
   outpost0: { type: Object, default: {} },
   gifts: { type: Array, default: [] },
   banned: { type: Boolean, default: false },
+  banned_type: {
+    type: Number,
+    enum: Object.values(BanTypes),
+    default: BanTypes.NONE,
+  },
   optOutOfPublicLeaderboards: { type: Boolean, default: false },
   accessToken: { type: Array, default: [] },
   refreshToken: { type: Array, default: [] },
   clientToken: { type: Array, default: [] },
   stats: {
     solos: {
-      wins: {
-        type: Number,
-        default: 0,
-      },
-      kills: {
-        type: Number,
-        default: 0,
-      },
-      matchplayed: {
-        type: Number,
-        default: 0,
-      },
+      wins: { type: Number, default: 0 },
+      kills: { type: Number, default: 0 },
+      matchplayed: { type: Number, default: 0 },
     },
     duos: {
-      wins: {
-        type: Number,
-        default: 0,
-      },
-      kills: {
-        type: Number,
-        default: 0,
-      },
-      matchplayed: {
-        type: Number,
-        default: 0,
-      },
+      wins: { type: Number, default: 0 },
+      kills: { type: Number, default: 0 },
+      matchplayed: { type: Number, default: 0 },
     },
     squad: {
-      wins: {
-        type: Number,
-        default: 0,
-      },
-      kills: {
-        type: Number,
-        default: 0,
-      },
-      matchplayed: {
-        type: Number,
-        default: 0,
-      },
+      wins: { type: Number, default: 0 },
+      kills: { type: Number, default: 0 },
+      matchplayed: { type: Number, default: 0 },
     },
     ltm: {
-      wins: {
-        type: Number,
-        default: 0,
-      },
-      kills: {
-        type: Number,
-        default: 0,
-      },
-      matchplayed: {
-        type: Number,
-        default: 0,
-      },
+      wins: { type: Number, default: 0 },
+      kills: { type: Number, default: 0 },
+      matchplayed: { type: Number, default: 0 },
     },
   },
   Season: {
-    type: Array,
-    default: [
+    type: [
       {
-        seasonNumber: 17,
-        level: 1,
-        bookLevel: 1,
-        battleStars: 0,
-        bookXP: 0,
-        isBookPurchased: false,
-        quests: [],
-        pinnedQuests: [],
-        quest_manager: questManager,
+        seasonNumber: { type: Number, default: 17 },
+        level: { type: Number, default: 1 },
+        bookLevel: { type: Number, default: 1 },
+        battleStars: { type: Number, default: 0 },
+        bookXP: { type: Number, default: 0 },
+        isBookPurchased: { type: Boolean, default: false },
+        quests: { type: Array, default: [] },
+        pinnedQuests: { type: Array, default: [] },
+        quest_manager: { type: Object, default: questManager },
       },
     ],
+    default: [],
   },
   profilerevision: { type: Number, default: 1 },
   baseRevision: { type: Number, default: 0 },

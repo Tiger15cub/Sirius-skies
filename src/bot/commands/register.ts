@@ -8,7 +8,7 @@ import {
   ApplicationCommandOptionType,
 } from "discord.js";
 import Users from "../../models/Users";
-import Accounts from "../../models/Accounts";
+import Accounts, { BanTypes } from "../../models/Accounts";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
 import log from "../../utils/log";
@@ -127,6 +127,7 @@ export default class RegisterCommand extends BaseCommand {
         accountId,
         discordId: userId,
         banned: false,
+        banned_type: BanTypes.NONE,
         timesinceLastUpdate: Date.now(),
         hasFL: false,
       });

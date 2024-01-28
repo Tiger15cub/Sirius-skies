@@ -4,7 +4,7 @@ import { DateTime } from "luxon";
 
 export default class VivoxTokenGenerator {
   private readonly secretKey: string;
-  private readonly algorithm: string;
+  private readonly algorithm: Algorithm;
   private readonly defaultOptions: SignOptions;
   private readonly defaultExpiration: string;
 
@@ -14,7 +14,7 @@ export default class VivoxTokenGenerator {
     this.defaultExpiration = "1h";
 
     this.defaultOptions = {
-      algorithm: "HS256",
+      algorithm: algorithm,
       expiresIn: this.defaultExpiration,
     };
   }
@@ -32,35 +32,33 @@ export default class VivoxTokenGenerator {
     userId: string,
     channelUrl: string,
     userUrl: string,
-    vxa?: string,
+    vxa: string = "login",
     options?: SignOptions
   ): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const currentTime = Math.floor(DateTime.local().toMillis() / 1000);
+    const currentTimeInSeconds = Math.floor(DateTime.local().toSeconds());
 
-      const claims: VivoxTokenClaims = {
-        iss: applicationId,
-        sub: userId,
-        vxa: vxa ?? "login",
-        vxi: this.generateRandomVXI(6),
-        t: channelUrl,
-        f: userUrl,
-      };
+    const claims: VivoxTokenClaims = {
+      iss: applicationId,
+      sub: userId,
+      vxa: vxa,
+      vxi: this.generateRandomVXI(6),
+      t: channelUrl,
+      f: userUrl,
+    };
 
-      const tokenOptions: SignOptions = {
-        ...this.defaultOptions,
-        ...options,
-        expiresIn: this.defaultExpiration,
-        notBefore: currentTime,
-        jwtid: `${userId}-${currentTime}`,
-      };
+    const tokenOptions: SignOptions = {
+      ...this.defaultOptions,
+      ...options,
+      notBefore: currentTimeInSeconds,
+      jwtid: `${userId}-${currentTimeInSeconds}`,
+    };
 
+    return new Promise<string>((resolve, reject) => {
       jwt.sign(claims, this.secretKey, tokenOptions, (error, token) => {
         if (error) {
           reject(error);
         } else {
           resolve(token as string);
-          // return token;
         }
       });
     });

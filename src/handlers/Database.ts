@@ -7,8 +7,11 @@ const DB_URL = getEnv("DATABASE_URL");
 const connectToDatabase = async () => {
   for (let i = 0; i < 3; i++) {
     try {
-      await mongoose.connect(DB_URL);
+      mongoose.connect(DB_URL, { maxPoolSize: 10, maxIdleTimeMS: 30000 });
       log.log("Connected to MongoDB", "Database", "magentaBright");
+      // setTimeout(() => {
+      //   mongoose.connection.db.setProfilingLevel("all");
+      // }, 1000);
       break;
     } catch (error) {
       let err = error as Error;
@@ -19,7 +22,7 @@ const connectToDatabase = async () => {
           "Database",
           "magentaBright"
         );
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 5000));
       } else {
         throw error;
       }

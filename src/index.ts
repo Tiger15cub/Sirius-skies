@@ -31,27 +31,31 @@ const PORT = getEnv("PORT") || 5555;
 (async () => {
   try {
     app.use((req, res, next) => {
-      if (
-        req.originalUrl === "/images/icons/gear.png" ||
-        req.originalUrl === "/favicon.ico"
-      ) {
-        next();
+      if (getEnv("ENABLE_LOGS") === "true") {
+        if (
+          req.originalUrl === "/images/icons/gear.png" ||
+          req.originalUrl === "/favicon.ico"
+        ) {
+          next();
+        } else {
+          const startTime = process.hrtime();
+          const endTime = process.hrtime(startTime);
+          const durationInMs = (endTime[0] * 1e9 + endTime[1]) / 1e6;
+
+          const methodColor = getMethodColor(req.method);
+          const statusCodeColor = getStatusCodeColor(res.statusCode);
+
+          logger.info(req.originalUrl);
+
+          log.info(
+            `(${methodColor(req.method)}) (${statusCodeColor(
+              res.statusCode
+            )}) (     ${durationInMs}ms) ${req.originalUrl}`,
+            "Server"
+          );
+          next();
+        }
       } else {
-        const startTime = process.hrtime();
-        const endTime = process.hrtime(startTime);
-        const durationInMs = (endTime[0] * 1e9 + endTime[1]) / 1e6;
-
-        const methodColor = getMethodColor(req.method);
-        const statusCodeColor = getStatusCodeColor(res.statusCode);
-
-        logger.info(req.originalUrl);
-
-        log.info(
-          `(${methodColor(req.method)}) (${statusCodeColor(
-            res.statusCode
-          )}) (     ${durationInMs}ms) ${req.originalUrl}`,
-          "Server"
-        );
         next();
       }
     });

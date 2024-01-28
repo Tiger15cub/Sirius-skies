@@ -9,6 +9,10 @@ let members: any[] = [];
 let parties: any[] = [];
 let pings: any[] = [];
 let activeConnection: boolean = false;
+const GlobalClients = new Map();
+const activeAccountIds = new Set();
+const blacklistedAccounts = new Set();
+const blacklistedSockets = new Set();
 
 export const Saves = {
   ConnectedClients,
@@ -20,4 +24,8 @@ export const Saves = {
   parties,
   pings,
   activeConnection,
+  GlobalClients,
+  activeAccountIds,
+  blacklistedAccounts,
+  blacklistedSockets,
 };

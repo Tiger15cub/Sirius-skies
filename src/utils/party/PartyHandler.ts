@@ -5,7 +5,6 @@ import { Globals } from "../../xmpp/types/XmppTypes";
 import xmlbuilder from "xmlbuilder";
 import log from "../log";
 import sendXmppMessageToClient from "../sendXmppMessageToClient";
-import { findByProperty } from "../../xmpp/functions/findByProperty";
 
 interface Connection {
   id: string;
@@ -61,7 +60,9 @@ export default class PartyHandler {
     const accountId = JoinInfoConnection.id.split("@")[0];
     const member = Saves.members.find((m) => m.account_id === accountId);
 
-    const client = findByProperty(Globals.Clients, "accountId", accountId);
+    const client = Globals.Clients.find(
+      (client) => client.accountId === Globals.accountId
+    );
 
     if (!client) {
       log.error(
@@ -255,10 +256,8 @@ export default class PartyHandler {
 
   static sendXmppMessageToClient(data: string) {
     Saves.members.forEach((member) => {
-      const client = findByProperty(
-        Globals.Clients,
-        "accountId",
-        member.account_id
+      const client = Globals.Clients.find(
+        (client) => client.accountId === member.account_id
       );
       const socket = client?.socket;
 

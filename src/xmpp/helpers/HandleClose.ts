@@ -5,46 +5,18 @@ import xmlbuilder from "xmlbuilder";
 import { Globals } from "../types/XmppTypes";
 import { Saves } from "../types/Saves";
 import { v4 as uuid } from "uuid";
-import { findInIterable } from "../functions/findInIterable";
-import { addOrUpdateClient } from "../functions/addOrUpdateClient";
+import updatePresenceForClientFriend from "../functions/updatePresenceForClientFriend";
 
 export default {
-  handleClose(socket: WebSocket) {
-    Saves.clientExists = false;
-    Saves.activeConnection = false;
-    Saves.ConnectedClients.delete(Globals.UUID);
-
-    const clientArray = Array.from(Globals.Clients);
-    const clientIndex = clientArray.findIndex(
+  async handleClose(socket: WebSocket) {
+    const clientIndex = Globals.Clients.find(
       (client) => client.socket === socket
     );
+    const client = Globals.Clients[clientIndex];
+    if (clientIndex === -1) return;
 
-    if (clientIndex !== -1) {
-      const removedClients = clientArray.splice(clientIndex, 1);
-      addOrUpdateClient(Globals.Clients, removedClients[0]);
-    }
-
-    const client = findInIterable(
-      Globals.Clients,
-      (client) => client.socket === socket
-    );
-
-    if (!client) {
-      log.debug(JSON.stringify(Globals.Clients), "HandleClients");
-      log.debug(JSON.stringify(client), "HandleClose");
-      log.error("Connection does not exist.", "HandleClose");
-      return;
-    }
-
-    // Globals.Clients.delete({
-    //   accountId: Globals.accountId,
-    // });
-
-    // Debug
-    log.debug(JSON.stringify(socket), "HandleClose");
-
-    const status = JSON.parse(client.lastPresenceUpdate?.status as string);
-    let selectedPartyId: string | undefined = "";
+    updatePresenceForClientFriend(socket, "{}", false, true);
+    Globals.Clients.splice(clientIndex, 1);
 
     for (let room of Saves.JoinedMUCs) {
       // @ts-ignore
@@ -62,55 +34,69 @@ export default {
       }
     }
 
-    const { Properties } = status;
+    const status = client?.lastPresenceUpdate?.status;
+    let selectedPartyId: string | undefined = "";
 
-    if (Properties) {
-      for (const key in Properties) {
-        const PartyJoinInfo = key.toLowerCase().startsWith("party.joininfo");
+    if (status !== undefined) {
+      const parsedStatus = JSON.parse(status);
 
-        if (PartyJoinInfo && Properties[key]) {
-          selectedPartyId = Properties[key].partyId;
-          break;
+      if (typeof parsedStatus === "object" && parsedStatus !== null) {
+        const { Properties } = parsedStatus!;
+
+        if (Properties) {
+          for (const key in Properties) {
+            const PartyJoinInfo = key
+              .toLowerCase()
+              .startsWith("party.joininfo");
+
+            if (Properties[key].partyId === "") {
+              return log.error(
+                `Property 'partyId' is undefined`,
+                "HandleClose"
+              );
+            }
+
+            if (PartyJoinInfo && Properties[key]) {
+              selectedPartyId = Properties[key].partyId;
+              break;
+            }
+          }
         }
+      } else {
+        log.error(`Invalid JSON Format: ${status}`, "HandleClose");
       }
     }
 
-    if (selectedPartyId) {
-      const sender = client.accountId;
+    const sender = client?.accountId;
 
-      for (const { accountId, jid, socket } of Globals.Clients) {
-        if (sender !== accountId) {
-          const id = uuid().replace(/-/g, "").toUpperCase();
+    for (const { accountId, jid, socket } of Globals.Clients) {
+      if (sender !== accountId) {
+        const id = uuid().replace(/-/g, "").toUpperCase();
+        console.log(`partyId: ${selectedPartyId}`);
 
-          socket?.send(
-            xmlbuilder
-              .create("message")
-              .attribute("id", id)
-              .attribute("from", client.jid)
-              .attribute("xmlns", "jabber:client")
-              .attribute("to", jid)
-              .element(
-                "body",
-                JSON.stringify({
-                  type: "com.epicgames.party.memberexited",
-                  payload: {
-                    partyId: selectedPartyId!,
-                    memberId: sender,
-                    wasKicked: false,
-                  },
-                  timestamp: DateTime.now().toISO(),
-                })
-              )
-              .up()
-              .toString()
-          );
-        }
+        socket?.send(
+          xmlbuilder
+            .create("message")
+            .attribute("id", id)
+            .attribute("from", client?.jid)
+            .attribute("xmlns", "jabber:client")
+            .attribute("to", jid)
+            .element(
+              "body",
+              JSON.stringify({
+                type: "com.epicgames.party.memberexited",
+                payload: {
+                  partyId: selectedPartyId!,
+                  memberId: sender,
+                  wasKicked: false,
+                },
+                timestamp: DateTime.now().toISO(),
+              })
+            )
+            .up()
+            .toString()
+        );
       }
     }
-
-    log.custom(
-      `XMPP Client with the displayName ${client.displayName} has logged out.`,
-      "XMPP"
-    );
   },
 };

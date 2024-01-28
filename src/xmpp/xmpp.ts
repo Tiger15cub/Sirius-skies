@@ -5,12 +5,11 @@ import log from "../utils/log";
 import chalk from "chalk";
 import HandleConnection from "./helpers/HandleConnection";
 import { Saves } from "./types/Saves";
-import { Globals, XmppClients } from "./types/XmppTypes";
+import { Globals } from "./types/XmppTypes";
 import { v4 as uuid } from "uuid";
 import xmlbuilder from "xmlbuilder";
 import { DateTime } from "luxon";
 import HandleClose from "./helpers/HandleClose";
-import { mapPropertyFromSet } from "./functions/mapPropertyFromSet";
 
 const app = express();
 
@@ -34,9 +33,11 @@ wss.on("connection", async (socket, request: express.Request) => {
 
 app.use("/clients", async (req, res) => {
   if (!res.locals.hasWebSocket) {
+    const clients = Globals.Clients.map((client) => client.displayName || "");
+
     res.send({
-      connectedClients: Saves.ConnectedClients.size,
-      clients: mapPropertyFromSet(Globals.Clients, "displayName"),
+      connectedClients: clients.length,
+      clients: clients,
     });
   } else {
     res.status(400).json({ error: "BadRequest" });

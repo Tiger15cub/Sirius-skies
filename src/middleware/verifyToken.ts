@@ -4,6 +4,7 @@ import { getEnv, sendErrorResponse } from "../utils";
 import { Globals } from "../xmpp/types/XmppTypes";
 import Users from "../models/Users";
 import log from "../utils/log";
+import Accounts from "../models/Accounts";
 
 export default async function verifyToken(
   req: Request,
@@ -35,6 +36,8 @@ export default async function verifyToken(
     res.locals = {
       ...res.locals,
       user: await Users.findOne({ accountId: decodedToken?.sub }).lean(),
+      account: await Accounts.findOne({ accountId: decodedToken?.sub }).lean(),
+      decodedToken,
     };
 
     if (!res.locals.user) {

@@ -116,7 +116,7 @@ export default function initRoute(router: Router): void {
         const encryptionKey = generateRandomKey();
 
         return res.status(200).json({
-          serviceUrl: "ws://127.0.0.1:8090",
+          serviceUrl: "ws://127.0.0.1",
           ticketType: "mms-player",
           payload: JSON.stringify({
             playerId: accountId,
@@ -190,6 +190,76 @@ export default function initRoute(router: Router): void {
     "/fortnite/api/matchmaking/session/findPlayer/:wildcard",
     (req, res) => {
       res.status(200).send();
+    }
+  );
+
+  router.get(
+    "/fortnite/api/matchmaking/session",
+    verifyToken,
+    async (req, res) => {
+      const { sessionId } = req.params;
+
+      const serversPath = path.join(
+        __dirname,
+        "..",
+        "..",
+        "servers",
+        "Servers.json"
+      );
+      const servers = require(serversPath);
+
+      let serverAddress: string = "";
+      let serverPort: number = Number("");
+
+      try {
+        const playlist = req.cookies["playlist"];
+        const region = req.cookies["region"];
+
+        let matchingServerFound: boolean = false;
+
+        servers.forEach((server: any) => {
+          if (
+            playlist.toLowerCase() === server.playlist.toLowerCase() &&
+            region.toLowerCase() === server.region.toLowerCase()
+          ) {
+            serverAddress = server.serverAddress;
+            serverPort = Number(server.serverPort);
+            matchingServerFound = true;
+          }
+        });
+
+        if (!matchingServerFound) {
+          log.error(
+            "Server not found for the given playlist and region.",
+            "Matchmaking"
+          );
+        }
+      } catch (error) {
+        let err: Error = error as Error;
+        log.error(`An error occured: ${err.message}`, "Matchmaking");
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+
+      res.json({
+        id: "sirius",
+        ownerId: "sirius",
+        ownerName: "sirius",
+        serverName: "sirius",
+        openPrivatePlayers: 0,
+        openPublicPlayers: 200,
+        isDedicated: true,
+        maxPublicPlayers: 200,
+        maxPrivatePlayers: 0,
+        shouldAdvertise: false,
+        allowJoinInProgress: false,
+        usesStats: false,
+        allowInvites: false,
+        usesPresence: false,
+        allowJoinViaPresence: false,
+        allowJoinViaPresenceFriendsOnly: false,
+        buildUniqueId: req.cookies["currentbuildUniqueId"] || "0",
+        attributes: {},
+      });
     }
   );
 

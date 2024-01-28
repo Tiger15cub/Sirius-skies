@@ -120,7 +120,7 @@
     "templateId": "Quest:AthenaDailyQuest_PlayerEliminationShotguns",
     "attributes": {
       "quest_rarity": "uncommon",
-      "xp": 500,
+      "xp": 500,  
       "count": 4,
       "objectives": ["athena_daily_kill_players_shotgun_v2"]
     }

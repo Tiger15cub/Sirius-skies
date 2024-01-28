@@ -1,4 +1,10 @@
-import { Router, Request, Response, NextFunction } from "express";
+import {
+  Request,
+  Response,
+  NextFunction,
+  RequestHandler,
+  Router,
+} from "express";
 import fs from "node:fs";
 import path from "node:path";
 import util from "node:util";
@@ -6,13 +12,13 @@ import log from "../utils/log";
 import Users from "../models/Users";
 import verifyToken from "../middleware/verifyToken";
 import { getSeason } from "../utils";
+import crypto from "node:crypto";
 
 const readdir = util.promisify(fs.readdir);
 const readFile = util.promisify(fs.readFile);
-const writeFile = util.promisify(fs.writeFile);
 
 interface Custom extends Request {
-  rawBody?: Buffer;
+  rawBody?: any;
 }
 
 async function getRequestBody(
@@ -25,19 +31,18 @@ async function getRequestBody(
       const contentLength = Number(req.headers["content-length"]);
 
       if (contentLength >= 400000) {
+        console.log("File size exceeds the maximum allowed limit (400KB).");
         res.status(403).json({
           error: "File size exceeds the maximum allowed limit (400KB).",
         });
       }
     }
 
-    let data: Buffer[] = [];
-    req.rawBody = Buffer.concat(data);
+    req.rawBody = "";
     req.setEncoding("latin1");
 
     req.on("data", (chunk) => {
       req.rawBody += chunk;
-      data.push(chunk);
     });
 
     req.on("end", () => {
@@ -131,106 +136,107 @@ export default function initRoute(router: Router): void {
   );
 
   router.get(
-    "/fortnite/api/cloudstorage/user/:id/:file",
+    "/fortnite/api/cloudstorage/user/*/:file",
     verifyToken,
-    async (req, res) => {
-      res.contentType("application/octet-stream");
-
-      const id = req.params.id;
-      const file = req.params.file;
-      const filePath = path.join(
+    (req, res) => {
+      const clientSettings = path.join(
         process.env.LOCALAPPDATA as string,
         "Sirius",
-        "ClientSettings",
-        `ClientSettings-${id}.sav`
+        "ClientSettings"
+      );
+      if (!fs.existsSync(clientSettings)) fs.mkdirSync(clientSettings);
+
+      const { file } = req.params;
+
+      if (file !== "ClientSettings.Sav") return res.status(204).end();
+
+      const clientSettingsFile = path.join(
+        clientSettings,
+        `ClientSettings-${res.locals.user.accountId}.Sav`
       );
 
-      try {
-        if (fs.existsSync(filePath)) {
-          const fileContent = await readFile(filePath);
-          res.type("application/octet-stream").send(fileContent);
-        } else {
-          res.status(204).send();
-        }
-      } catch (error) {
-        console.error(error);
-        res.status(500).send("Internal Server Error");
-      }
-    }
-  );
+      if (fs.existsSync(clientSettingsFile))
+        return res.status(204).send(fs.readFileSync(clientSettingsFile));
 
-  router.put(
-    "/fortnite/api/cloudstorage/user/:id/:file",
-    verifyToken,
-    getRequestBody,
-    async (req: Custom, res) => {
-      res.contentType("application/octet-stream");
-
-      if (Buffer.byteLength(req.rawBody as Buffer) >= 400000)
-        res.status(403).json({
-          error: "File size exceeds the maximum allowed limit (400KB).",
-        });
-
-      const folderPath = path.join(
-        process.env.LOCALAPPDATA as string,
-        "Sirius",
-        "Cloudstorage"
-      );
-
-      if (!fs.existsSync(folderPath)) {
-        fs.mkdirSync(folderPath, { recursive: true });
-      }
-
-      const filePath = path.join(
-        folderPath,
-        `ClientSettings-${req.params.id}.Sav`
-      );
-      await writeFile(filePath, req.rawBody as Buffer, "latin1");
+      res.status(204).end();
     }
   );
 
   router.get(
-    "/fortnite/api/cloudstorage/user/:id",
+    "/fortnite/api/cloudstorage/user/:accountId",
     verifyToken,
-    async (req, res) => {
-      res.contentType("application/json");
-
-      const id = req.params.id;
-      const filePath = path.join(
+    (req, res) => {
+      const clientSettings = path.join(
         process.env.LOCALAPPDATA as string,
         "Sirius",
-        "ClientSettings",
-        `ClientSettings-${id}.sav`
+        "ClientSettings"
+      );
+      if (!fs.existsSync(clientSettings)) fs.mkdirSync(clientSettings);
+
+      const { accountId } = req.params;
+
+      getSeason(req.headers["user-agent"]);
+
+      const clientSettingsFile = path.join(
+        clientSettings,
+        `ClientSettings-${accountId}.Sav`
       );
 
-      try {
-        if (fs.existsSync(filePath)) {
-          const fileContents = await readFile(filePath, "utf8");
-          const fileInfo = await fs.promises.stat(filePath);
+      if (fs.existsSync(clientSettingsFile)) {
+        const file = fs.readFileSync(clientSettingsFile, "latin1");
+        const stats = fs.statSync(clientSettingsFile);
 
-          res.json([
-            {
-              uniqueFilename: "ClientSettings.Sav",
-              filename: "ClientSettings.Sav",
-              hash: "603E6907398C7E74E25C0AE8EC3A03FFAC7C9BB4",
-              hash256:
-                "973124FFC4A03E66D6A4458E587D5D6146F71FC57F359C8D516E0B12A50AB0D9",
-              length: fileContents.length,
-              contentType: "application/octet-stream",
-              uploaded: fileInfo.ctime,
-              storageType: "S3",
-              storageIds: {},
-              accountId: id,
-              doNotCache: false,
-            },
-          ]);
-        }
-
-        res.json([]);
-      } catch (error) {
-        console.error(error);
-        res.status(500).send("Internal Server Error");
+        return res.json([
+          {
+            uniqueFilename: "ClientSettings.Sav",
+            filename: "ClientSettings.Sav",
+            hash: crypto.createHash("sha1").update(file).digest("hex"),
+            hash256: crypto.createHash("sha256").update(file).digest("hex"),
+            length: Buffer.byteLength(file),
+            contentType: "application/octet-stream",
+            uploaded: stats.mtime,
+            storageType: "S3",
+            storageIds: {},
+            accountId,
+            doNotCache: false,
+          },
+        ]);
       }
+      res.json([]).end();
+    }
+  );
+
+  router.put(
+    "/fortnite/api/cloudstorage/user/*/:file",
+    verifyToken,
+    getRequestBody,
+    (req: Custom, res) => {
+      if (Buffer.byteLength(req.rawBody) >= 400000) {
+        console.log("File size exceeds the maximum allowed limit (400KB).");
+        res.status(403).json({
+          error: "File size exceeds the maximum allowed limit (400KB).",
+        });
+      }
+
+      const clientSettings = path.join(
+        process.env.LOCALAPPDATA as string,
+        "Sirius",
+        "ClientSettings"
+      );
+      if (!fs.existsSync(clientSettings)) fs.mkdirSync(clientSettings);
+
+      const { accountId } = req.params;
+
+      getSeason(req.headers["user-agent"]);
+
+      const clientSettingsFile = path.join(
+        clientSettings,
+        `ClientSettings-${accountId}.Sav`
+      );
+
+      fs.writeFileSync(clientSettingsFile, req.rawBody, "latin1");
+
+      res.status(204).end();
     }
   );
 }

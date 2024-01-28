@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getSeason } from "../utils";
+import { getEnv, getSeason } from "../utils";
 import axios from "axios";
 import getSeasonBackground from "../utils/content/getSeasonBackground";
 import { v4 as uuid } from "uuid";
@@ -8,6 +8,8 @@ import { DateTime } from "luxon";
 export default function initRoute(router: Router): void {
   router.get("/content/api/pages/fortnite-game", async (req, res) => {
     const userAgent = req.headers["user-agent"];
+    const emergencynotice_title = getEnv("EMERGENCY_NOTICE_TITLE");
+    const emergencynotice_body = getEnv("EMERGENCY_NOTICE_BODY");
     const season = getSeason(userAgent);
 
     if (!season) {
@@ -68,8 +70,8 @@ export default function initRoute(router: Router): void {
               hidden: false,
               _type: "CommonUI Simple Message Base",
               subgame: "br",
-              title: "Sirius",
-              body: "Github: https://github.com/Skiesuwu/Sirius",
+              title: emergencynotice_title,
+              body: emergencynotice_body,
               spotlight: true,
             },
           ],
@@ -169,8 +171,8 @@ export default function initRoute(router: Router): void {
             {
               hidden: false,
               _type: "CommonUI Emergency Notice Base",
-              title: "Sirius",
-              body: "Github: https://github.com/Skiesuwu/Sirius",
+              title: emergencynotice_title,
+              body: emergencynotice_body,
             },
           ],
         },

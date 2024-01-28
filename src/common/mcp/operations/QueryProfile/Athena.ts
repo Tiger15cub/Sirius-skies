@@ -5,6 +5,11 @@ import { getProfile } from "../../utils/getProfile";
 import Accounts from "../../../../models/Accounts";
 import { Response } from "express";
 import { DateTime } from "luxon";
+import AccountRefresh from "../../../../utils/AccountRefresh";
+
+const athenaCosmetics = require("../../../resources/mcp/AllCosmetics.json");
+const basicAthena = require("../../../resources/mcp/Athena.json");
+const defaultAthena = require("../../../resources/mcp/DefaultAthena.json");
 
 export default async function Athena(
   User: any,
@@ -20,52 +25,19 @@ export default async function Athena(
     rvn = 0;
 
     const [athena, user] = await Promise.all([
-      Account.findOne({ accountId }).lean(),
-      User.findOne({ accountId }).lean(),
+      Account.findOne({ accountId }),
+      User.findOne({ accountId }),
     ]);
 
     if (!athena || !user) {
-      return {
+      return res.status(404).json({
         errorCode:
           "errors.com.sirius.backend.common.mcp.account_or_user.not_found",
         message: "Account or User not found.",
-      };
+      });
     }
 
-    const initializeField = async (field: string, defaultValue: any) => {
-      if (athena[field] === undefined) {
-        await Account.updateOne({ accountId }, { [field]: defaultValue });
-
-        const updatedProfile = await Account.findOne({ accountId }).lean();
-
-        if (updatedProfile) {
-          athena[field] = updatedProfile[field];
-        }
-      }
-    };
-
-    await Promise.all([
-      initializeField("Season", [
-        {
-          seasonNumber: season,
-          book_level: 1,
-          book_xp: 0,
-          book_purchased: false,
-        },
-      ]),
-      initializeField("stats", {
-        solos: { wins: 0, kills: 0, matchplayed: 0 },
-        duos: { wins: 0, kills: 0, matchplayed: 0 },
-        squad: { wins: 0, kills: 0, matchplayed: 0 },
-        ltm: { wins: 0, kills: 0, matchplayed: 0 },
-      }),
-      initializeField("baseRevision", athena.profilerevision - 1),
-    ]);
-
-    await Account.updateOne(
-      { accountId },
-      { ["Season.0.seasonNumber"]: season as number }
-    );
+    await athena.updateOne({ ["Season.0.seasonNumber"]: season as number });
 
     const selectedSeason: string | number = season;
     let level: number = 1;
@@ -73,39 +45,24 @@ export default async function Athena(
     let XP: number = 0;
 
     if (selectedSeason === season) {
-      athena.Season.forEach((e: SeasonData) => {
+      athena.Season.map((e: SeasonData) => {
         if (e.season === selectedSeason) {
           level = e.book_level;
           hasPurchasedBP = e.book_purchased;
           XP = e.book_xp;
         }
+        return e;
       });
     }
 
     const userProfiles = await getProfile(accountId);
-    let applyProfileChanges: any[] = [];
+    const cosmeticToMerge = user.hasFL
+      ? athenaCosmetics
+      : client
+      ? defaultAthena
+      : basicAthena;
 
-    if (user.hasFL) {
-      const athena = require("../../../resources/mcp/AllCosmetics.json");
-
-      userProfiles.items = Object.assign(userProfiles.items, athena);
-    } else {
-      const athena = require("../../../resources/mcp/Athena.json");
-
-      userProfiles.items = {
-        ...userProfiles.items,
-        ...athena,
-      };
-
-      if (client) {
-        const defaultAthena = require("../../../resources/mcp/DefaultAthena.json");
-
-        userProfiles.items = {
-          ...userProfiles.items,
-          ...defaultAthena,
-        };
-      }
-    }
+    userProfiles.items = Object.assign({}, userProfiles.items, cosmeticToMerge);
 
     userProfiles.stats.attributes.season_num = season as number;
     userProfiles.stats.attributes.accountLevel = level;
@@ -113,13 +70,17 @@ export default async function Athena(
     userProfiles.stats.attributes.xp = XP;
     userProfiles.stats.attributes.book_purchased = hasPurchasedBP;
 
-    applyProfileChanges.push({
-      changeType: "fullProfileUpdate",
-      _id: uuid(),
-      profile: {
-        ...userProfiles,
+    if (user.hasFL) {
+      await AccountRefresh(user.accountId, user.username);
+    }
+
+    const applyProfileChanges = [
+      {
+        changeType: "fullProfileUpdate",
+        _id: uuid(),
+        profile: { ...userProfiles },
       },
-    });
+    ];
 
     userProfiles.rvn += 1;
     userProfiles.commandRevision += 1;
@@ -135,17 +96,11 @@ export default async function Athena(
       responseVersion: 1,
     });
 
-    await Accounts.updateOne(
-      { accountId },
-      {
-        $set: {
-          athena: userProfiles,
-        },
-      }
-    );
+    if (applyProfileChanges.length > 0) {
+      await athena.updateOne({ $set: { athena: userProfiles } });
+    }
   } catch (error) {
-    let err: Error = error as Error;
-    log.error(`Error in ProfileAthena: ${err.message}`, "ProfileAthena");
+    log.error(`Error in ProfileAthena: ${error}`, "ProfileAthena");
     throw error;
   }
 }

@@ -13,38 +13,47 @@
       "attributes": {
         "locker_slots_data": {
           "slots": {
-            "MusicPack": {
-              "items": [""]
+            "Pickaxe": {
+              "items": ["AthenaPickaxe:DefaultPickaxe"],
+              "activeVariants": []
+            },
+            "Dance": {
+              "items": ["", "", "", "", "", ""]
+            },
+            "Glider": {
+              "items": ["AthenaGlider:DefaultGlider"]
             },
             "Character": {
               "items": ["AthenaCharacter:CID_001_Athena_Commando_F_Default"],
-              "activeVariants": []
+              "activeVariants": [
+                {
+                  "variants": []
+                }
+              ]
             },
             "Backpack": {
               "items": [""],
-              "activeVariants": [[]]
-            },
-            "SkyDiveContrail": {
-              "items": [""],
-              "activeVariants": [[]]
-            },
-            "Dance": {
-              "items": ["", "", "", "", "", "", ""]
-            },
-            "LoadingScreen": {
-              "items": [""]
-            },
-            "Pickaxe": {
-              "items": [""],
-              "activeVariants": [[]]
-            },
-            "Glider": {
-              "items": [""],
-              "activeVariants": [[]]
+              "activeVariants": [
+                {
+                  "variants": []
+                }
+              ]
             },
             "ItemWrap": {
               "items": ["", "", "", "", "", "", ""],
-              "activeVariants": [[]]
+              "activeVariants": [null, null, null, null, null, null, null]
+            },
+            "LoadingScreen": {
+              "items": [""],
+              "activeVariants": [null]
+            },
+            "MusicPack": {
+              "items": [""],
+              "activeVariants": [null]
+            },
+            "SkyDiveContrail": {
+              "items": [""],
+              "activeVariants": [null]
             }
           }
         },
@@ -62,38 +71,47 @@
       "attributes": {
         "locker_slots_data": {
           "slots": {
-            "MusicPack": {
-              "items": [""]
+            "Pickaxe": {
+              "items": ["AthenaPickaxe:DefaultPickaxe"],
+              "activeVariants": []
+            },
+            "Dance": {
+              "items": ["", "", "", "", "", ""]
+            },
+            "Glider": {
+              "items": ["AthenaGlider:DefaultGlider"]
             },
             "Character": {
               "items": ["AthenaCharacter:CID_001_Athena_Commando_F_Default"],
-              "activeVariants": []
+              "activeVariants": [
+                {
+                  "variants": []
+                }
+              ]
             },
             "Backpack": {
               "items": [""],
-              "activeVariants": [[]]
-            },
-            "SkyDiveContrail": {
-              "items": [""],
-              "activeVariants": [[]]
-            },
-            "Dance": {
-              "items": ["", "", "", "", "", "", ""]
-            },
-            "LoadingScreen": {
-              "items": [""]
-            },
-            "Pickaxe": {
-              "items": [""],
-              "activeVariants": [[]]
-            },
-            "Glider": {
-              "items": [""],
-              "activeVariants": [[]]
+              "activeVariants": [
+                {
+                  "variants": []
+                }
+              ]
             },
             "ItemWrap": {
               "items": ["", "", "", "", "", "", ""],
-              "activeVariants": [[]]
+              "activeVariants": [null, null, null, null, null, null, null]
+            },
+            "LoadingScreen": {
+              "items": [""],
+              "activeVariants": [null]
+            },
+            "MusicPack": {
+              "items": [""],
+              "activeVariants": [null]
+            },
+            "SkyDiveContrail": {
+              "items": [""],
+              "activeVariants": [null]
             }
           }
         },

@@ -21,7 +21,8 @@ export default async function PurchaseCatalogEntry(
   res: any
 ) {
   try {
-    const { currency, offerId, purchaseQuantity } = req.body;
+    const { currency, offerId, purchaseQuantity, expectedTotalPrice } =
+      req.body;
     const userAgent = req.headers["user-agent"];
     const season = getSeason(userAgent);
 
@@ -34,6 +35,17 @@ export default async function PurchaseCatalogEntry(
       "storefront",
       "shop.json"
     );
+
+    const variantsFilePath = path.join(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "resources",
+      "mcp",
+      "Variants.json"
+    );
+    const variantsData = JSON.parse(fs.readFileSync(variantsFilePath, "utf8"));
 
     const shop = JSON.parse(fs.readFileSync(shopPath, "utf-8"));
 
@@ -160,6 +172,23 @@ export default async function PurchaseCatalogEntry(
                 itemProfile: "athena",
                 quantity: 1,
               });
+
+              if (variantsData.length > 0) {
+                const lowercasedTemplateId =
+                  userProfiles.items[
+                    matchedStorefront.item
+                  ].templateId.toLowerCase();
+                const variantToAdd = variantsData.find(
+                  (variant: { id: string }) =>
+                    variant.id.toLowerCase() === lowercasedTemplateId
+                );
+
+                if (variantToAdd && variantToAdd.variants) {
+                  userProfiles.items[
+                    matchedStorefront.item
+                  ].attributes.variants = variantToAdd.variants;
+                }
+              }
             }
 
             userProfiles.items[matchedStorefront.item] = {
@@ -183,16 +212,76 @@ export default async function PurchaseCatalogEntry(
               itemProfile: "athena",
               quantity: 1,
             });
+
+            if (variantsData.length > 0) {
+              const lowercasedTemplateId =
+                userProfiles.items[
+                  matchedStorefront.item
+                ].templateId.toLowerCase();
+              const variantToAdd = variantsData.find(
+                (variant: { id: string }) =>
+                  variant.id.toLowerCase() === lowercasedTemplateId
+              );
+
+              if (variantToAdd && variantToAdd.variants) {
+                userProfiles.items[matchedStorefront.item].attributes.variants =
+                  variantToAdd.variants;
+              }
+            }
           }
+
+          // if (variantsData.length > 0) {
+          //   const lowercasedTemplateId =
+          //     userProfiles.items[
+          //       matchedStorefront.item
+          //     ].templateId.toLowerCase();
+          //   const variantToAdd = variantsData.find(
+          //     (variant: { id: string }) =>
+          //       variant.id.toLowerCase() === lowercasedTemplateId
+          //   );
+
+          //   if (variantToAdd && variantToAdd.variants) {
+          //     userProfiles.items[matchedStorefront.item].attributes.variants =
+          //       variantToAdd.variants;
+          //   }
+          // }
 
           for (const item in commonCore.items) {
             commonCore.items[item].quantity -= matchedStorefront.price;
+            const itemUUID = uuid();
 
             applyProfileChanges.push({
               changeType: "itemQuantityChanged",
-              itemId: item,
+              itemId: matchedStorefront.item,
               quantity: commonCore.items[item].quantity,
             });
+
+            commonCore.stats.attributes["mtx_purchase_history"] = {
+              refundsUsed: 0,
+              refundCredits: 3,
+              tokenRefreshReferenceTime: DateTime.now().toISO(),
+              purchases: [
+                {
+                  purchaseId: uuid(),
+                  offerId,
+                  purchaseDate: DateTime.now().toISO(),
+                  undoTimeout: "9999-12-12T00:00:00.000Z",
+                  freeRefundEligible: true,
+                  fulfillments: [],
+                  lootResult: [
+                    {
+                      itemType: matchedStorefront.item,
+                      itemGuid: itemUUID,
+                      itemProfile: "athena",
+                      quantity: commonCore.items[item].quantity,
+                    },
+                  ],
+                  totalMtxPaid: expectedTotalPrice,
+                  metadata: {},
+                  gameContext: "",
+                },
+              ],
+            };
 
             isItemOwned = true;
           }

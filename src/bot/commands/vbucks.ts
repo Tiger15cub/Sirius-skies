@@ -11,6 +11,7 @@ import {
 import Users from "../../models/Users";
 import { getEnv } from "../../utils";
 import Accounts from "../../models/Accounts";
+import AccountRefresh from "../../utils/AccountRefresh";
 
 interface VbucksOptions extends CommandInteractionOptionResolver<CacheType> {
   getUser(name: "user"): any;
@@ -25,7 +26,7 @@ export default class VbucksCommand extends BaseCommand {
       {
         name: "user",
         type: ApplicationCommandOptionType.User,
-        description: "The user for whom to change the V-Bucks balance",
+        description: "The user you want to change the V-Bucks balance of",
         required: true,
       },
       {
@@ -88,6 +89,8 @@ export default class VbucksCommand extends BaseCommand {
         "common_core.items.Currency:MtxPurchased.quantity": vbucksAmount,
       },
     });
+
+    await AccountRefresh(user.accountId, user.username);
 
     const embed = new EmbedBuilder()
       .setTitle("Vbucks Changed")

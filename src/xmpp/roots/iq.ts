@@ -6,8 +6,6 @@ import xmlbuilder from "xmlbuilder";
 import Users from "../../models/Users";
 import Friends from "../../models/Friends";
 import log from "../../utils/log";
-import sendPresenceUpdate from "../functions/sendPresenceUpdate";
-import { findInIterable } from "../functions/findInIterable";
 
 export default async function iq(
   socket: WebSocket,
@@ -23,29 +21,30 @@ export default async function iq(
 
   switch (rootAttributeId) {
     case "_xmpp_bind1":
-      if (Saves.resource !== "" || Globals.accountId === "") return;
-
-      const bindElement = document.children.find(
-        (child) => child.name === "bind"
-      );
-
-      if (!bindElement) return;
-
-      const existingClient = findInIterable(
-        Globals.Clients,
+      const bind = document.children.find((child) => child.name === "bind");
+      const existingClient = Globals.Clients.find(
         (client) => client.accountId === Globals.accountId
       );
-
+      if (Saves.resource || !Globals.accountId) return;
+      if (!bind) return;
       if (existingClient) {
+        socket.send(
+          xmlbuilder
+            .create("close")
+            .attribute("xmlns", "urn:ietf:params:xml:ns:xmpp-framing")
+            .toString({ pretty: true })
+        );
+        socket.close();
         return;
       }
 
-      const resourceElement = bindElement.children.find(
-        (child) => child.name === "resource"
-      );
-      if (!resourceElement || !resourceElement.content) return;
+      const res = document.children
+        .find((i) => i.name == "bind")
+        ?.children.find((i) => i.name == "resource");
 
-      Saves.resource = resourceElement.content;
+      if (!res || !res.content) return;
+
+      Saves.resource = res.content;
       Globals.jid = `${Globals.accountId}@prod.ol.epicgames.com/${Saves.resource}`;
 
       socket.send(
@@ -60,16 +59,12 @@ export default async function iq(
           .element("jid", Globals.jid)
           .up()
           .up()
-          .toString()
+          .toString({ pretty: true })
       );
+
       break;
 
     case "_xmpp_session1":
-      if (!Saves.clientExists && !Saves.activeConnection) {
-        await socket.close();
-        return;
-      }
-
       socket.send(
         xmlbuilder
           .create("iq")
@@ -78,7 +73,7 @@ export default async function iq(
           .attribute("id", "_xmpp_session1")
           .attribute("xmlns", "jabber:client")
           .attribute("type", "result")
-          .toString()
+          .toString({ pretty: true })
       );
 
       const user = await Friends.findOne({
@@ -93,47 +88,38 @@ export default async function iq(
       const acceptedFriends = user.friends.accepted;
 
       acceptedFriends.forEach((friend) => {
-        const client = findInIterable(
-          Globals.Clients,
+        let client = Globals.Clients.find(
           (client) => client.accountId === friend.accountId
         );
+        if (!client) return;
 
-        if (!client) {
-          return;
-        }
+        let xml = xmlbuilder
+          .create("presence")
+          .attribute("to", Globals.jid)
+          .attribute("xmlns", "jabber:client")
+          .attribute("from", client.jid)
+          .attribute("type", "available");
 
-        if (client.lastPresenceUpdate?.away) {
-          sendPresenceUpdate(
-            socket,
-            Globals.jid,
-            client.jid as string,
-            client.lastPresenceUpdate.status,
-            true
-          );
-        } else {
-          sendPresenceUpdate(
-            socket,
-            Globals.jid,
-            client.jid as string,
-            client.lastPresenceUpdate?.status,
-            false
-          );
-        }
+        if (client.lastPresenceUpdate?.away)
+          xml = xml
+            .element("show", "away")
+            .up()
+            .element("status", client.lastPresenceUpdate?.status)
+            .up();
+        else
+          xml = xml.element("status", client.lastPresenceUpdate?.status).up();
+
+        socket.send(xml.toString({ pretty: true }));
       });
       break;
 
     default:
-      if (!Saves.clientExists && !Saves.activeConnection) {
-        await socket.close();
-        return;
-      }
-
       socket.send(
         xmlbuilder
           .create("iq")
           .attribute("to", Globals.jid)
           .attribute("from", "prod.ol.epicgames.com")
-          .attribute("id", rootAttributeId || "")
+          .attribute("id", rootAttributeId)
           .attribute("type", "result")
           .toString()
       );
