@@ -63,6 +63,12 @@ export default class FullLockerCommand extends BaseCommand {
       discordId: interaction.user.id,
     });
 
+    if (!interaction.member.permissions.has(PermissionFlagsBits.BanMembers)) {
+      return await interaction.editReply({
+        content: "You do not have permission to use this command.",
+      });
+    }
+
     if (!user || !account) {
       const embed = await createEmbed(
         "Account Not Found",

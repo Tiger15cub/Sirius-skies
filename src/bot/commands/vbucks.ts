@@ -40,7 +40,7 @@ export default class VbucksCommand extends BaseCommand {
     dmPermission: false,
   };
 
-  async execute(interaction: CommandInteraction): Promise<any> {
+  async execute(interaction: any): Promise<any> {
     await interaction.deferReply({ ephemeral: true });
 
     const options = interaction.options as VbucksOptions &
@@ -53,6 +53,12 @@ export default class VbucksCommand extends BaseCommand {
     const channelId = getEnv("CHANNEL_ID");
 
     const account = await Accounts.findOne({ discordId: targetUserId });
+
+    if (!interaction.member.permissions.has(PermissionFlagsBits.BanMembers)) {
+      return await interaction.editReply({
+        content: "You do not have permission to use this command.",
+      });
+    }
 
     if (!user || !account) {
       const embed = new EmbedBuilder()

@@ -49,6 +49,12 @@ export default class MatchmakingBan extends BaseCommand {
 
     const account = await Accounts.findOne({ discordId: targetUserId });
 
+    if (!interaction.member.permissions.has(PermissionFlagsBits.BanMembers)) {
+      return await interaction.editReply({
+        content: "You do not have permission to use this command.",
+      });
+    }
+
     if (!user || !account) {
       const embed = new EmbedBuilder()
         .setTitle("Account Not Found")
@@ -60,8 +66,6 @@ export default class MatchmakingBan extends BaseCommand {
             "https://media.discordapp.net/attachments/1168987546643083266/1179414939060940861/fe0a0428f7b2db2154cf9ced998e9617.png",
         })
         .setTimestamp();
-
-      console.log("??");
 
       return await interaction.editReply({ embeds: [embed] });
     }
