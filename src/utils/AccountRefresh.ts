@@ -25,17 +25,15 @@ export default async function AccountRefresh(
         receiverAccountIds: [accountId],
         giftWrapTemplateId: "GiftBox:GB_NewGiftBox",
         personalMessage: "test",
-        accountId,
+        accountId: accountId,
         playerName: displayName,
+        receiverPlayerName: accountId,
       },
       {
         httpsAgent: httpAgent,
       }
     )
-    .then(function (response) {
-      log.debug(JSON.stringify(response), "AccountRefresh");
-    })
-    .catch(function (error) {
+    .catch((error) => {
       log.error(`Error: ${error}`, "AccountRefresh");
     });
 }

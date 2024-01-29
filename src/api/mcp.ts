@@ -160,7 +160,9 @@ export default function initRoute(router: Router): void {
         const receiver = sender;
         const receiverProfile = await getCommonCore(receiver);
 
-        if (!receiverProfile) {
+        const common_core = await Accounts.findOne({ accountId: receiver });
+
+        if (!receiverProfile || !common_core) {
           return sendErrorResponse(
             res,
             "errors.com.epicgames.profile.not_found",
@@ -178,8 +180,8 @@ export default function initRoute(router: Router): void {
         commonCore.commandRevision++;
         commonCore.Updated = DateTime.now().toISO();
 
-        await receiverProfile.updateOne({ $set: { athena } });
-        await receiverProfile.updateOne({ $set: { common_core: commonCore } });
+        await common_core.updateOne({ $set: { athena } });
+        await common_core.updateOne({ $set: { common_core: commonCore } });
 
         GiftGlobals.GiftsReceived[receiver] = true;
 
@@ -187,24 +189,24 @@ export default function initRoute(router: Router): void {
           (client) => client.accountId === receiver
         );
 
-        if (client) {
-          client.socket.send(
-            xmlbuilder
-              .create("message")
-              .attribute("from", "xmpp-admin@prod.ol.epicgames.com")
-              .attribute("to", client.jid)
-              .attribute("xmlns", "jabber:client")
-              .attribute(
-                "body",
-                JSON.stringify({
-                  type: "com.epicgames.gift.received",
-                  payload: {},
-                  timestamp: DateTime.now().toISO(),
-                })
-              )
-              .toString({ pretty: true })
-          );
-        }
+        if (!client) return;
+
+        client.socket.send(
+          xmlbuilder
+            .create("message")
+            .attribute("from", "xmpp-admin@prod.ol.epicgames.com")
+            .attribute("to", client.jid)
+            .attribute("xmlns", "jabber:client")
+            .attribute(
+              "body",
+              JSON.stringify({
+                type: "com.epicgames.gift.received",
+                payload: {},
+                timestamp: DateTime.now().toISO(),
+              })
+            )
+            .toString({ pretty: true })
+        );
 
         if (applyProfileChanges.length > 0 && receiver !== sender) {
           commonCore.rvn++;

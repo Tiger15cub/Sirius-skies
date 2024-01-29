@@ -63,9 +63,9 @@ export default {
             );
 
             if (Saves.GlobalClients.has(Globals.accountId)) {
-              if (existingClientIndex !== -1) {
-                Globals.Clients[existingClientIndex].socket = undefined;
-              }
+              // if (existingClientIndex !== -1) {
+              //   Globals.Clients[existingClientIndex].socket = undefined;
+              // }
 
               Saves.blacklistedAccounts.add(Globals.accountId);
               Saves.blacklistedSockets.add(socket);
