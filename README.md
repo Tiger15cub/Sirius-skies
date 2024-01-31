@@ -37,7 +37,6 @@ Sirius is a universal Fortnite private server backend written in TypeScript.
 ### Work In Progress (WIP)
 
 - [ ] Voice Chat
-- [ ] Matchmaking Bans
 - [ ] Variants
 
 ### Finished
