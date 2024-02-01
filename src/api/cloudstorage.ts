@@ -11,11 +11,45 @@ import log from "../utils/log";
 import verifyToken from "../middleware/verifyToken";
 import { getSeason } from "../utils";
 import crypto from "node:crypto";
+import CloudStorageEntries, { ICloudStorageEntry } from "../models/CloudStorageEntries";
 
 interface Custom extends Request {
   rawBody?: any;
 }
 
+function processHotfixes(hotfixes: ICloudStorageEntry[]): string {
+  const sections: Map<string, Map<string, string[]>> = new Map();
+  const addedSections: Set<string> = new Set();
+
+  hotfixes.forEach(hotfix => {
+    if (!sections.has(hotfix.section)) {
+      sections.set(hotfix.section, new Map());
+    }
+    const section = sections.get(hotfix.section);
+    if (section) {
+      if (!section.has(hotfix.key)) {
+        section.set(hotfix.key, []);
+      }
+      const key = section.get(hotfix.key);
+      if (key) {
+        key.push(hotfix.value);
+      }
+    }
+  });
+
+  const iniFile = [];
+  for (const [section, keys] of sections) {
+    if (addedSections.has(section)) continue; // Skip if section has already been added
+
+    addedSections.add(section);
+    iniFile.push(`[${section}]\n`);
+    for (const [key, values] of keys) {
+      iniFile.push(...values.map(value => `${key}=${value}\n`));
+    }
+  }
+
+  return iniFile.join('');
+}
 async function getRequestBody(
   req: Custom,
   res: Response,
@@ -64,35 +98,36 @@ export default function initRoute(router: Router): void {
     );
 
     try {
-      const fileNames = await readdir(cloudstorageDirPath);
+      const hotfixes = await CloudStorageEntries.find({ enabled: true }).lean();
 
-      for (const fileName of fileNames) {
-        if (path.extname(fileName) === ".ini") {
-          const filePath = path.join(cloudstorageDirPath, fileName);
-          const fileInfo = await fs.stat(filePath);
-
-          files.push({
-            uniqueFileName: path.basename(filePath),
-            filename: path.basename(filePath),
-            hash: "603E6907398C7E74E25C0AE8EC3A03FFAC7C9BB4",
-            hash256:
-              "973124FFC4A03E66D6A4458E587D5D6146F71FC57F359C8D516E0B12A50AB0D9",
-            length: fileInfo.size,
-            contentType: "text/plain",
-            uploaded: "9999-9999-9999",
-            storageType: "S3",
-            doNotCache: false,
-          });
+      const hotfixesByFile = hotfixes.reduce((acc: { [key: string]: typeof hotfixes[0][] }, hotfix) => {
+        if (!acc[hotfix.file]) {
+          acc[hotfix.file] = [];
         }
-      }
+        acc[hotfix.file].push(hotfix);
+        return acc;
+      }, {});
+
+      const files = Object.entries(hotfixesByFile).map(([file, matchingHotfixes]) => {
+        const size = matchingHotfixes.reduce((acc, item) => acc + item.value.length, 0);
+
+        return {
+          uniqueFileName: file,
+          filename: file,
+          hash: "603E6907398C7E74E25C0AE8EC3A03FFAC7C9BB4",
+          hash256: "973124FFC4A03E66D6A4458E587D5D6146F71FC57F359C8D516E0B12A50AB0D9",
+          length: size,
+          contentType: "text/plain",
+          uploaded: "9999-9999-9999",
+          storageType: "S3",
+          doNotCache: false,
+        };
+      });
 
       res.json(files);
     } catch (error) {
       let err = error as Error;
-      log.error(
-        `Failed to get CloudStorage: ${err.message}`,
-        "cloudstorage:system"
-      );
+      log.error(`Failed to get CloudStorage: ${err.message}`, "cloudstorage:system");
       res.status(500).send("Internal Server Error");
     }
   });
@@ -103,22 +138,23 @@ export default function initRoute(router: Router): void {
       res.contentType("application/octet-stream");
 
       const filename = req.params.filename;
-      const filePath = path.join(
-        __dirname,
-        "..",
-        "common",
-        "resources",
-        "cloudstorage",
-        filename
-      );
 
       try {
-        if (existsSync(filePath)) {
-          const fileContents = await readFile(filePath, "utf-8");
-          res.type("text/plain").send(fileContents);
-        } else {
-          res.status(404).send("File not found");
+
+        const hotfixEntries = await CloudStorageEntries.findOne({ file: filename, enabled: true }).lean();
+        if (!hotfixEntries) {
+          return res.status(404).send("Not Found");
         }
+
+        const usefulHotfixes: ICloudStorageEntry[] = [];
+        for (const hotfix of hotfixEntries.toObject()) {
+          const { file, section, key, value } = hotfix;
+          usefulHotfixes.push({ file, section, key, value } as ICloudStorageEntry);
+        }
+
+        const fileContents = processHotfixes(usefulHotfixes);
+
+        res.type("text/plain").send(fileContents);
       } catch (error) {
         let err = error as Error;
         log.error(
