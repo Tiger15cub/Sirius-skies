@@ -245,7 +245,7 @@ export default function initRoute(router: Router): void {
   );
 
   router.post(
-    "/fortnite/api/game/v2/profile/:accountId/*/:command",
+    "/fortnite/api/game/v2/profile/:accountId/client/:command",
     verifyToken,
     async (req, res) => {
       const { accountId, command } = req.params;
@@ -414,6 +414,30 @@ export default function initRoute(router: Router): void {
 
         res.json(createDefaultResponse([], profileId, (rvn as any) + 1 || 1));
       }
+    }
+  );
+
+  router.post(
+    "/fortnite/api/game/v2/profile/:accountId/dedicated_server/:command",
+    verifyToken,
+    async (req, res) => {
+      const { accountId } = req.params;
+      const { profileId } = req.query;
+      const userProfiles = await getProfile(accountId);
+      const account = await Accounts.findOne({ accountId });
+
+      if (!account)
+        return res.status(404).json({ error: "Failed to find Account." });
+
+      res.json({
+        profileRevision: userProfiles.rvn || 0,
+        profileId,
+        profileChangesBaseRevision: account.baseRevision,
+        profileChanges: [],
+        profileCommandRevision: userProfiles.commandRevision || 0,
+        serverTime: DateTime.now().toISO(),
+        responseVersion: 1,
+      });
     }
   );
 }

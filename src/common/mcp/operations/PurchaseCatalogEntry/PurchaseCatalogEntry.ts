@@ -308,9 +308,12 @@ export default async function PurchaseCatalogEntry(
     });
 
     if (applyProfileChanges.length > 0) {
+      await account.updateOne({ $set: { common_core: commonCore } });
+    }
+
+    if (applyProfileChanges.length > 0) {
       await account.updateOne({
         $set: {
-          common_core: commonCore,
           athena: userProfiles,
         },
       });
