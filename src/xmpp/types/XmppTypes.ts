@@ -16,29 +16,14 @@ export let displayName: string = "";
 export let clientAdded: boolean = false;
 export let Clients: any[] = [];
 
-export interface Globals {
-  exchangeCodes: any[];
-  clientTokens: any[];
-  AccessTokens: AccessToken[];
-  Clients: any[];
-  refreshTokens: any[];
-  MUCs: { members: any[] };
-  UUID: string;
-  isAuthenticated: boolean;
-  accountId: string;
-  token: string;
-  jid: string;
-  displayName: string;
-  clientAdded: boolean;
-}
+const accountIds: string[] = [];
+export let exchangeCodes: any[] = [];
+export let clientTokens: any[] = [];
+export let AccessTokens: AccessToken[] = [];
+export let MUCs: { members: any[] } = { members: [] };
+export let refreshTokens: any[] = [];
 
-export let exchangeCodes: Globals["exchangeCodes"] = [];
-export let clientTokens: Globals["clientTokens"] = [];
-export let AccessTokens: Globals["AccessTokens"] = [];
-export let MUCs: Globals["MUCs"] = { members: [] };
-export let refreshTokens: Globals["refreshTokens"] = [];
-
-export const Globals: Globals = {
+export const Globals = {
   exchangeCodes,
   clientTokens,
   AccessTokens,
@@ -52,4 +37,5 @@ export const Globals: Globals = {
   clientAdded,
   displayName,
   Clients,
+  accountIds,
 };

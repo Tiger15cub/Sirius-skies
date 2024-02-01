@@ -13,6 +13,7 @@ const GlobalClients = new Map();
 const activeAccountIds = new Set();
 const blacklistedAccounts = new Set();
 const blacklistedSockets = new Set();
+const blacklistedAccountIds: Set<string> = new Set();
 
 export const Saves = {
   ConnectedClients,
@@ -28,4 +29,5 @@ export const Saves = {
   activeAccountIds,
   blacklistedAccounts,
   blacklistedSockets,
+  blacklistedAccountIds,
 };
