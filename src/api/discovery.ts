@@ -1,6 +1,6 @@
 import { Router } from "express";
 import path from "node:path";
-import fs from "node:fs";
+import fs from "node:fs/promises";
 import { getSeason } from "../utils";
 import log from "../utils/log";
 import { Discovery, LinkData, Panel, Result } from "../interface";
@@ -23,7 +23,7 @@ export default async function initRoute(router: Router): Promise<void> {
 
   let discovery: Discovery;
   try {
-    const data = fs.readFileSync(discoveryPath, "utf-8");
+    const data = await fs.readFile(discoveryPath, "utf-8");
     discovery = JSON.parse(data);
 
     const playlistImages: Record<string, string> = {
@@ -75,7 +75,7 @@ export default async function initRoute(router: Router): Promise<void> {
     }
 
     if (updatedPlaylists.length > 0) {
-      fs.writeFileSync(discoveryPath, JSON.stringify(discovery, null, 2));
+      await fs.writeFile(discoveryPath, JSON.stringify(discovery, null, 2));
       for (const updatedPlaylist of updatedPlaylists) {
         log.log(`Updated Image for ${updatedPlaylist}`, "Discovery", "green");
       }

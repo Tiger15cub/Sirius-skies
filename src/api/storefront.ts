@@ -1,14 +1,14 @@
 import { Router } from "express";
 import path from "node:path";
-import fs from "node:fs";
+import fs from "node:fs/promises";
 import log from "../utils/log";
 import { Storefront } from "../interface";
 import { ProcessStorefrontItems } from "../utils/storefront/ProcessStorefrontItems";
 import verifyToken from "../middleware/verifyToken";
 import { getSeason } from "../utils";
 
-function json(filePath: string): any {
-  const fileContent = fs.readFileSync(filePath, "utf8");
+async function json(filePath: string): Promise<any> {
+  const fileContent = await fs.readFile(filePath, "utf8");
   return JSON.parse(fileContent);
 }
 
@@ -47,7 +47,7 @@ export default function initRoute(router: Router) {
       ];
 
       try {
-        const Data = json(shop);
+        const Data = await json(shop);
 
         const storefront: Storefront = {
           refreshIntervalHrs: 24,
@@ -73,7 +73,7 @@ export default function initRoute(router: Router) {
             `${battlepass}.json`
           );
 
-          const BattlePassData = json(filePath);
+          const BattlePassData = await json(filePath);
           const { name, catalogEntries } = BattlePassData;
 
           storefront.storefronts.push({

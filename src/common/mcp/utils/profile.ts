@@ -1,12 +1,12 @@
 import { DateTime } from "luxon";
 import { v4 as uuid } from "uuid";
 
-import fs from "node:fs";
+import fs from "node:fs/promises";
 import path from "node:path";
 
 export async function CreateAthenaProfileItem(account: any) {
   const athenaTemplate = JSON.parse(
-    fs.readFileSync(
+    await fs.readFile(
       path.join(__dirname, "..", "template", "athena", "template.json"),
       "utf-8"
     )
@@ -22,7 +22,7 @@ export async function CreateAthenaProfileItem(account: any) {
 
 export async function CreateCommonCoreProfileItem(account: any) {
   const common_core = JSON.parse(
-    fs.readFileSync(
+    await fs.readFile(
       path.join(__dirname, "..", "template", "common_core", "template.json"),
       "utf-8"
     )
@@ -96,7 +96,7 @@ export async function CreateCommonCoreProfileItem(account: any) {
 
 export async function CreateMetaDataProfileItem(account: any) {
   const metadataTemplate = JSON.parse(
-    fs.readFileSync(
+    await fs.readFile(
       path.join(__dirname, "..", "template", "metadata", "template.json"),
       "utf-8"
     )
@@ -112,7 +112,7 @@ export async function CreateMetaDataProfileItem(account: any) {
 
 export async function CreateOutpost0ProfileItem(account: any) {
   const outpost0Template = JSON.parse(
-    fs.readFileSync(
+    await fs.readFile(
       path.join(__dirname, "..", "template", "outpost0", "template.json"),
       "utf-8"
     )
@@ -128,7 +128,7 @@ export async function CreateOutpost0ProfileItem(account: any) {
 
 export async function CreateTheater0ProfileItem(account: any) {
   const theater0Template = JSON.parse(
-    fs.readFileSync(
+    await fs.readFile(
       path.join(__dirname, "..", "template", "theater0", "template.json"),
       "utf-8"
     )

@@ -2,20 +2,15 @@ import {
   Request,
   Response,
   NextFunction,
-  RequestHandler,
   Router,
 } from "express";
-import fs from "node:fs";
+import fs, { readdir, readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import path from "node:path";
-import util from "node:util";
 import log from "../utils/log";
-import Users from "../models/Users";
 import verifyToken from "../middleware/verifyToken";
 import { getSeason } from "../utils";
 import crypto from "node:crypto";
-
-const readdir = util.promisify(fs.readdir);
-const readFile = util.promisify(fs.readFile);
 
 interface Custom extends Request {
   rawBody?: any;
@@ -74,7 +69,7 @@ export default function initRoute(router: Router): void {
       for (const fileName of fileNames) {
         if (path.extname(fileName) === ".ini") {
           const filePath = path.join(cloudstorageDirPath, fileName);
-          const fileInfo = fs.statSync(filePath);
+          const fileInfo = await fs.stat(filePath);
 
           files.push({
             uniqueFileName: path.basename(filePath),
@@ -118,7 +113,7 @@ export default function initRoute(router: Router): void {
       );
 
       try {
-        if (fs.existsSync(filePath)) {
+        if (existsSync(filePath)) {
           const fileContents = await readFile(filePath, "utf-8");
           res.type("text/plain").send(fileContents);
         } else {
@@ -138,13 +133,13 @@ export default function initRoute(router: Router): void {
   router.get(
     "/fortnite/api/cloudstorage/user/*/:file",
     verifyToken,
-    (req, res) => {
+    async (req, res) => {
       const clientSettings = path.join(
         process.env.LOCALAPPDATA as string,
         "Sirius",
         "ClientSettings"
       );
-      if (!fs.existsSync(clientSettings)) fs.mkdirSync(clientSettings);
+      if (!existsSync(clientSettings)) await fs.mkdir(clientSettings);
 
       const { file } = req.params;
 
@@ -155,8 +150,8 @@ export default function initRoute(router: Router): void {
         `ClientSettings-${res.locals.user.accountId}.Sav`
       );
 
-      if (fs.existsSync(clientSettingsFile))
-        return res.status(204).send(fs.readFileSync(clientSettingsFile));
+      if (existsSync(clientSettingsFile))
+        return res.status(204).send(readFile(clientSettingsFile));
 
       res.status(204).end();
     }
@@ -165,13 +160,13 @@ export default function initRoute(router: Router): void {
   router.get(
     "/fortnite/api/cloudstorage/user/:accountId",
     verifyToken,
-    (req, res) => {
+    async (req, res) => {
       const clientSettings = path.join(
         process.env.LOCALAPPDATA as string,
         "Sirius",
         "ClientSettings"
       );
-      if (!fs.existsSync(clientSettings)) fs.mkdirSync(clientSettings);
+      if (!existsSync(clientSettings)) await fs.mkdir(clientSettings);
 
       const { accountId } = req.params;
 
@@ -182,9 +177,9 @@ export default function initRoute(router: Router): void {
         `ClientSettings-${accountId}.Sav`
       );
 
-      if (fs.existsSync(clientSettingsFile)) {
-        const file = fs.readFileSync(clientSettingsFile, "latin1");
-        const stats = fs.statSync(clientSettingsFile);
+      if (existsSync(clientSettingsFile)) {
+        const file = await fs.readFile(clientSettingsFile, "latin1");
+        const stats = await fs.stat(clientSettingsFile);
 
         return res.json([
           {
@@ -210,7 +205,7 @@ export default function initRoute(router: Router): void {
     "/fortnite/api/cloudstorage/user/*/:file",
     verifyToken,
     getRequestBody,
-    (req: Custom, res) => {
+    async (req: Custom, res) => {
       if (Buffer.byteLength(req.rawBody) >= 400000) {
         console.log("File size exceeds the maximum allowed limit (400KB).");
         res.status(403).json({
@@ -223,7 +218,7 @@ export default function initRoute(router: Router): void {
         "Sirius",
         "ClientSettings"
       );
-      if (!fs.existsSync(clientSettings)) fs.mkdirSync(clientSettings);
+      if (!existsSync(clientSettings)) await fs.mkdir(clientSettings);
 
       const { accountId } = req.params;
 
@@ -234,7 +229,7 @@ export default function initRoute(router: Router): void {
         `ClientSettings-${accountId}.Sav`
       );
 
-      fs.writeFileSync(clientSettingsFile, req.rawBody, "latin1");
+      await fs.writeFile(clientSettingsFile, req.rawBody, "latin1");
 
       res.status(204).end();
     }

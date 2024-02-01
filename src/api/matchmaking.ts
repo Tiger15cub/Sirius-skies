@@ -5,7 +5,7 @@ import Accounts from "../models/Accounts";
 import { getEnv } from "../utils";
 import path from "node:path";
 import { v4 as uuid } from "uuid";
-import fs from "node:fs";
+import fs from "node:fs/promises";
 import verifyToken from "../middleware/verifyToken";
 
 function generateRandomKey(): Buffer {
