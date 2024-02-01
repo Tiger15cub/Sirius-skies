@@ -82,13 +82,25 @@ export default function initRoute(router: Router): void {
         res.cookie("region", bucketIds[2]);
 
         const currentBucketId = bucketIds[0];
-        const playlist = bucketIds[3];
+        let playlist = bucketIds[3];
         const region = bucketIds[2];
 
         let isPlaylistValid: boolean = false;
         let customKey = req.query["player.option.customKey"];
         let subRegions = req.query["player.subregions"] as string[];
         let platform = req.query["player.platform"];
+
+        const playlist_mapping: { [key: number]: string } = {
+          10: "playlist_defaultduo",
+          2: "playlist_defaultsolo",
+          9: "playlist_defaultsquad",
+        };
+
+        if (!isNaN(parseInt(playlist))) {
+          if (playlist_mapping.hasOwnProperty(parseInt(playlist))) {
+            playlist = playlist_mapping[parseInt(playlist)];
+          }
+        }
 
         if (customKey !== undefined && typeof customKey === "string") {
           // TODO: Do custom key
@@ -106,12 +118,6 @@ export default function initRoute(router: Router): void {
               "This playlist is not currently being hosted or is not available in your region.",
           });
         }
-
-        log.log(
-          `Current BucketId: ${currentBucketId}:${region}:${playlist}`,
-          "Matchmaking",
-          "cyanBright"
-        );
 
         const encryptionKey = generateRandomKey();
 

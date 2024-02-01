@@ -45,7 +45,9 @@ export default async function PurchaseCatalogEntry(
       "mcp",
       "Variants.json"
     );
-    const variantsData = JSON.parse(await fs.readFile(variantsFilePath, "utf8"));
+    const variantsData = JSON.parse(
+      await fs.readFile(variantsFilePath, "utf8")
+    );
 
     const shop = JSON.parse(await fs.readFile(shopPath, "utf-8"));
 
@@ -172,23 +174,6 @@ export default async function PurchaseCatalogEntry(
                 itemProfile: "athena",
                 quantity: 1,
               });
-
-              if (variantsData.length > 0) {
-                const lowercasedTemplateId =
-                  userProfiles.items[
-                    matchedStorefront.item
-                  ].templateId.toLowerCase();
-                const variantToAdd = variantsData.find(
-                  (variant: { id: string }) =>
-                    variant.id.toLowerCase() === lowercasedTemplateId
-                );
-
-                if (variantToAdd && variantToAdd.variants) {
-                  userProfiles.items[
-                    matchedStorefront.item
-                  ].attributes.variants = variantToAdd.variants;
-                }
-              }
             }
 
             userProfiles.items[matchedStorefront.item] = {
@@ -212,40 +197,7 @@ export default async function PurchaseCatalogEntry(
               itemProfile: "athena",
               quantity: 1,
             });
-
-            if (variantsData.length > 0) {
-              const lowercasedTemplateId =
-                userProfiles.items[
-                  matchedStorefront.item
-                ].templateId.toLowerCase();
-              const variantToAdd = variantsData.find(
-                (variant: { id: string }) =>
-                  variant.id.toLowerCase() === lowercasedTemplateId
-              );
-
-              if (variantToAdd && variantToAdd.variants) {
-                userProfiles.items[matchedStorefront.item].attributes.variants =
-                  variantToAdd.variants;
-              }
-            }
           }
-
-          // if (variantsData.length > 0) {
-          //   const lowercasedTemplateId =
-          //     userProfiles.items[
-          //       matchedStorefront.item
-          //     ].templateId.toLowerCase();
-          //   const variantToAdd = variantsData.find(
-          //     (variant: { id: string }) =>
-          //       variant.id.toLowerCase() === lowercasedTemplateId
-          //   );
-
-          //   if (variantToAdd && variantToAdd.variants) {
-          //     userProfiles.items[matchedStorefront.item].attributes.variants =
-          //       variantToAdd.variants;
-          //   }
-          // }
-
           for (const item in commonCore.items) {
             commonCore.items[item].quantity -= matchedStorefront.price;
             const itemUUID = uuid();

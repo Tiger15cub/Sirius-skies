@@ -24,6 +24,9 @@ import xmlbuilder from "xmlbuilder";
 import ClientQuestLogin from "../common/mcp/operations/ClientQuestLogin/ClientQuestLogin";
 import MarkNewQuestNotificationSent from "../common/mcp/operations/MarkNewQuestNotificationSent/MarkNewQuestNotificationSent";
 import { Globals } from "../xmpp/types/XmppTypes";
+import RemoveGiftBox from "../common/mcp/operations/RemoveGiftBox/RemoveGiftBox";
+import FortRerollDailyQuest from "../common/mcp/operations/FortRerollDailyQuest/FortRerollDailyQuest";
+import CollectionBook from "../common/mcp/operations/QueryProfile/CollectionBook";
 
 export default function initRoute(router: Router): void {
   router.post(
@@ -128,7 +131,9 @@ export default function initRoute(router: Router): void {
           "mcp",
           "GiftBoxes.json"
         );
-        const GiftBoxes = JSON.parse(await fs.readFile(giftBoxFilePath, "utf8"));
+        const GiftBoxes = JSON.parse(
+          await fs.readFile(giftBoxFilePath, "utf8")
+        );
 
         if (personalMessage.length > 100) {
           return sendErrorResponse(
@@ -286,14 +291,14 @@ export default function initRoute(router: Router): void {
                 );
                 break;
               case "collection_book_schematics0":
-                res.json(
-                  createDefaultResponse([], profileId, userProfiles.rvn)
+                await CollectionBook(
+                  "collection_book_schematics0",
+                  accountId,
+                  res
                 );
                 break;
               case "collection_book_people0":
-                res.json(
-                  createDefaultResponse([], profileId, userProfiles.rvn)
-                );
+                await CollectionBook("collection_book_people0", accountId, res);
                 break;
 
               case "theater0":
@@ -360,6 +365,13 @@ export default function initRoute(router: Router): void {
             break;
 
           case "FortRerollDailyQuest":
+            await FortRerollDailyQuest(
+              res,
+              req,
+              accountId,
+              profileId as string
+            );
+
             break;
 
           case "SetBansViewed":
@@ -381,6 +393,15 @@ export default function initRoute(router: Router): void {
             break;
 
           case "QuestLogin":
+            res.json(createDefaultResponse([], profileId, userProfiles.rvn));
+            break;
+
+          case "RemoveGiftBox":
+            await RemoveGiftBox(req, res, accountId);
+            break;
+
+          case "GiftCatalogEntry":
+            // TODO
             res.json(createDefaultResponse([], profileId, userProfiles.rvn));
             break;
 

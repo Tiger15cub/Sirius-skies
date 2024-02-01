@@ -34,21 +34,5 @@ export default function getSeasonBackground(
         },
       ]);
       break;
-
-    default:
-      const doIndex = buildUpdate?.toString().indexOf(".");
-
-      backgrounds.push([
-        {
-          stage: `season${buildUpdate?.toString().substring(0, doIndex)}`,
-          _type: "DynamicBackground",
-          key: "lobby",
-        },
-        {
-          stage: `season${buildUpdate?.toString().substring(0, doIndex)}`,
-          _type: "DynamicBackground",
-          key: "vault",
-        },
-      ]);
   }
 }

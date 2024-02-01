@@ -186,12 +186,5 @@ export default function getActiveEvents(
         },
       ]);
       break;
-
-    default:
-      activeEvents.push({
-        eventType: `EventFlag.LobbySeason${season}`,
-        activeUntil: "9999-12-31T23:59:59.999Z",
-        activeSince: "2020-01-01T23:59:59.999Z",
-      });
   }
 }

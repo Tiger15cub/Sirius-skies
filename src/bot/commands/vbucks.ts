@@ -96,7 +96,8 @@ export default class VbucksCommand extends BaseCommand {
       },
     });
 
-    await AccountRefresh(user.accountId, user.username);
+    // bugged
+    // await AccountRefresh(user.accountId, user.username);
 
     const embed = new EmbedBuilder()
       .setTitle("Vbucks Changed")

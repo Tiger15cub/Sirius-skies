@@ -70,10 +70,6 @@ export default async function Athena(
     userProfiles.stats.attributes.xp = XP;
     userProfiles.stats.attributes.book_purchased = hasPurchasedBP;
 
-    if (user.hasFL) {
-      await AccountRefresh(user.accountId, user.username);
-    }
-
     const applyProfileChanges = [
       {
         changeType: "fullProfileUpdate",

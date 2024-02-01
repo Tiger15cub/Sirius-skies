@@ -3,8 +3,6 @@ import {
   ApplicationCommandOptionType,
   CacheType,
   ColorResolvable,
-  CommandInteraction,
-  CommandInteractionOptionResolver,
   EmbedBuilder,
   PermissionFlagsBits,
   User,
@@ -43,7 +41,7 @@ export default class FullLockerCommand extends BaseCommand {
       {
         name: "user",
         type: ApplicationCommandOptionType.User,
-        description: "The user to whom you want to add a full locker",
+        description: "The user you want to give full locker to.",
         required: true,
       },
     ],
@@ -53,7 +51,7 @@ export default class FullLockerCommand extends BaseCommand {
 
   async execute(interaction: any): Promise<any> {
     await interaction.deferReply({
-      ephemeral: interaction.ephemeral ?? true,
+      ephemeral: true,
     });
 
     const user = await Users.findOne({
@@ -97,8 +95,8 @@ export default class FullLockerCommand extends BaseCommand {
     }
 
     await Users.updateOne({ discordId: interaction.user.id }, { hasFL: true });
-
-    await AccountRefresh(user.accountId, user.username);
+    // bugged
+    // await AccountRefresh(user.accountId, user.username);
 
     const successMessage = `Successfully added a full locker to ${interaction.user.username}'s account.`;
     const successEmbed = await createEmbed(

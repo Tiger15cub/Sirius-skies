@@ -18,13 +18,25 @@ export function getSeason(userAgent: string | undefined): SeasonInfo | null {
       const netcl = !isNaN(Number(buildID)) ? buildID : undefined;
       const build = parseBuildString(buildString || "");
       const buildUpdate = userAgent.split("-")[1].split("+")[0];
-      const season = build;
+      let season = build;
       let lobby: string = "";
 
       switch (true) {
         case season === 0:
           lobby = "LobbySeason0";
+          season = 0;
           break;
+
+        case season === 1:
+          lobby = "LobbySeason1";
+          season = 1;
+          break;
+
+        case season === 2:
+          lobby = "LobbySeason2";
+          season = 2;
+          break;
+
         case season <= 3790078:
           lobby = `LobbySeason${season}`;
           break;

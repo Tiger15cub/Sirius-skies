@@ -51,3 +51,18 @@ export async function getTheater(accountId: string) {
 
   return existingProfile.theater0;
 }
+
+export async function getBook(type: string, accountId: string) {
+  const existingProfile = await Accounts.findOne({ accountId }).lean();
+
+  if (!existingProfile) {
+    return { error: "not found" };
+  }
+
+  switch (type) {
+    case "collection_book_schematics0":
+      return existingProfile.collection_book_schematics0;
+    case "collection_book_people0":
+      return existingProfile.collection_book_people0;
+  }
+}

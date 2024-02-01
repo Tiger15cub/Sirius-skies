@@ -141,3 +141,19 @@ export async function CreateTheater0ProfileItem(account: any) {
 
   return theater0Template;
 }
+
+export async function CreateBookItem(type: string, account: any) {
+  const bookTemplate = JSON.parse(
+    await fs.readFile(
+      path.join(__dirname, "..", "template", type, "template.json"),
+      "utf-8"
+    )
+  );
+
+  bookTemplate.accountId = account.accountId;
+  bookTemplate.Created = DateTime.utc();
+  bookTemplate.Updated = DateTime.utc();
+  bookTemplate._id = uuid();
+
+return bookTemplate;
+}

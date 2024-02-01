@@ -105,7 +105,8 @@ export default function initRoute(router: Router): void {
   });
 
   router.get("/fortnite/api/game/v2/world/info", async (req, res) => {
-    res.json(require("../common/resources/world/stw_world.json"));
+    // why does this crash ????
+    res.json({});
   });
 
   router.post(

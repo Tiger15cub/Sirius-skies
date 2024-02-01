@@ -36,6 +36,7 @@ export default async function ClientQuestLogin(
     const account = await Accounts.findOne({ accountId });
 
     const season = getSeason(req.headers["user-agent"]);
+    const multiUpdates: any[] = [];
 
     let shouldGrantQuest: boolean = true;
 
@@ -56,12 +57,31 @@ export default async function ClientQuestLogin(
       const today = DateTime.now().toISODate();
 
       if (lastLoginDate?.hasSame(DateTime.now(), "day")) {
-        shouldGrantQuest = true;
+        shouldGrantQuest = false;
       } else {
         shouldGrantQuest = true;
 
         if (dailyQuestRerolls <= 0) {
           dailyQuestRerolls += 1;
+        }
+      }
+    }
+
+    for (const quest in userProfiles.items) {
+      if (userProfiles.items.hasOwnProperty(quest)) {
+        const questParts: string[] = quest.split("");
+        if (
+          questParts.length === 4 &&
+          questParts[0] === "S" &&
+          !isNaN(parseInt(questParts[1])) &&
+          questParts[2] === "-" &&
+          !isNaN(parseInt(questParts[3]))
+        ) {
+          delete userProfiles.items[quest];
+          multiUpdates.push({
+            changeType: "itemRemoved",
+            itemId: quest,
+          });
         }
       }
     }
@@ -81,8 +101,6 @@ export default async function ClientQuestLogin(
       0,
       Math.min(3, questsToAdd.length)
     );
-
-    const multiUpdates: any[] = [];
 
     selectedQuests.forEach((randomQuest: RandomQuest) => {
       const questId = uuid();

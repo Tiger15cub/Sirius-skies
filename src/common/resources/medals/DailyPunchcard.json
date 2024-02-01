@@ -1,0 +1,12 @@
+[
+  {
+    "templateId": "MedalsPunchCard:dailypunchcard",
+    "attributes": {
+      "punch_count": 10,
+      "days_since_season_start_grant": 1,
+      "last_updated_date": "",
+      "medal_punch_list": []
+    },
+    "quantity": 1
+  }
+]

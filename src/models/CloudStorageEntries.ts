@@ -9,7 +9,7 @@ export interface ICloudStorageEntry extends Document {
   enabled: boolean;
 }
 
-const ExchangeCodesSchema = new Schema<ICloudStorageEntry>({
+const CloudStorageEntries = new Schema<ICloudStorageEntry>({
   file: { type: String, default: "" },
   section: { type: String, default: "" },
   key: { type: String, default: "" },
@@ -17,4 +17,7 @@ const ExchangeCodesSchema = new Schema<ICloudStorageEntry>({
   enabled: { type: Boolean, default: true },
 });
 
-export default model<ICloudStorageEntry>("CloudStorageEntries", ExchangeCodesSchema);
+export default model<ICloudStorageEntry>(
+  "CloudStorageEntries",
+  CloudStorageEntries
+);

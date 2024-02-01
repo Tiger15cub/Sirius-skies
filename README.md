@@ -33,11 +33,15 @@ Sirius is a universal Fortnite private server backend written in TypeScript.
 - [ ] BattlePass Purchasing
 - [ ] XP and Leveling up
 - [ ] Vbucks on Kill (GameServer endpoint)
+- [ ] PartyV2
+- [ ] Stats
+- [ ] Item Refunding
 
 ### Work In Progress (WIP)
 
 - [ ] Voice Chat
 - [ ] Variants
+- [ ] Gifting
 
 ### Finished
 

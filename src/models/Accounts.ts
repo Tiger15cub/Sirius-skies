@@ -44,6 +44,8 @@ interface AccountsModel extends Document {
   metadata: any;
   outpost0: any;
   theater0: any;
+  collection_book_schematics0: any;
+  collection_book_people0: any;
   BattleStars: number;
   gifts: any;
   banned: boolean;
@@ -72,6 +74,8 @@ const accountsSchema = new Schema<AccountsModel>({
   metadata: { type: Object, default: {} },
   theater0: { type: Object, default: {} },
   outpost0: { type: Object, default: {} },
+  collection_book_schematics0: { type: Object, default: {} },
+  collection_book_people0: { type: Object, default: {} },
   gifts: { type: Array, default: [] },
   banned: { type: Boolean, default: false },
   banned_type: {

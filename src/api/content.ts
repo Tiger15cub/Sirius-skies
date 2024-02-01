@@ -4,6 +4,7 @@ import axios from "axios";
 import getSeasonBackground from "../utils/content/getSeasonBackground";
 import { v4 as uuid } from "uuid";
 import { DateTime } from "luxon";
+import log from "../utils/log";
 
 export default function initRoute(router: Router): void {
   router.get("/content/api/pages/fortnite-game", async (req, res) => {
@@ -13,23 +14,23 @@ export default function initRoute(router: Router): void {
     const season = getSeason(userAgent);
 
     if (!season) {
-      return 2;
+      log.error(`Season is undefined`, "Content");
+      return;
     }
 
-    // let backgrounds: any[] = [
-    //   {
-    //     stage: `season${season.season}`,
-    //     _type: "DynamicBackground",
-    //     key: "lobby",
-    //   },
-    //   {
-    //     stage: `season${season.season}`,
-    //     _type: "DynamicBackground",
-    //     key: "vault",
-    //   },
-    // ];
+    let backgrounds: any[] = [
+      {
+        stage: `season${season.season}`,
+        _type: "DynamicBackground",
+        key: "lobby",
+      },
+      {
+        stage: `season${season.season}`,
+        _type: "DynamicBackground",
+        key: "vault",
+      },
+    ];
 
-    let backgrounds: any[] = [];
     getSeasonBackground(season.buildUpdate, season.season, backgrounds);
 
     res.json({

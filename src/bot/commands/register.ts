@@ -15,6 +15,7 @@ import log from "../../utils/log";
 import Friends from "../../models/Friends";
 import {
   CreateAthenaProfileItem,
+  CreateBookItem,
   CreateCommonCoreProfileItem,
   CreateMetaDataProfileItem,
   CreateOutpost0ProfileItem,
@@ -148,6 +149,14 @@ export default class RegisterCommand extends BaseCommand {
           metadata: await CreateMetaDataProfileItem(acc),
           outpost0: await CreateOutpost0ProfileItem(acc),
           theater0: await CreateTheater0ProfileItem(acc),
+          collection_book_people0: await CreateBookItem(
+            "collection_book_people0",
+            acc
+          ),
+          collection_book_schematics0: await CreateBookItem(
+            "collection_book_schematics0",
+            acc
+          ),
         });
 
         account.save();

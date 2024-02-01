@@ -5,7 +5,6 @@ import Route from "./handlers/Route";
 import Database from "./handlers/Database";
 import log, { getMethodColor, getStatusCodeColor } from "./utils/log";
 import cookieParser from "cookie-parser";
-import Matchmaker from "./matchmaker/Matchmaker";
 import Schedule from "./utils/storefront/ScheduleStorefront";
 import path from "node:path";
 import fs from "node:fs";
@@ -66,11 +65,6 @@ const PORT = getEnv("PORT") || 5555;
 
     await Route.initializeRoutes(app);
     await Database.connect();
-
-    if (getEnv("isMatchmakerEnabled") === "true") new Matchmaker().start();
-    else if (getEnv("isMatchmakerEnabled") === "false") {
-    }
-
     import("./xmpp/xmpp");
 
     app.use((req, res, next) => {

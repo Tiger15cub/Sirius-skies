@@ -76,11 +76,6 @@ export default async function initRoute(router: Router): Promise<void> {
 
     if (updatedPlaylists.length > 0) {
       await fs.writeFile(discoveryPath, JSON.stringify(discovery, null, 2));
-      for (const updatedPlaylist of updatedPlaylists) {
-        log.log(`Updated Image for ${updatedPlaylist}`, "Discovery", "green");
-      }
-    } else {
-      log.error("No playlists were updated.", "Discovery");
     }
   } catch (error) {
     let err: Error = error as Error;

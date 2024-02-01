@@ -6,6 +6,7 @@ import path from "node:path";
 import { DateTime } from "luxon";
 import getActiveEvents from "../utils/timeline/getActiveEvents";
 import verifyToken from "../middleware/verifyToken";
+import log from "../utils/log";
 
 export default function initRoute(router: Router): void {
   router.get(
@@ -17,12 +18,18 @@ export default function initRoute(router: Router): void {
       let season = getSeason(userAgent);
 
       if (!season) {
-        return 2;
+        log.error(`Season is undefined`, "Timeline");
+        return;
       }
 
       let activeEvents: any[] = [
         {
           eventType: `EventFlag.LobbySeason${season.season}`,
+          activeUntil: "9999-12-31T23:59:59.999Z",
+          activeSince: "2020-01-01T23:59:59.999Z",
+        },
+        {
+          eventType: `EventFlag.${season.lobby}`,
           activeUntil: "9999-12-31T23:59:59.999Z",
           activeSince: "2020-01-01T23:59:59.999Z",
         },
