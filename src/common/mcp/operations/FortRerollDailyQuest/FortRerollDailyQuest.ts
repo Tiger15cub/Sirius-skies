@@ -1,7 +1,7 @@
 import { Response, Request } from "express";
 import { getProfile } from "../../utils/getProfile";
 import Accounts from "../../../../models/Accounts";
-import fs from "node:fs";
+import fs from "node:fs/promises";
 import path from "node:path";
 import { v4 as uuid } from "uuid";
 import { DateTime } from "luxon";
@@ -27,7 +27,7 @@ export default async function FortRerollDailyQuest(
       "quests",
       "DailyQuests.json"
     );
-    const dailyQuestsData = fs.readFileSync(dailyQuestsPath, "utf-8");
+    const dailyQuestsData = await fs.readFile(dailyQuestsPath, "utf-8");
     const dailyQuests = JSON.parse(dailyQuestsData);
 
     if (!account) {

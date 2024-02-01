@@ -1,4 +1,4 @@
-import fs from "node:fs";
+import fs from "node:fs/promises";
 import log from "../../../../utils/log";
 import { CommonCoreData, CommonCoreProfile } from "../../../../interface";
 import { getDefaultCommonCoreData, mapPurchasesData } from "../../../../utils";

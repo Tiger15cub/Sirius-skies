@@ -1,4 +1,4 @@
-import fs from "node:fs";
+import fs from "node:fs/promises";
 import path from "node:path";
 import { DateTime } from "luxon";
 import { v4 as uuid } from "uuid";
@@ -45,9 +45,9 @@ export default async function PurchaseCatalogEntry(
       "mcp",
       "Variants.json"
     );
-    const variantsData = JSON.parse(fs.readFileSync(variantsFilePath, "utf8"));
+    const variantsData = JSON.parse(await fs.readFile(variantsFilePath, "utf8"));
 
-    const shop = JSON.parse(fs.readFileSync(shopPath, "utf-8"));
+    const shop = JSON.parse(await fs.readFile(shopPath, "utf-8"));
 
     const account = await Accounts.findOne({ accountId });
 

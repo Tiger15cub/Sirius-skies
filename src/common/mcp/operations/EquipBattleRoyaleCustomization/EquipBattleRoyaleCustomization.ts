@@ -4,7 +4,7 @@ import log from "../../../../utils/log";
 import { Response } from "express";
 import { getProfile } from "../../utils/getProfile";
 import { sendErrorResponse } from "../../../../utils";
-import fs from "node:fs";
+import fs from "node:fs/promises";
 import path from "node:path";
 
 interface Variant {
@@ -62,7 +62,7 @@ export default async function EquipBattleRoyaleCustomization(
           "Variants.json"
         );
         const variantsData = JSON.parse(
-          fs.readFileSync(variantsFilePath, "utf8")
+          await fs.readFile(variantsFilePath, "utf8")
         );
 
         const lowercasedTemplateId = itemTemplateId.toLowerCase();
@@ -123,7 +123,7 @@ export default async function EquipBattleRoyaleCustomization(
 
     const activeLoadoutId =
       userProfiles.stats.attributes.loadouts[
-        userProfiles.stats.attributes.active_loadout_index
+      userProfiles.stats.attributes.active_loadout_index
       ];
     const cosmeticTemplateId =
       userProfiles.items[itemToSlot]?.templateId || itemToSlot;

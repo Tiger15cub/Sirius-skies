@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getSeason } from "../utils";
 import { ActiveEvents } from "../interface";
-import fs from "node:fs";
+import fs from "node:fs/promises";
 import path from "node:path";
 import { DateTime } from "luxon";
 import getActiveEvents from "../utils/timeline/getActiveEvents";

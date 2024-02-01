@@ -2,7 +2,7 @@ import { DateTime } from "luxon";
 import Accounts from "../../../../models/Accounts";
 import { createDefaultResponse, getSeason } from "../../../../utils";
 import { getProfile } from "../../utils/getProfile";
-import fs from "node:fs";
+import fs from "node:fs/promises";
 import path from "node:path";
 import { Response, Request } from "express";
 

@@ -15,7 +15,7 @@ import { getCommonCore, getProfile } from "../common/mcp/utils/getProfile";
 import MetaData from "../common/mcp/operations/QueryProfile/MetaData";
 import OutPost from "../common/mcp/operations/QueryProfile/Outpost0";
 import Theater from "../common/mcp/operations/QueryProfile/Theater0";
-import fs from "node:fs";
+import fs from "node:fs/promises";
 import path from "node:path";
 import Friends from "../models/Friends";
 import { DateTime } from "luxon";
@@ -128,7 +128,7 @@ export default function initRoute(router: Router): void {
           "mcp",
           "GiftBoxes.json"
         );
-        const GiftBoxes = JSON.parse(fs.readFileSync(giftBoxFilePath, "utf8"));
+        const GiftBoxes = JSON.parse(await fs.readFile(giftBoxFilePath, "utf8"));
 
         if (personalMessage.length > 100) {
           return sendErrorResponse(
