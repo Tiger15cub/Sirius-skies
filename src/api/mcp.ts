@@ -400,6 +400,10 @@ export default function initRoute(router: Router): void {
             await RemoveGiftBox(req, res, accountId);
             break;
 
+          case "IncrementNamedCounterStat":
+            res.json(createDefaultResponse([], profileId, userProfiles.rvn));
+            break;
+
           case "GiftCatalogEntry":
             // TODO
             res.json(createDefaultResponse([], profileId, userProfiles.rvn));

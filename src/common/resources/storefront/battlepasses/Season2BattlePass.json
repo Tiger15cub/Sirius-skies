@@ -1,0 +1,71 @@
+{
+  "name": "BRSeason2",
+  "catalogEntries": [
+    {
+      "offerId": "F4E17D0B56904F90A4B9A735D32DDD70",
+      "devName": "BR.Season2.BattlePass.01",
+      "offerType": "StaticPrice",
+      "prices": [
+        {
+          "currencyType": "MtxCurrency",
+          "currencySubType": "",
+          "regularPrice": 1800,
+          "finalPrice": 950,
+          "saleType": "PercentOff",
+          "saleExpiration": "9999-12-31T23:59:59.999Z",
+          "basePrice": 950
+        }
+      ],
+      "categories": [],
+      "dailyLimit": -1,
+      "weeklyLimit": -1,
+      "monthlyLimit": -1,
+      "appStoreId": ["", "", "", "", "", "", "", "", "", ""],
+      "requirements": [
+        {
+          "requirementType": "DenyOnFulfillment",
+          "requiredId": "2B4936F24F3179416FEFD49DA5C4B64C",
+          "minQuantity": 1
+        }
+      ],
+      "metaInfo": [],
+      "catalogGroup": "",
+      "catalogGroupPriority": 0,
+      "sortPriority": 1,
+      "title": "Battle Pass",
+      "shortDescription": "Season 2",
+      "displayAssetPath": "/Game/Catalog/DisplayAssets/DA_BR_Season2_BattlePass.DA_BR_Season2_BattlePass",
+      "itemGrants": []
+    },
+    {
+      "offerId": "F86AC2ED4B3EA4B2D65EF1B2629572A0",
+      "devName": "BR.Season2.SingleTier.01",
+      "offerType": "StaticPrice",
+      "prices": [
+        {
+          "currencyType": "MtxCurrency",
+          "currencySubType": "",
+          "regularPrice": 150,
+          "finalPrice": 150,
+          "saleExpiration": "9999-12-31T23:59:59.999Z",
+          "basePrice": 150
+        }
+      ],
+      "categories": [],
+      "dailyLimit": -1,
+      "weeklyLimit": -1,
+      "monthlyLimit": -1,
+      "appStoreId": ["", "", "", "", "", "", "", "", "", ""],
+      "requirements": [],
+      "metaInfo": [],
+      "catalogGroup": "",
+      "catalogGroupPriority": 0,
+      "sortPriority": 0,
+      "title": "Battle Pass Tier",
+      "shortDescription": "",
+      "description": "Get great rewards now!",
+      "displayAssetPath": "",
+      "itemGrants": []
+    }
+  ]
+}

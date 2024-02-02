@@ -38,7 +38,7 @@ export default async function ClientQuestLogin(
     const season = getSeason(req.headers["user-agent"]);
     const multiUpdates: any[] = [];
 
-    let shouldGrantQuest: boolean = true;
+    let shouldGrantQuest: boolean = false;
 
     if (!account) {
       return res.status(404).json({ error: "Failed to find Account." });
@@ -54,9 +54,9 @@ export default async function ClientQuestLogin(
       : null;
 
     if (lastLoginDateISO) {
-      const today = DateTime.now().toISODate();
+      const today = DateTime.now();
 
-      if (lastLoginDate?.hasSame(DateTime.now(), "day")) {
+      if (lastLoginDate?.hasSame(today, "day")) {
         shouldGrantQuest = false;
       } else {
         shouldGrantQuest = true;
