@@ -52,86 +52,85 @@ export default async function ClientQuestLogin(
       : null;
 
     const today = DateTime.now();
+    let shouldGrantQuest = false;
 
     if (!lastLoginDate || !lastLoginDate.hasSame(today, "day")) {
-      if (dailyQuestRerolls <= 0) {
-        dailyQuestRerolls = 1;
+      shouldGrantQuest = true;
+      dailyQuestRerolls += 1;
+    }
 
-        for (const quest in userProfiles.items) {
-          if (userProfiles.items.hasOwnProperty(quest)) {
-            const questParts: string[] = quest.split("");
-            if (
-              questParts.length === 4 &&
-              questParts[0] === "S" &&
-              !isNaN(parseInt(questParts[1])) &&
-              questParts[2] === "-" &&
-              !isNaN(parseInt(questParts[3]))
-            ) {
-              delete userProfiles.items[quest];
-              multiUpdates.push({
-                changeType: "itemRemoved",
-                itemId: quest,
-              });
-            }
+    if (shouldGrantQuest) {
+      const existingTemplateIds = new Set(
+        Object.values(userProfiles.items)
+          .filter((quest: any) => quest.templateId)
+          .map((quest: any) => quest.templateId.toLowerCase())
+      );
+
+      for (const itemId in userProfiles.items) {
+        if (userProfiles.items.hasOwnProperty(itemId)) {
+          const item = userProfiles.items[itemId];
+          if (
+            item.templateId.includes("AthenaDaily") ||
+            item.templateId.includes("Quest:AthenaDaily")
+          ) {
+            delete userProfiles.items[itemId];
+            multiUpdates.push({
+              changeType: "itemRemoved",
+              itemId: itemId,
+            });
           }
         }
-
-        const existingTemplateIds = new Set(
-          Object.values(userProfiles.items)
-            .filter((quest: any) => quest.templateId)
-            .map((quest: any) => quest.templateId.toLowerCase())
-        );
-
-        const questsToAdd = dailyQuests.filter(
-          (quest: RandomQuest) =>
-            !existingTemplateIds.has(quest.templateId.toLowerCase())
-        );
-
-        const selectedQuests = questsToAdd.slice(
-          0,
-          Math.min(3, questsToAdd.length)
-        );
-
-        selectedQuests.forEach((randomQuest: RandomQuest) => {
-          const questId = uuid();
-          userProfiles.items[questId] = {
-            templateId: randomQuest.templateId,
-            attributes: {
-              creation_time: DateTime.now().toISO(),
-              level: -1,
-              item_seen: false,
-              playlists: [],
-              sent_new_notification: false,
-              challenge_bundle_id: "",
-              xp_reward_scalar: 1,
-              challenge_linked_quest_given: "",
-              quest_pool: "",
-              quest_state: "Active",
-              bucket: "",
-              last_state_change_time: DateTime.now().toISO(),
-              challenge_linked_quest_parent: "",
-              max_level_bonus: 0,
-              xp: 15000,
-              quest_rarity: "uncommon",
-              favorite: false,
-            },
-            quantity: 1,
-          };
-
-          for (const objKey in randomQuest.objectives) {
-            const objValue = randomQuest.objectives[objKey];
-            userProfiles.items[questId].attributes[
-              `completion_${objValue.toLowerCase()}`
-            ] = 0;
-          }
-
-          multiUpdates.push({
-            changeType: "itemAdded",
-            itemId: questId,
-            item: userProfiles.items[questId],
-          });
-        });
       }
+
+      const questsToAdd = dailyQuests.filter(
+        (quest: RandomQuest) =>
+          !existingTemplateIds.has(quest.templateId.toLowerCase())
+      );
+
+      const selectedQuests = questsToAdd.slice(
+        0,
+        Math.min(3, questsToAdd.length)
+      );
+
+      selectedQuests.forEach((randomQuest: RandomQuest) => {
+        const questId = uuid();
+        userProfiles.items[questId] = {
+          templateId: randomQuest.templateId,
+          attributes: {
+            creation_time: DateTime.now().toISO(),
+            level: -1,
+            item_seen: false,
+            playlists: [],
+            sent_new_notification: false,
+            challenge_bundle_id: "",
+            xp_reward_scalar: 1,
+            challenge_linked_quest_given: "",
+            quest_pool: "",
+            quest_state: "Active",
+            bucket: "",
+            last_state_change_time: DateTime.now().toISO(),
+            challenge_linked_quest_parent: "",
+            max_level_bonus: 0,
+            xp: 15000,
+            quest_rarity: "uncommon",
+            favorite: false,
+          },
+          quantity: 1,
+        };
+
+        for (const objKey in randomQuest.objectives) {
+          const objValue = randomQuest.objectives[objKey];
+          userProfiles.items[questId].attributes[
+            `completion_${objValue.toLowerCase()}`
+          ] = 0;
+        }
+
+        multiUpdates.push({
+          changeType: "itemAdded",
+          itemId: questId,
+          item: userProfiles.items[questId],
+        });
+      });
     }
 
     const questManager = userProfiles.stats.attributes.quest_manager;
