@@ -91,7 +91,7 @@ export default class VbucksCommand extends BaseCommand {
     }
 
     await account.updateOne({
-      $set: {
+      $inc: {
         "common_core.items.Currency:MtxPurchased.quantity": vbucksAmount,
       },
     });
