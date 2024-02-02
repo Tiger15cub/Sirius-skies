@@ -38,14 +38,12 @@ export default async function ClientQuestLogin(
     const season = getSeason(req.headers["user-agent"]);
     const multiUpdates: any[] = [];
 
-    let shouldGrantQuest: boolean = false;
-
     if (!account) {
       return res.status(404).json({ error: "Failed to find Account." });
     }
 
     let dailyQuestRerolls =
-      userProfiles.stats.attributes.quest_manager?.dailyQuestRerolls;
+      userProfiles.stats.attributes.quest_manager?.dailyQuestRerolls || 0;
 
     const lastLoginDateISO =
       userProfiles.stats.attributes.quest_manager?.dailyLoginInterval;
@@ -53,127 +51,98 @@ export default async function ClientQuestLogin(
       ? DateTime.fromISO(lastLoginDateISO)
       : null;
 
-    if (lastLoginDateISO) {
-      const today = DateTime.now();
+    const today = DateTime.now();
 
-      if (lastLoginDate?.hasSame(today, "day")) {
-        shouldGrantQuest = false;
-      } else {
-        shouldGrantQuest = true;
+    if (!lastLoginDate || !lastLoginDate.hasSame(today, "day")) {
+      if (dailyQuestRerolls <= 0) {
+        dailyQuestRerolls = 1;
 
-        if (dailyQuestRerolls <= 0) {
-          dailyQuestRerolls += 1;
+        for (const quest in userProfiles.items) {
+          if (userProfiles.items.hasOwnProperty(quest)) {
+            const questParts: string[] = quest.split("");
+            if (
+              questParts.length === 4 &&
+              questParts[0] === "S" &&
+              !isNaN(parseInt(questParts[1])) &&
+              questParts[2] === "-" &&
+              !isNaN(parseInt(questParts[3]))
+            ) {
+              delete userProfiles.items[quest];
+              multiUpdates.push({
+                changeType: "itemRemoved",
+                itemId: quest,
+              });
+            }
+          }
         }
-      }
-    }
 
-    for (const quest in userProfiles.items) {
-      if (userProfiles.items.hasOwnProperty(quest)) {
-        const questParts: string[] = quest.split("");
-        if (
-          questParts.length === 4 &&
-          questParts[0] === "S" &&
-          !isNaN(parseInt(questParts[1])) &&
-          questParts[2] === "-" &&
-          !isNaN(parseInt(questParts[3]))
-        ) {
-          delete userProfiles.items[quest];
+        const existingTemplateIds = new Set(
+          Object.values(userProfiles.items)
+            .filter((quest: any) => quest.templateId)
+            .map((quest: any) => quest.templateId.toLowerCase())
+        );
+
+        const questsToAdd = dailyQuests.filter(
+          (quest: RandomQuest) =>
+            !existingTemplateIds.has(quest.templateId.toLowerCase())
+        );
+
+        const selectedQuests = questsToAdd.slice(
+          0,
+          Math.min(3, questsToAdd.length)
+        );
+
+        selectedQuests.forEach((randomQuest: RandomQuest) => {
+          const questId = uuid();
+          userProfiles.items[questId] = {
+            templateId: randomQuest.templateId,
+            attributes: {
+              creation_time: DateTime.now().toISO(),
+              level: -1,
+              item_seen: false,
+              playlists: [],
+              sent_new_notification: false,
+              challenge_bundle_id: "",
+              xp_reward_scalar: 1,
+              challenge_linked_quest_given: "",
+              quest_pool: "",
+              quest_state: "Active",
+              bucket: "",
+              last_state_change_time: DateTime.now().toISO(),
+              challenge_linked_quest_parent: "",
+              max_level_bonus: 0,
+              xp: 15000,
+              quest_rarity: "uncommon",
+              favorite: false,
+            },
+            quantity: 1,
+          };
+
+          for (const objKey in randomQuest.objectives) {
+            const objValue = randomQuest.objectives[objKey];
+            userProfiles.items[questId].attributes[
+              `completion_${objValue.toLowerCase()}`
+            ] = 0;
+          }
+
           multiUpdates.push({
-            changeType: "itemRemoved",
-            itemId: quest,
+            changeType: "itemAdded",
+            itemId: questId,
+            item: userProfiles.items[questId],
           });
-        }
+        });
       }
     }
-
-    const existingTemplateIds = new Set(
-      Object.values(userProfiles.items)
-        .filter((quest: any) => quest.templateId)
-        .map((quest: any) => quest.templateId.toLowerCase())
-    );
-
-    const questsToAdd = dailyQuests.filter(
-      (quest: RandomQuest) =>
-        !existingTemplateIds.has(quest.templateId.toLowerCase())
-    );
-
-    const selectedQuests = questsToAdd.slice(
-      0,
-      Math.min(3, questsToAdd.length)
-    );
-
-    selectedQuests.forEach((randomQuest: RandomQuest) => {
-      const questId = uuid();
-      userProfiles.items[questId] = {
-        templateId: randomQuest.templateId,
-        attributes: {
-          creation_time: DateTime.now().toISO(),
-          level: -1,
-          item_seen: false,
-          playlists: [],
-          sent_new_notification: false,
-          challenge_bundle_id: "",
-          xp_reward_scalar: 1,
-          challenge_linked_quest_given: "",
-          quest_pool: "",
-          quest_state: "Active",
-          bucket: "",
-          last_state_change_time: DateTime.now().toISO(),
-          challenge_linked_quest_parent: "",
-          max_level_bonus: 0,
-          xp: 15000,
-          quest_rarity: "uncommon",
-          favorite: false,
-        },
-        quantity: 1,
-      };
-
-      for (const objKey in randomQuest.objectives) {
-        const objValue = randomQuest.objectives[objKey];
-        userProfiles.items[questId].attributes[
-          `completion_${objValue.toLowerCase()}`
-        ] = 0;
-      }
-
-      multiUpdates.push({
-        changeType: "itemAdded",
-        itemId: questId,
-        item: userProfiles.items[questId],
-      });
-    });
 
     const questManager = userProfiles.stats.attributes.quest_manager;
     questManager.dailyLoginInterval = DateTime.now().toISO();
-    questManager.dailyQuestRerolls = 1;
+    questManager.dailyQuestRerolls = dailyQuestRerolls;
 
     multiUpdates.push({
       changeType: "statModified",
       name: "quest_manager",
       value: questManager,
     });
-
-    for (const quest in userProfiles.items) {
-      if (userProfiles.items.hasOwnProperty(quest)) {
-        const questParts: string[] = quest.split("");
-
-        if (quest.startsWith(`${season?.season}`)) continue;
-
-        if (
-          questParts.length === 4 &&
-          questParts[0] === "S" &&
-          !isNaN(parseInt(questParts[1])) &&
-          questParts[2] === "-" &&
-          !isNaN(parseInt(questParts[2]))
-        ) {
-          delete userProfiles.items[quest];
-
-          multiUpdates.push({
-            changeType: "itemRemoved",
-            itemId: quest,
-          });
-        }
-      }
-    }
 
     if (multiUpdates.length > 0) {
       userProfiles.rvn += 1;

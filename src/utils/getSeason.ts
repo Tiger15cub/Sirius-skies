@@ -43,10 +43,14 @@ export function getSeason(userAgent: string | undefined): SeasonInfo | null {
         build = 1.0;
         break;
 
-      default:
+      case buildUpdate === netcl || buildUpdate === "Cert":
         season = 2;
         build = 2.0;
         lobby = "LobbyWinterDecor";
+        break;
+
+      default:
+        lobby = `Lobby${season}`;
         break;
     }
 
