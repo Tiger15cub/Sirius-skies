@@ -280,8 +280,8 @@ export default function initRoute(router: Router): void {
                   Accounts,
                   accountId,
                   profileId,
-                  undefined,
-                  res.locals
+                  res,
+                  req
                 );
                 return res.json(commonCoreProfile);
 

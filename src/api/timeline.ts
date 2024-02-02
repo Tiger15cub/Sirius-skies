@@ -30,6 +30,11 @@ export default function initRoute(router: Router): void {
         activeUntil: "9999-12-31T23:59:59.999Z",
         activeSince: "2020-01-01T23:59:59.999Z",
       },
+      {
+        eventType: `EventFlag.LobbySeason${season.season}`,
+        activeUntil: "9999-12-31T23:59:59.999Z",
+        activeSince: "2020-01-01T23:59:59.999Z",
+      },
     ];
 
     getActiveEvents(season.buildUpdate, season.season, activeEvents);
