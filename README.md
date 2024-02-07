@@ -10,7 +10,7 @@ Sirius is a universal Fortnite private server backend written in TypeScript.
 
 ## Tested / Supported Versions
 
-- **Chapter 1 Season 1** `++Fortnite+Release-1.11-CL-3807424-Windows`
+- **Chapter 1 Season 2** `++Fortnite+Release-1.11-CL-3807424-Windows`
 - **Chapter 1 Season 4** `++Fortnite+Release-4.1-CL-405353-Windows`
 - **Chapter 1 Season 7** `++Fortnite+Release-7.40-CL-5046157-Windows`
 - **Chapter 1 Season 8** `++Fortnite+Release-8.51-CL-6165369-Windows`
