@@ -1,0 +1,92 @@
+[
+  {
+    "Item": "AthenaDance:spid_025_crazycastle",
+    "Quantity": 1,
+    "Tier": 2
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_036_drift",
+    "Quantity": 1,
+    "Tier": 4
+  },
+  {
+    "Item": "AthenaDance:eid_stagebow",
+    "Quantity": 1,
+    "Tier": 6
+  },
+  {
+    "Item": "AthenaDance:emoji_rockon",
+    "Quantity": 1,
+    "Tier": 8
+  },
+  {
+    "Item": "HomebaseBannerIcon:brseason05vikingship",
+    "Quantity": 1,
+    "Tier": 11
+  },
+  {
+    "Item": "AthenaBackpack:bid_075_tacticalbadass",
+    "Quantity": 1,
+    "Tier": 14
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 18
+  },
+  {
+    "Item": "AthenaGlider:glider_id_055_streetracerblack",
+    "Quantity": 1,
+    "Tier": 22
+  },
+  {
+    "Item": "AthenaDance:spid_031_pixels",
+    "Quantity": 1,
+    "Tier": 26
+  },
+  {
+    "Item": "AthenaPickaxe:pickaxe_id_071_streetracer",
+    "Quantity": 1,
+    "Tier": 30
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 34
+  },
+  {
+    "Item": "AthenaBackpack:bid_074_lifeguardfemale",
+    "Quantity": 1,
+    "Tier": 38
+  },
+  {
+    "Item": "HomebaseBannerIcon:brseason05dinosaur",
+    "Quantity": 1,
+    "Tier": 42
+  },
+  {
+    "Item": "AthenaDance:eid_calculated",
+    "Quantity": 1,
+    "Tier": 46
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_038_highexplosives",
+    "Quantity": 1,
+    "Tier": 50
+  },
+  {
+    "Item": "AthenaSkyDiveContrail:trails_id_011_glitch",
+    "Quantity": 1,
+    "Tier": 54
+  },
+  {
+    "Item": "AthenaDance:emoji_trap",
+    "Quantity": 1,
+    "Tier": 58
+  },
+  {
+    "Item": "AthenaDance:spid_029_lasershark",
+    "Quantity": 1,
+    "Tier": 62
+  }
+]

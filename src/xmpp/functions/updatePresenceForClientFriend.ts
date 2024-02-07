@@ -11,7 +11,9 @@ export default async function updatePresenceForClientFriend(
   isOffline: boolean
 ) {
   try {
-    const sender = Globals.Clients.find((client) => client.socket === socket);
+    const sender = (global as any).Clients.find(
+      (client: any) => client.socket === socket
+    );
 
     if (sender) {
       const away = isAway ? true : false;
@@ -22,11 +24,11 @@ export default async function updatePresenceForClientFriend(
         sender.lastPresenceUpdate.status = data;
 
         friend?.friends.accepted.forEach((friend) => {
-          const client = Globals.Clients.find(
-            (client) => client.accountId === friend.accountId
+          const client = (global as any).Clients.find(
+            (client: any) => client.accountId === friend.accountId
           );
           if (!client) return;
-
+          
           let xml = xmlbuilder
             .create("presence")
             .attribute("to", client.jid)

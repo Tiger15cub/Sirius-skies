@@ -3,7 +3,7 @@ import { IncomingMessage } from "http";
 import { Saves } from "../types/Saves";
 import xmlparser from "xml-parser";
 import open from "../roots/open";
-import { Globals, jid } from "../types/XmppTypes";
+import { Globals } from "../types/XmppTypes";
 import auth from "../roots/auth";
 import log from "../../utils/log";
 import iq from "../roots/iq";
@@ -28,7 +28,7 @@ export default {
 
         switch (document.root.name) {
           case "open":
-            await open(socket, Globals.isAuthenticated, id);
+            await open(socket, (socket as any).isAuthenticated, id);
             break;
           case "auth":
             await auth(socket, document.root, id);
@@ -43,40 +43,43 @@ export default {
             await presence(socket, document.root, id);
             break;
 
+          case "close":
+            break;
+
           default:
             log.error(`Unknown Root: ${document.root.name}`, "HandleMessage");
         }
 
         const isValidConnection =
           !Saves.activeConnection &&
-          Globals.isAuthenticated &&
-          Globals.accountId &&
-          Globals.displayName &&
-          Globals.jid &&
-          Saves.resource &&
+          (socket as any).isAuthenticated &&
+          (socket as any).accountId &&
+          (socket as any).accountId &&
+          (socket as any).jid &&
+          (socket as any).resource &&
           id !== "";
 
         if (isValidConnection) {
           try {
-            const existingClientIndex = Globals.Clients.findIndex(
-              (client) => client.accountId === Globals.accountId
+            const existingClientIndex = (global as any).Clients.findIndex(
+              (client: any) => client.accountId === (socket as any).accountId
             );
 
-            if (Saves.GlobalClients.has(Globals.accountId)) {
+            if (Saves.GlobalClients.has((socket as any).accountId)) {
               // if (existingClientIndex !== -1) {
-              //   Globals.Clients[existingClientIndex].socket = undefined;
+              //   (global as any).Clients[existingClientIndex].socket = undefined;
               // }
 
-              Saves.blacklistedAccounts.add(Globals.accountId);
+              Saves.blacklistedAccounts.add((socket as any).accountId);
               Saves.blacklistedSockets.add(socket);
             } else {
               const newClient = {
                 socket,
-                accountId: Globals.accountId,
-                displayName: Globals.displayName,
-                token: Globals.token,
-                jid: Globals.jid,
-                resource: Saves.resource,
+                accountId: (socket as any).accountId,
+                displayName: (socket as any).accountId,
+                token: (socket as any).token,
+                jid: (socket as any).jid,
+                resource: (socket as any).resource,
                 lastPresenceUpdate: {
                   away: false,
                   status: "{}",
@@ -84,15 +87,15 @@ export default {
               };
 
               if (existingClientIndex !== -1) {
-                Globals.Clients[existingClientIndex].socket = socket;
+                (global as any).Clients[existingClientIndex].socket = socket;
               } else {
-                Globals.Clients.push(newClient);
-                Saves.activeAccountIds.add(Globals.accountId);
+                (global as any).Clients.push(newClient);
+                Saves.activeAccountIds.add((socket as any).accountId);
               }
 
-              Saves.GlobalClients.set(Globals.accountId, true);
+              Saves.GlobalClients.set((socket as any).accountId, true);
 
-              Saves.blacklistedAccounts.delete(Globals.accountId);
+              Saves.blacklistedAccounts.delete((socket as any).accountId);
               Saves.blacklistedSockets.delete(socket);
             }
           } catch (error) {

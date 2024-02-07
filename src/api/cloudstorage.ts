@@ -1,55 +1,16 @@
-import {
-  Request,
-  Response,
-  NextFunction,
-  Router,
-} from "express";
+import { Request, Response, NextFunction, Router } from "express";
 import fs, { readdir, readFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import log from "../utils/log";
 import verifyToken from "../middleware/verifyToken";
 import { getSeason } from "../utils";
 import crypto from "node:crypto";
-import CloudStorageEntries, { ICloudStorageEntry } from "../models/CloudStorageEntries";
 
 interface Custom extends Request {
   rawBody?: any;
 }
 
-function processHotfixes(hotfixes: ICloudStorageEntry[]): string {
-  const sections: Map<string, Map<string, string[]>> = new Map();
-  const addedSections: Set<string> = new Set();
-
-  hotfixes.forEach(hotfix => {
-    if (!sections.has(hotfix.section)) {
-      sections.set(hotfix.section, new Map());
-    }
-    const section = sections.get(hotfix.section);
-    if (section) {
-      if (!section.has(hotfix.key)) {
-        section.set(hotfix.key, []);
-      }
-      const key = section.get(hotfix.key);
-      if (key) {
-        key.push(hotfix.value);
-      }
-    }
-  });
-
-  const iniFile = [];
-  for (const [section, keys] of sections) {
-    if (addedSections.has(section)) continue; // Skip if section has already been added
-
-    addedSections.add(section);
-    iniFile.push(`[${section}]\n`);
-    for (const [key, values] of keys) {
-      iniFile.push(...values.map(value => `${key}=${value}\n`));
-    }
-  }
-
-  return iniFile.join('');
-}
 async function getRequestBody(
   req: Custom,
   res: Response,
@@ -77,10 +38,6 @@ async function getRequestBody(
     req.on("end", () => {
       next();
     });
-
-    req.on("error", (err: any) => {
-      reject(err);
-    });
   });
 }
 
@@ -98,36 +55,35 @@ export default function initRoute(router: Router): void {
     );
 
     try {
-      const hotfixes = await CloudStorageEntries.find({ enabled: true }).lean();
+      const fileNames = await readdir(cloudstorageDirPath);
 
-      const hotfixesByFile = hotfixes.reduce((acc: { [key: string]: typeof hotfixes[0][] }, hotfix) => {
-        if (!acc[hotfix.file]) {
-          acc[hotfix.file] = [];
+      for (const fileName of fileNames) {
+        if (path.extname(fileName) === ".ini") {
+          const filePath = path.join(cloudstorageDirPath, fileName);
+          const fileInfo = await fs.stat(filePath);
+
+          files.push({
+            uniqueFileName: path.basename(filePath),
+            filename: path.basename(filePath),
+            hash: "603E6907398C7E74E25C0AE8EC3A03FFAC7C9BB4",
+            hash256:
+              "973124FFC4A03E66D6A4458E587D5D6146F71FC57F359C8D516E0B12A50AB0D9",
+            length: fileInfo.size,
+            contentType: "text/plain",
+            uploaded: "9999-9999-9999",
+            storageType: "S3",
+            doNotCache: false,
+          });
         }
-        acc[hotfix.file].push(hotfix);
-        return acc;
-      }, {});
-
-      const files = Object.entries(hotfixesByFile).map(([file, matchingHotfixes]) => {
-        const size = matchingHotfixes.reduce((acc, item) => acc + item.value.length, 0);
-
-        return {
-          uniqueFileName: file,
-          filename: file,
-          hash: "603E6907398C7E74E25C0AE8EC3A03FFAC7C9BB4",
-          hash256: "973124FFC4A03E66D6A4458E587D5D6146F71FC57F359C8D516E0B12A50AB0D9",
-          length: size,
-          contentType: "text/plain",
-          uploaded: "9999-9999-9999",
-          storageType: "S3",
-          doNotCache: false,
-        };
-      });
+      }
 
       res.json(files);
     } catch (error) {
       let err = error as Error;
-      log.error(`Failed to get CloudStorage: ${err.message}`, "cloudstorage:system");
+      log.error(
+        `Failed to get CloudStorage: ${err.message}`,
+        "cloudstorage:system"
+      );
       res.status(500).send("Internal Server Error");
     }
   });
@@ -135,39 +91,27 @@ export default function initRoute(router: Router): void {
   router.get(
     "/fortnite/api/cloudstorage/system/:filename",
     async (req, res) => {
-      res.contentType("application/octet-stream");
-
       const filename = req.params.filename;
+      const filePath = path.join(
+        __dirname,
+        "..",
+        "common",
+        "resources",
+        "cloudstorage",
+        filename
+      );
 
-      try {
-
-        const hotfixEntries = await CloudStorageEntries.findOne({ file: filename, enabled: true }).lean();
-        if (!hotfixEntries) {
-          return res.status(404).send("Not Found");
-        }
-
-        const usefulHotfixes: ICloudStorageEntry[] = [];
-        for (const hotfix of hotfixEntries.toObject()) {
-          const { file, section, key, value } = hotfix;
-          usefulHotfixes.push({ file, section, key, value } as ICloudStorageEntry);
-        }
-
-        const fileContents = processHotfixes(usefulHotfixes);
-
-        res.type("text/plain").send(fileContents);
-      } catch (error) {
-        let err = error as Error;
-        log.error(
-          `Failed to get CloudStorage: ${err.message}`,
-          `cloudstorage:system:${filename}`
-        );
-        res.status(500).send("Internal Server Error");
+      if (existsSync(filePath)) {
+        const fileContents = await readFile(filePath);
+        res.send(fileContents);
+      } else {
+        res.status(404).send("File not found");
       }
     }
   );
 
   router.get(
-    "/fortnite/api/cloudstorage/user/*/:file",
+    "/fortnite/api/cloudstorage/user/:accountId/:file",
     verifyToken,
     async (req, res) => {
       const clientSettings = path.join(
@@ -175,21 +119,35 @@ export default function initRoute(router: Router): void {
         "Sirius",
         "ClientSettings"
       );
+
       if (!existsSync(clientSettings)) await fs.mkdir(clientSettings);
 
-      const { file } = req.params;
-
-      if (file !== "ClientSettings.Sav") return res.status(204).end();
+      const { file, accountId } = req.params;
 
       const clientSettingsFile = path.join(
         clientSettings,
-        `ClientSettings-${res.locals.user.accountId}.Sav`
+        `ClientSettings-${accountId}.Sav`
       );
 
-      if (existsSync(clientSettingsFile))
-        return res.status(204).send(readFile(clientSettingsFile));
+      if (file !== "ClientSettings.Sav" || !existsSync(clientSettingsFile))
+        return res.status(404).json({
+          errorCode: "errors.com.epicgames.cloudstorage.file_not_found",
+          errorMessage: `Sorry, we couldn't find a settings file with the filename ${file} for the accountId ${accountId}`,
+          messageVars: undefined,
+          numericErrorCode: 12007,
+          originatingService: "any",
+          intent: "prod-live",
+          error_description: `Sorry, we couldn't find a settings file with the filename ${file} for the accountId ${accountId}`,
+          error: "fortnite",
+        });
 
-      res.status(204).end();
+      try {
+        res.contentType("application/octet-stream");
+        res.status(200).sendFile(clientSettingsFile);
+      } catch (err) {
+        console.error("Error sending file:", err);
+        res.status(500).send("Internal Server Error");
+      }
     }
   );
 
@@ -205,8 +163,6 @@ export default function initRoute(router: Router): void {
       if (!existsSync(clientSettings)) await fs.mkdir(clientSettings);
 
       const { accountId } = req.params;
-
-      getSeason(req.headers["user-agent"]);
 
       const clientSettingsFile = path.join(
         clientSettings,
@@ -228,17 +184,18 @@ export default function initRoute(router: Router): void {
             uploaded: stats.mtime,
             storageType: "S3",
             storageIds: {},
-            accountId,
+            accountId: accountId,
             doNotCache: false,
           },
         ]);
       }
-      res.json([]).end();
+
+      res.json([]);
     }
   );
 
   router.put(
-    "/fortnite/api/cloudstorage/user/*/:file",
+    "/fortnite/api/cloudstorage/user/:accountId/:file",
     verifyToken,
     getRequestBody,
     async (req: Custom, res) => {
@@ -249,6 +206,9 @@ export default function initRoute(router: Router): void {
         });
       }
 
+      if (req.params.file !== "ClientSettings.Sav")
+        return res.status(404).json({ error: "File not found." });
+
       const clientSettings = path.join(
         process.env.LOCALAPPDATA as string,
         "Sirius",
@@ -256,17 +216,12 @@ export default function initRoute(router: Router): void {
       );
       if (!existsSync(clientSettings)) await fs.mkdir(clientSettings);
 
-      const { accountId } = req.params;
-
-      getSeason(req.headers["user-agent"]);
-
       const clientSettingsFile = path.join(
         clientSettings,
-        `ClientSettings-${accountId}.Sav`
+        `ClientSettings-${res.locals.user.accountId}.Sav`
       );
 
       await fs.writeFile(clientSettingsFile, req.rawBody, "latin1");
-
       res.status(204).end();
     }
   );

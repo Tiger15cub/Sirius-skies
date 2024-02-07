@@ -33,7 +33,7 @@ export function getStatusCodeColor(statusCode: number) {
     case 403:
       return chalk.yellowBright;
     case 404:
-      return pink;
+      return chalk.yellowBright;
     case 500:
       return chalk.redBright;
     case 501:

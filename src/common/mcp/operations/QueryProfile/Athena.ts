@@ -7,23 +7,27 @@ import { Response } from "express";
 import { DateTime } from "luxon";
 import AccountRefresh from "../../../../utils/AccountRefresh";
 
-const athenaCosmetics = require("../../../resources/mcp/AllCosmetics.json");
-const basicAthena = require("../../../resources/mcp/Athena.json");
-const defaultAthena = require("../../../resources/mcp/DefaultAthena.json");
+let cachedAthenaCosmetics: any = null;
+let cachedBasicAthena: any = null;
+let cachedDefaultAthena: any = null;
+
+const loadAndCacheJSONFiles = async () => {
+  cachedAthenaCosmetics = require("../../../resources/mcp/AllCosmetics.json");
+  cachedBasicAthena = require("../../../resources/mcp/Athena.json");
+  cachedDefaultAthena = require("../../../resources/mcp/DefaultAthena.json");
+};
+
+loadAndCacheJSONFiles();
 
 export default async function Athena(
   User: any,
   Account: any,
   accountId: string,
-  profileId: string,
   client: boolean,
   season: number | string,
-  rvn: any,
   res: Response
 ) {
   try {
-    rvn = 0;
-
     const [athena, user] = await Promise.all([
       Account.findOne({ accountId }),
       User.findOne({ accountId }),
@@ -37,40 +41,19 @@ export default async function Athena(
       });
     }
 
-    await athena.updateOne({ ["Season.0.seasonNumber"]: season as number });
-
-    const selectedSeason: string | number = season;
-    let level: number = 1;
-    let hasPurchasedBP: boolean = false;
-    let XP: number = 0;
-
-    if (selectedSeason === season) {
-      athena.Season.map((e: SeasonData) => {
-        if (e.season === selectedSeason) {
-          level = e.book_level;
-          hasPurchasedBP = e.book_purchased;
-          XP = e.book_xp;
-        }
-        return e;
-      });
-    }
-
     const userProfiles = await getProfile(accountId);
-    const cosmeticToMerge = user.hasFL
-      ? athenaCosmetics
-      : client
-      ? defaultAthena
-      : basicAthena;
 
-    userProfiles.items = Object.assign({}, userProfiles.items, cosmeticToMerge);
+    const cosmeticToMerge = user.hasFL
+      ? cachedAthenaCosmetics
+      : client
+      ? cachedDefaultAthena
+      : cachedBasicAthena;
+
+    userProfiles.items = { ...userProfiles.items, ...cosmeticToMerge };
 
     userProfiles.stats.attributes.season_num = season as number;
-    userProfiles.stats.attributes.accountLevel = level;
-    userProfiles.stats.attributes.level = level;
-    userProfiles.stats.attributes.xp = XP;
-    userProfiles.stats.attributes.book_purchased = hasPurchasedBP;
 
-    const applyProfileChanges = [
+    const applyProfileChanges: any[] = [
       {
         changeType: "fullProfileUpdate",
         _id: uuid(),
@@ -82,6 +65,8 @@ export default async function Athena(
     userProfiles.commandRevision += 1;
     userProfiles.Updated = DateTime.now().toISO();
 
+    await athena.updateOne({ $set: { athena: userProfiles } });
+
     res.json({
       profileRevision: userProfiles.rvn || 0,
       profileId: "athena",
@@ -91,10 +76,6 @@ export default async function Athena(
       serverTime: DateTime.now().toISO(),
       responseVersion: 1,
     });
-
-    if (applyProfileChanges.length > 0) {
-      await athena.updateOne({ $set: { athena: userProfiles } });
-    }
   } catch (error) {
     log.error(`Error in ProfileAthena: ${error}`, "ProfileAthena");
     throw error;

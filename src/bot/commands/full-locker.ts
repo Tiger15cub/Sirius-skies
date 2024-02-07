@@ -95,8 +95,7 @@ export default class FullLockerCommand extends BaseCommand {
     }
 
     await Users.updateOne({ discordId: interaction.user.id }, { hasFL: true });
-    // bugged
-    // await AccountRefresh(user.accountId, user.username);
+    await AccountRefresh(user.accountId, user.username);
 
     const successMessage = `Successfully added a full locker to ${interaction.user.username}'s account.`;
     const successEmbed = await createEmbed(

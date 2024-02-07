@@ -80,6 +80,8 @@ export default class MatchmakingBan extends BaseCommand {
       }
     );
 
+    await AccountRefresh(user.accountId, user.username);
+
     const embed = new EmbedBuilder()
       .setTitle("Successfully Claimed MFA")
       .setDescription(`Successfully Claimed MFA for the user ${user.username}.`)

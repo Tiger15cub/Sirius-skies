@@ -19,6 +19,12 @@ const wss = new Server({
   server: app.listen(getEnv("XMPP_PORT")),
 });
 
+// init
+(global as any).Clients = [];
+(global as any).accountId = "";
+(global as any).jid = "";
+(global as any).MUCs = {};
+
 wss.on("listening", () => {
   log.custom(`Listening on ws://127.0.0.1:${getEnv("XMPP_PORT")}`, "XMPP");
 });
@@ -33,7 +39,9 @@ wss.on("connection", async (socket, request: express.Request) => {
 
 app.use("/clients", async (req, res) => {
   if (!res.locals.hasWebSocket) {
-    const clients = Globals.Clients.map((client) => client.displayName || "");
+    const clients = (global as any).Clients.map(
+      (client: any) => client.displayName || ""
+    );
 
     res.send({
       connectedClients: clients.length,

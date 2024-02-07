@@ -10,6 +10,7 @@ Sirius is a universal Fortnite private server backend written in TypeScript.
 
 ## Tested / Supported Versions
 
+- **Chapter 1 Season 1** `++Fortnite+Release-1.11-CL-3807424-Windows`
 - **Chapter 1 Season 4** `++Fortnite+Release-4.1-CL-405353-Windows`
 - **Chapter 1 Season 7** `++Fortnite+Release-7.40-CL-5046157-Windows`
 - **Chapter 1 Season 8** `++Fortnite+Release-8.51-CL-6165369-Windows`
@@ -30,18 +31,16 @@ Sirius is a universal Fortnite private server backend written in TypeScript.
 ### TODO
 
 - [ ] Weekly Quests
-- [ ] BattlePass Purchasing
+- [ ] Seasonal Quests
 - [ ] XP and Leveling up
 - [ ] Vbucks on Kill (GameServer endpoint)
-- [ ] PartyV2
 - [ ] Stats
-- [ ] Item Refunding
+- [ ] Arena
 
 ### Work In Progress (WIP)
 
-- [ ] Voice Chat
-- [ ] Variants
-- [ ] Gifting
+- [-] Voice Chat
+- [-] Item Refunding
 
 ### Finished
 
@@ -52,9 +51,16 @@ Sirius is a universal Fortnite private server backend written in TypeScript.
 - [x] TimeLine
 - [x] CloudStorage
 - [x] Daily Quests
-- [x] Item Purchasing from Item shop
+- [x] Shop Purchasing
 - [x] Parties
+- [x] Friends
 - [x] Matchmaking Bans
+- [x] Gifting
+- [x] Variants (Chapter 1, Chapter 2)
+- [x] BattlePass Purchasing
+- [x] Party V2 (Kinda Buggy)
+- [x] Support a Creator
+- [x] ClientSettings Saving
 
 ## Getting Started
 

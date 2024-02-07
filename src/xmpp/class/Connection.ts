@@ -25,14 +25,16 @@ export default class Connection {
   isValid(): string | boolean {
     return (
       !Saves.activeConnection &&
-      Globals.isAuthenticated &&
-      Globals.accountId &&
-      Globals.displayName &&
-      Globals.jid &&
-      Saves.resource &&
+      (this.socket as any).isAuthenticated &&
+      (this.socket as any).accountId &&
+      (this.socket as any).accountId &&
+      (this.socket as any).jid &&
+      (this.socket as any).resource &&
       this.id !== "" &&
-      !Globals.accountIds.includes(Globals.accountId) &&
-      !Saves.blacklistedAccountIds.has(Globals.accountId)
+      !(this.socket as any).accountIds.includes(
+        (this.socket as any).accountId
+      ) &&
+      !Saves.blacklistedAccountIds.has((this.socket as any).accountId)
     );
   }
 
@@ -52,7 +54,11 @@ export default class Connection {
 
         switch (document.root.name) {
           case "open":
-            await open(this.socket, Globals.isAuthenticated, this.id);
+            await open(
+              this.socket,
+              (this.socket as any).isAuthenticated,
+              this.id
+            );
             break;
           case "auth":
             await auth(this.socket, document.root, this.id);
@@ -72,44 +78,47 @@ export default class Connection {
 
         if (this.isValid()) {
           try {
-            if (Saves.GlobalClients.has(Globals.accountId)) {
-              Saves.blacklistedAccounts.add(Globals.accountId);
+            if (Saves.GlobalClients.has((this.socket as any).accountId)) {
+              Saves.blacklistedAccounts.add((this.socket as any).accountId);
               Saves.blacklistedSockets.add(this.socket);
             } else {
-              const existingClient = Globals.Clients.find(
-                (client) => client.accountId === Globals.accountId
+              const existingClient = (global as any).Clients.find(
+                (client: any) =>
+                  client.accountId === (this.socket as any).accountId
               );
 
               if (!existingClient) {
-                Globals.Clients.push({
+                (global as any).Clients.push({
                   socket: this.socket,
-                  accountId: Globals.accountId,
-                  displayName: Globals.displayName,
-                  token: Globals.token,
-                  jid: Globals.jid,
-                  resource: Saves.resource,
+                  accountId: (this.socket as any).accountId,
+                  displayName: (this.socket as any).accountId,
+                  token: (this.socket as any).token,
+                  jid: (this.socket as any).jid,
+                  resource: (this.socket as any).resource,
                   lastPresenceUpdate: {
                     away: false,
                     status: "{}",
                   },
                 });
 
-                Saves.activeAccountIds.add(Globals.accountId);
-                Saves.GlobalClients.set(Globals.accountId, true);
-                Globals.accountIds.push(Globals.accountId);
+                Saves.activeAccountIds.add((this.socket as any).accountId);
+                Saves.GlobalClients.set((this.socket as any).accountId, true);
+                (this.socket as any).accountIds.push(
+                  (this.socket as any).accountId
+                );
               } else {
                 existingClient.socket = this.socket;
-                existingClient.displayName = Globals.displayName;
-                existingClient.token = Globals.token;
-                existingClient.jid = Globals.jid;
-                existingClient.resource = Saves.resource;
+                existingClient.displayName = (this.socket as any).accountId;
+                existingClient.token = (this.socket as any).token;
+                existingClient.jid = (this.socket as any).jid;
+                existingClient.resource = (this.socket as any).resource;
                 existingClient.lastPresenceUpdate = {
                   away: false,
                   status: "{}",
                 };
               }
 
-              Saves.blacklistedAccounts.delete(Globals.accountId);
+              Saves.blacklistedAccounts.delete((this.socket as any).accountId);
               Saves.blacklistedSockets.delete(this.socket);
             }
           } catch (error) {

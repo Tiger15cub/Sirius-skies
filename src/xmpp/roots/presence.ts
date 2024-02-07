@@ -40,7 +40,7 @@ export default async function presence(
         if (room) {
           const roomMemberIndex = room.members.findIndex(
             (member: { accountId: string }) =>
-              member.accountId === Globals.accountId
+              member.accountId === (socket as any).accountId
           );
 
           if (roomMemberIndex !== undefined && roomMemberIndex !== -1) {
@@ -51,12 +51,12 @@ export default async function presence(
           return socket.send(
             xmlbuilder
               .create("presence")
-              .attribute("to", Globals.jid)
+              .attribute("to", (socket as any).jid)
               .attribute(
                 "from",
                 `${roomName}@muc.prod.ol.epicgames.com/${encodeURI(
-                  Globals.displayName
-                )}:${Globals.accountId}:${Saves.resource}`
+                  (socket as any).displayName
+                )}:${(socket as any).accountId}:${(socket as any).resource}`
               )
               .attribute("xmlns", "jabber:client")
               .attribute("type", "unavailable")
@@ -66,13 +66,12 @@ export default async function presence(
               .attribute(
                 "nick",
                 `${roomName}@muc.prod.ol.epicgames.com/${encodeURI(
-                  Globals.displayName
-                )}:${Globals.accountId}:${Saves.resource}`.replace(
-                  `${roomName}@muc.prod.ol.epicgames.com/`,
-                  ""
-                )
+                  (socket as any).displayName
+                )}:${(socket as any).accountId}:${
+                  (socket as any).resource
+                }`.replace(`${roomName}@muc.prod.ol.epicgames.com/`, "")
               )
-              .attribute("jid", Globals.jid)
+              .attribute("jid", (socket as any).jid)
               .attribute("role", "none")
               .up()
               .element("status")
@@ -112,7 +111,7 @@ export default async function presence(
         if (
           MUCs.members.find(
             (member: { accountId: string }) =>
-              member.accountId === Globals.accountId
+              member.accountId === (socket as any).accountId
           )
         )
           return;
@@ -124,19 +123,19 @@ export default async function presence(
         }
 
         MUCs.members.push({
-          accountId: Globals.accountId,
+          accountId: (socket as any).accountId,
         });
         Saves.JoinedMUCs.push(roomName);
 
         socket.send(
           xmlbuilder
             .create("presence")
-            .attribute("to", Globals.jid)
+            .attribute("to", (socket as any).jid)
             .attribute(
               "from",
               `${roomName}@muc.prod.ol.epicgames.com/${encodeURI(
-                Globals.displayName
-              )}:${Globals.accountId}:${Saves.resource}`
+                (socket as any).displayName
+              )}:${(socket as any).accountId}:${(socket as any).resource}`
             )
             .attribute("xmlns", "jabber:client")
             .attribute("type", "unavailable")
@@ -146,13 +145,12 @@ export default async function presence(
             .attribute(
               "nick",
               `${roomName}@muc.prod.ol.epicgames.com/${encodeURI(
-                Globals.displayName
-              )}:${Globals.accountId}:${Saves.resource}`.replace(
-                `${roomName}@muc.prod.ol.epicgames.com/`,
-                ""
-              )
+                (socket as any).displayName
+              )}:${(socket as any).accountId}:${
+                (socket as any).resource
+              }`.replace(`${roomName}@muc.prod.ol.epicgames.com/`, "")
             )
-            .attribute("jid", Globals.jid)
+            .attribute("jid", (socket as any).jid)
             .attribute("role", "participant")
             .attribute("affiliation", "none")
             .up()
@@ -173,8 +171,8 @@ export default async function presence(
         );
 
         MUCs.members.forEach(async (member: { accountId: string }) => {
-          const client = Globals.Clients.find(
-            (client) => client.accountId === member.accountId
+          const client = (global as any).Clients.find(
+            (client: any) => client.accountId === member.accountId
           );
 
           if (!client) return;
@@ -188,7 +186,7 @@ export default async function presence(
                   client?.displayName as string
                 )}:${client?.accountId}:${client?.resource}`
               )
-              .attribute("to", Globals.jid)
+              .attribute("to", (socket as any).jid)
               .attribute("xmlns", "jabber:client")
               .element("x")
               .attribute("xmlns", "http://jabber.org/protocol/muc#user")
@@ -196,11 +194,10 @@ export default async function presence(
               .attribute(
                 "nick",
                 `${roomName}@muc.prod.ol.epicgames.com/${encodeURI(
-                  Globals.displayName
-                )}:${Globals.accountId}:${Saves.resource}`.replace(
-                  `${roomName}@muc.prod.ol.epicgames.com/`,
-                  ""
-                )
+                  (socket as any).displayName
+                )}:${(socket as any).accountId}:${
+                  (socket as any).resource
+                }`.replace(`${roomName}@muc.prod.ol.epicgames.com/`, "")
               )
               .attribute("jid", client?.jid)
               .attribute("role", "participant")
@@ -210,7 +207,7 @@ export default async function presence(
               .toString({ pretty: true })
           );
 
-          if (Globals.accountId === client.accountId) return;
+          if ((socket as any).accountId === client.accountId) return;
 
           client?.socket?.send(
             xmlbuilder
@@ -218,8 +215,8 @@ export default async function presence(
               .attribute(
                 "from",
                 `${roomName}@muc.prod.ol.epicgames.com/${encodeURI(
-                  Globals.displayName
-                )}:${Globals.accountId}:${Saves.resource}`
+                  (socket as any).displayName
+                )}:${(socket as any).accountId}:${(socket as any).resource}`
               )
               .attribute("to", client.jid)
               .attribute("xmlns", "jabber:client")
@@ -229,13 +226,12 @@ export default async function presence(
               .attribute(
                 "nick",
                 `${roomName}@muc.prod.ol.epicgames.com/${encodeURI(
-                  Globals.displayName
-                )}:${Globals.accountId}:${Saves.resource}`.replace(
-                  `${roomName}@muc.prod.ol.epicgames.com/`,
-                  ""
-                )
+                  (socket as any).displayName
+                )}:${(socket as any).accountId}:${
+                  (socket as any).resource
+                }`.replace(`${roomName}@muc.prod.ol.epicgames.com/`, "")
               )
-              .attribute("jid", Globals.jid)
+              .attribute("jid", (socket as any).jid)
               .attribute("role", "participant")
               .attribute("affiliation", "none")
               .up()
@@ -263,33 +259,33 @@ export default async function presence(
         false
       );
 
-      const sender = Globals.Clients.find(
-        (client) => client.accountId === Globals.accountId
+      const sender = (global as any).Clients.find(
+        (client: any) => client.accountId === (socket as any).accountId
       );
-      const client = Globals.Clients.find(
-        (client) => client.accountId === Globals.accountId
+      const receiver = (global as any).Clients.find(
+        (client: any) => client.accountId === (socket as any).accountId
       );
 
-      if (!client || !sender) return;
+      if (!sender || !receiver) return;
 
-      const offline = false;
-
-      let xml = xmlbuilder
-        .create("presence")
-        .attribute("to", client.jid)
+      let xaml = xmlbuilder
+        .create("message")
+        .attribute("jid", (socket as any).jid)
         .attribute("xmlns", "jabber:client")
-        .attribute("from", sender.jid)
-        .attribute("type", offline ? "unavailable" : "available");
+        .attribute("from", (socket as any).jid)
+        .attribute("type", "available");
 
-      if (sender.lastPresenceUpdate?.away)
-        xml = xml
+      if (sender.lastPresenceUpdate.away) {
+        xaml = xaml
           .element("show", "away")
           .up()
           .element("status", sender.lastPresenceUpdate.status)
           .up();
-      else xml = xml.element("status", sender.lastPresenceUpdate?.status).up();
+      }
 
-      client.socket?.send(xml.toString({ pretty: true }));
+      xaml = xaml.element("status", sender.lastPresenceUpdate.status).up();
+
+      socket.send(xaml.toString({ pretty: true }));
 
       break;
   }

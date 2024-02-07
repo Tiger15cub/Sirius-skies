@@ -23,10 +23,16 @@ import { GiftGlobals } from "../types/GiftTypes";
 import xmlbuilder from "xmlbuilder";
 import ClientQuestLogin from "../common/mcp/operations/ClientQuestLogin/ClientQuestLogin";
 import MarkNewQuestNotificationSent from "../common/mcp/operations/MarkNewQuestNotificationSent/MarkNewQuestNotificationSent";
-import { Globals } from "../xmpp/types/XmppTypes";
+import { Globals, accountId } from "../xmpp/types/XmppTypes";
 import RemoveGiftBox from "../common/mcp/operations/RemoveGiftBox/RemoveGiftBox";
 import FortRerollDailyQuest from "../common/mcp/operations/FortRerollDailyQuest/FortRerollDailyQuest";
 import CollectionBook from "../common/mcp/operations/QueryProfile/CollectionBook";
+import GiftCatalogEntry from "../common/mcp/operations/GiftCatalogEntry/GiftCatalogEntry";
+import SetPartyAssistQuest from "../common/mcp/operations/SetPartyAssistQuest/SetPartyAssistQuest";
+import RefundMtxPurchase from "../common/mcp/operations/RefundMtxPurchase/RefundMtxPurchase";
+import SetAffiliateName from "../common/mcp/operations/SetAffiliateName/SetAffiliateName";
+import { profile } from "winston";
+import sendXmppMessageToClient from "../utils/sendXmppMessageToClient";
 
 export default function initRoute(router: Router): void {
   router.post(
@@ -135,6 +141,11 @@ export default function initRoute(router: Router): void {
           await fs.readFile(giftBoxFilePath, "utf8")
         );
 
+        const receiver = await Accounts.findOne({ accountId: sender });
+
+        if (!receiver)
+          return res.status(404).json({ error: "Failed to find Account." });
+
         if (personalMessage.length > 100) {
           return sendErrorResponse(
             res,
@@ -151,88 +162,47 @@ export default function initRoute(router: Router): void {
           );
         }
 
-        const receiverFriend = await Friends.findOne({
-          accountId: receiverPlayerName,
-        });
-        if (!receiverFriend) {
-          return sendErrorResponse(
-            res,
-            "errors.com.epicgames.user.not_found",
-            "Receiver not found."
-          );
-        }
+        const athena = await getProfile(sender);
 
-        const receiver = sender;
-        const receiverProfile = await getCommonCore(receiver);
-
-        const common_core = await Accounts.findOne({ accountId: receiver });
-
-        if (!receiverProfile || !common_core) {
-          return sendErrorResponse(
-            res,
-            "errors.com.epicgames.profile.not_found",
-            "Receiver Profile not found."
-          );
-        }
-
-        const athena = await getProfile(receiver);
-
-        athena.rvn++;
-        athena.commandRevision++;
+        athena.rvn += 1;
+        athena.commandRevision += 1;
         athena.Updated = DateTime.now().toISO();
 
-        commonCore.rvn++;
-        commonCore.commandRevision++;
+        commonCore.rvn += 1;
+        commonCore.commandRevision += 1;
         commonCore.Updated = DateTime.now().toISO();
 
-        await common_core.updateOne({ $set: { athena } });
-        await common_core.updateOne({ $set: { common_core: commonCore } });
+        await receiver.updateOne({ $set: { athena, common_core: commonCore } });
 
-        GiftGlobals.GiftsReceived[receiver] = true;
+        GiftGlobals.GiftsReceived[sender] = true;
 
-        const client = Globals.Clients.find(
-          (client) => client.accountId === receiver
+        sendXmppMessageToClient(
+          JSON.stringify({
+            type: "com.epicgames.gift.received",
+            payload: {},
+            timestamp: DateTime.now().toISO(),
+          }),
+          sender
         );
 
-        if (!client) return;
-
-        client.socket.send(
-          xmlbuilder
-            .create("message")
-            .attribute("from", "xmpp-admin@prod.ol.epicgames.com")
-            .attribute("to", client.jid)
-            .attribute("xmlns", "jabber:client")
-            .attribute(
-              "body",
-              JSON.stringify({
-                type: "com.epicgames.gift.received",
-                payload: {},
-                timestamp: DateTime.now().toISO(),
-              })
-            )
-            .toString({ pretty: true })
-        );
-
-        if (applyProfileChanges.length > 0 && receiver !== sender) {
-          commonCore.rvn++;
-          commonCore.commandRevision++;
+        if (applyProfileChanges.length > 0 && sender !== accountId) {
+          commonCore.rvn += 1;
+          commonCore.commandRevision += 1;
           commonCore.Updated = DateTime.now().toISO();
+
+          await receiver.updateOne({ $set: { common_core: commonCore } });
         }
 
         res.json({
           profileRevision: commonCore.rvn || 0,
           profileId: "common_core",
-          profileChangesBaseRevision: commonCore.rvn,
+          profileChangesBaseRevision: commonCore.rvn || 0,
           profileChanges: applyProfileChanges,
           notifications: [],
           profileCommandRevision: commonCore.commandRevision || 0,
           serverTime: DateTime.now().toISO(),
           responseVersion: 1,
         });
-
-        if (applyProfileChanges.length > 0) {
-          await commonCore.updateOne({ $set: { common_core: commonCore } });
-        }
       } catch (error) {
         console.log(error);
         return sendErrorResponse(
@@ -262,28 +232,24 @@ export default function initRoute(router: Router): void {
             switch (profileId) {
               case "athena":
               case "profile0":
-                const athenaProfile = await ProfileAthena(
+                return await ProfileAthena(
                   Users,
                   Accounts,
                   accountId,
-                  profileId,
                   false,
                   season?.season as number,
-                  rvn,
                   res
                 );
-                return res.json(athenaProfile);
 
               case "common_core":
               case "common_public":
-                const commonCoreProfile = await ProfileCommonCore(
+                return await ProfileCommonCore(
                   Accounts,
                   accountId,
                   profileId,
                   res,
                   req
                 );
-                return res.json(commonCoreProfile);
 
               case "creative":
                 res.json(
@@ -397,16 +363,31 @@ export default function initRoute(router: Router): void {
             break;
 
           case "RemoveGiftBox":
-            await RemoveGiftBox(req, res, accountId);
+            await RemoveGiftBox(req, res, accountId, profileId as string);
             break;
 
           case "IncrementNamedCounterStat":
             res.json(createDefaultResponse([], profileId, userProfiles.rvn));
             break;
 
-          case "GiftCatalogEntry":
-            // TODO
+          case "GetMcpTimeForLogin":
             res.json(createDefaultResponse([], profileId, userProfiles.rvn));
+            break;
+
+          case "GiftCatalogEntry":
+            await GiftCatalogEntry(req, res, accountId);
+            break;
+
+          case "SetPartyAssistQuest":
+            await SetPartyAssistQuest(req, res, accountId);
+            break;
+
+          case "RefundMtxPurchase":
+            await RefundMtxPurchase(req, res, accountId);
+            break;
+
+          case "SetAffiliateName":
+            await SetAffiliateName(req, res, accountId);
             break;
 
           default:

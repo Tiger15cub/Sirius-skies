@@ -5,6 +5,7 @@ import { Globals } from "../../xmpp/types/XmppTypes";
 import xmlbuilder from "xmlbuilder";
 import log from "../log";
 import sendXmppMessageToClient from "../sendXmppMessageToClient";
+import { v4 as uuid } from "uuid";
 
 interface Connection {
   id: string;
@@ -18,9 +19,10 @@ interface JoinInfo {
 export default class PartyHandler {
   static id: string = "";
   private static meta: any = {};
+  static revision: number = 0;
 
   constructor(JoinInfoConnection: Connection, JoinInfo: JoinInfo, meta: any) {
-    PartyHandler.id = crypto.randomBytes(16).toString("hex");
+    PartyHandler.id = uuid().replace(/-/g, "");
     PartyHandler.meta = meta;
 
     Saves.members.push([
@@ -56,12 +58,12 @@ export default class PartyHandler {
   }
 
   private notify(JoinInfoConnection: Connection, JoinInfo: JoinInfo) {
-    log.debug(`Test: ${JoinInfoConnection.id.split("@")[0]}`, "PartyHandler");
     const accountId = JoinInfoConnection.id.split("@")[0];
     const member = Saves.members.find((m) => m.account_id === accountId);
+    PartyHandler.revision += 1;
 
-    const client = Globals.Clients.find(
-      (client) => client.accountId === Globals.accountId
+    const client = (global as any).Clients.find(
+      (clien: any) => client.accountId === accountId
     );
 
     if (!client) {
@@ -78,38 +80,28 @@ export default class PartyHandler {
     }
 
     if (client) {
-      // client.socket.send("xmpp-admin@prod.ol.epicgames");
-      PartyHandler.sendXmppMessageToClient(
-        xmlbuilder
-          .create("message")
-          .attribute("xmlns", "jabber:client")
-          .attribute("to", client.jid)
-          .attribute("from", "xmpp-admin@prod.ol.epicgames.com")
-          .attribute("id", Globals.UUID.replace(/-/g, ""))
-          .element(
-            "body",
-            JSON.stringify({
-              account_dn: JoinInfo.meta["urn:epic:member:dn_s"],
-              account_id: accountId,
-              connection: {
-                connected_at: DateTime.now().toISO(),
-                id: JoinInfoConnection.id.split("@"),
-                meta: JoinInfoConnection.meta,
-                updated_at: DateTime.now().toISO(),
-                joined_at: DateTime.now().toISO(),
-              },
-              member_state_update: {
-                "urn:epic:member:dn_s": JoinInfo.meta["urn:epic:member:dn_s"],
-              },
-              ns: "Fortnite",
-              party_id: PartyHandler.id,
-              revision: member.revision,
-              sent: DateTime.now().toISO(),
-              type: "com.epicgames.social.party.notification.v0.MEMBER_JOINED",
-              updated_at: DateTime.now().toISO(),
-            })
-          )
-          .toString({ pretty: true })
+      sendXmppMessageToClient(
+        JSON.stringify({
+          account_dn: JoinInfo.meta["urn:epic:member:dn_s"],
+          account_id: accountId,
+          connection: {
+            connected_at: DateTime.now().toISO(),
+            id: JoinInfoConnection.id.split("@"),
+            meta: JoinInfoConnection.meta,
+            updated_at: DateTime.now().toISO(),
+            joined_at: DateTime.now().toISO(),
+          },
+          member_state_update: {
+            "urn:epic:member:dn_s": JoinInfo.meta["urn:epic:member:dn_s"],
+          },
+          ns: "Fortnite",
+          party_id: PartyHandler.id,
+          revision: PartyHandler.revision,
+          sent: DateTime.now().toISO(),
+          type: "com.epicgames.social.party.notification.v0.MEMBER_JOINED",
+          updated_at: DateTime.now().toISO(),
+        }),
+        accountId
       );
     }
   }
@@ -180,10 +172,13 @@ export default class PartyHandler {
       update: Record<string, any>;
       delete: string[];
     },
-    accountId: string
+    accountId: string,
+    partyId: string
   ) {
     Object.assign(this.meta, meta.update);
     meta.delete.forEach((key: string) => delete this.meta[key]);
+
+    const party = Saves.parties[Number(partyId)];
 
     sendXmppMessageToClient(
       JSON.stringify({
@@ -192,14 +187,14 @@ export default class PartyHandler {
         invite_ttl_seconds: 14400,
         max_number_of_members: 16,
         ns: "Fortnite",
-        party_id: PartyHandler.id,
+        party_id: party.id,
         party_privacy_type: "PUBLIC",
         party_state_overriden: {},
         party_state_removed: meta.delete,
         party_state_updated: meta.update,
         party_sub_type: "default",
         party_type: "DEFAULT",
-        revision: 0,
+        revision: party.revision,
         sent: DateTime.now().toISO(),
         type: "com.epicgames.social.party.notification.v0.PARTY_UPDATED",
         updated_at: DateTime.now().toISO(),
@@ -208,8 +203,13 @@ export default class PartyHandler {
     );
   }
 
-  static updateParty(partyId: string) {
-    const partyIndex = Saves.parties.findIndex((party) => party.id === partyId);
+  static updateParty(partyId: string, accountId: string) {
+    const partyIndex = Saves.parties.findIndex(
+      (party) =>
+        party.members.findIndex(
+          (member: { account_id: string }) => member.account_id === accountId
+        ) !== -1
+    );
 
     if (partyIndex !== -1) {
       const updatedParty = {
@@ -252,18 +252,5 @@ export default class PartyHandler {
     Saves.members.push([newMember]);
 
     return newMember;
-  }
-
-  static sendXmppMessageToClient(data: string) {
-    Saves.members.forEach((member) => {
-      const client = Globals.Clients.find(
-        (client) => client.accountId === member.account_id
-      );
-      const socket = client?.socket;
-
-      if (socket) {
-        socket.send(data);
-      }
-    });
   }
 }

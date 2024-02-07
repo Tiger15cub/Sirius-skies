@@ -35,8 +35,8 @@ export default function initRoute(router: Router, next: NextFunction): void {
         const AccessToken = Globals.AccessTokens[accessTokenIndex];
         Globals.AccessTokens.splice(accessTokenIndex, 1);
 
-        const Clients = Globals.Clients.find(
-          (client) => client.token === AccessToken.token
+        const Clients = (global as any).Clients.find(
+          (client: any) => client.token === AccessToken.token
         );
 
         if (Clients) {
@@ -54,7 +54,7 @@ export default function initRoute(router: Router, next: NextFunction): void {
 
       if (accessTokenIndex !== -1 || clientTokenIndex !== -1) {
         await Accounts.updateOne(
-          { accountId: Globals.accountId },
+          { accountId: (global as any).accountId },
           {
             $push: {
               accessToken: Globals.AccessTokens,
@@ -462,66 +462,66 @@ export default function initRoute(router: Router, next: NextFunction): void {
     res.json(verificationResponse).status(200);
   });
 
-  router.get("/account/api/oauth/exchange", verifyToken, async (req, res) => {
-    const existingExchangeCode = Globals.exchangeCodes.find(
-      (item) => item.accountId === res.locals.accountId
-    );
+  // router.get("/account/api/oauth/exchange", verifyToken, async (req, res) => {
+  //   const existingExchangeCode = Globals.exchangeCodes.find(
+  //     (item) => item.accountId === res.locals.accountId
+  //   );
 
-    if (existingExchangeCode) {
-      const remainingExpiresInSeconds = Math.round(
-        existingExchangeCode.expiresAt.diffNow().as("seconds")
-      );
+  //   if (existingExchangeCode) {
+  //     const remainingExpiresInSeconds = Math.round(
+  //       existingExchangeCode.expiresAt.diffNow().as("seconds")
+  //     );
 
-      res.json({
-        expiresInSeconds: remainingExpiresInSeconds,
-        code: existingExchangeCode.exchange_code,
-        creatingClientId: existingExchangeCode.creatingClientId,
-      });
+  //     res.json({
+  //       expiresInSeconds: remainingExpiresInSeconds,
+  //       code: existingExchangeCode.exchange_code,
+  //       creatingClientId: existingExchangeCode.creatingClientId,
+  //     });
 
-      return;
-    }
+  //     return;
+  //   }
 
-    const randomExchangeCode = uuid().replace(/-/g, "");
+  //   const randomExchangeCode = uuid().replace(/-/g, "");
 
-    const createdAt = DateTime.local();
-    const expiresAt = DateTime.local().plus({ minutes: 5 });
+  //   const createdAt = DateTime.local();
+  //   const expiresAt = DateTime.local().plus({ minutes: 5 });
 
-    const expiresInSeconds = Math.round(
-      expiresAt.diff(createdAt).as("seconds")
-    );
+  //   const expiresInSeconds = Math.round(
+  //     expiresAt.diff(createdAt).as("seconds")
+  //   );
 
-    Globals.exchangeCodes.push({
-      accountId: res.locals.user.accountId,
-      exchange_code: randomExchangeCode,
-      creatingClientId: getEnv("CLIENT_SECRET"),
-      expiresAt: expiresAt,
-    });
+  //   Globals.exchangeCodes.push({
+  //     accountId: res.locals.user.accountId,
+  //     exchange_code: randomExchangeCode,
+  //     creatingClientId: getEnv("CLIENT_SECRET"),
+  //     expiresAt: expiresAt,
+  //   });
 
-    await ExchangeCodes.create({
-      accountId: res.locals.user.accountId,
-      exchange_code: randomExchangeCode,
-      creatingClientId: getEnv("CLIENT_SECRET"),
-      expiresAt: expiresAt,
-    });
+  //   await ExchangeCodes.create({
+  //     accountId: res.locals.user.accountId,
+  //     exchange_code: randomExchangeCode,
+  //     creatingClientId: getEnv("CLIENT_SECRET"),
+  //     expiresAt: expiresAt,
+  //   });
 
-    setTimeout(() => {
-      const index = Globals.exchangeCodes.findIndex(
-        (item) => item.exchange_code === randomExchangeCode
-      );
+  //   setTimeout(() => {
+  //     const index = Globals.exchangeCodes.findIndex(
+  //       (item) => item.exchange_code === randomExchangeCode
+  //     );
 
-      if (index !== -1) {
-        Globals.exchangeCodes.splice(index, 1);
-        log.custom(
-          `Exchange code '${randomExchangeCode}' removed successfully.`,
-          "ExchangeCodes"
-        );
-      }
-    }, 300000);
+  //     if (index !== -1) {
+  //       Globals.exchangeCodes.splice(index, 1);
+  //       log.custom(
+  //         `Exchange code '${randomExchangeCode}' removed successfully.`,
+  //         "ExchangeCodes"
+  //       );
+  //     }
+  //   }, 300000);
 
-    res.json({
-      expiresInSeconds,
-      code: randomExchangeCode,
-      creatingClientId: getEnv("CLIENT_SECRET"),
-    });
-  });
+  //   res.json({
+  //     expiresInSeconds,
+  //     code: randomExchangeCode,
+  //     creatingClientId: getEnv("CLIENT_SECRET"),
+  //   });
+  // });
 }

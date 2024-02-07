@@ -22,10 +22,11 @@ export default async function iq(
   switch (rootAttributeId) {
     case "_xmpp_bind1":
       const bind = document.children.find((child) => child.name === "bind");
-      const existingClient = Globals.Clients.find(
-        (client) => client.accountId === Globals.accountId
+      const existingClient = (global as any).Clients.find(
+        (client: any) => client.accountId === (socket as any).accountId
       );
-      if (Saves.resource || !Globals.accountId) return;
+      if ((socket as any).resource || !(socket as any).accountId) return;
+
       if (!bind) return;
       if (existingClient) {
         socket.send(
@@ -44,19 +45,21 @@ export default async function iq(
 
       if (!res || !res.content) return;
 
-      Saves.resource = res.content;
-      Globals.jid = `${Globals.accountId}@prod.ol.epicgames.com/${Saves.resource}`;
+      (socket as any).resource = res.content;
+      (socket as any).jid = `${
+        (socket as any).accountId
+      }@prod.ol.epicgames.com/${(socket as any).resource}`;
 
       socket.send(
         xmlbuilder
           .create("iq")
-          .attribute("to", Globals.jid)
+          .attribute("to", (socket as any).jid)
           .attribute("id", "_xmpp_bind1")
           .attribute("xmlns", "jabber:client")
           .attribute("type", "result")
           .element("bind")
           .attribute("xmlns", "urn:ietf:params:xml:ns:xmpp-bind")
-          .element("jid", Globals.jid)
+          .element("jid", (socket as any).jid)
           .up()
           .up()
           .toString({ pretty: true })
@@ -68,7 +71,7 @@ export default async function iq(
       socket.send(
         xmlbuilder
           .create("iq")
-          .attribute("to", Globals.jid)
+          .attribute("to", (socket as any).jid)
           .attribute("from", "prod.ol.epicgames.com")
           .attribute("id", "_xmpp_session1")
           .attribute("xmlns", "jabber:client")
@@ -77,7 +80,7 @@ export default async function iq(
       );
 
       const user = await Friends.findOne({
-        accountId: Globals.accountId,
+        accountId: (socket as any).accountId,
       }).lean();
 
       if (!user) {
@@ -88,28 +91,33 @@ export default async function iq(
       const acceptedFriends = user.friends.accepted;
 
       acceptedFriends.forEach((friend) => {
-        let client = Globals.Clients.find(
-          (client) => client.accountId === friend.accountId
+        const client = (global as any).Clients.find(
+          (client: any) => client.accountId === friend.accountId
         );
-        if (!client) return;
 
-        let xml = xmlbuilder
-          .create("presence")
-          .attribute("to", Globals.jid)
+        if (!client) {
+          console.error("Your shit doesnt work ploosh");
+          return;
+        }
+
+        let xaml = xmlbuilder
+          .create("message")
+          .attribute("to", (socket as any).jid)
           .attribute("xmlns", "jabber:client")
           .attribute("from", client.jid)
           .attribute("type", "available");
 
-        if (client.lastPresenceUpdate?.away)
-          xml = xml
+        if (client.lastPresenceUpdate.away) {
+          xaml = xaml
             .element("show", "away")
             .up()
-            .element("status", client.lastPresenceUpdate?.status)
+            .element("status", client.lastPresenceUpdate.status)
             .up();
-        else
-          xml = xml.element("status", client.lastPresenceUpdate?.status).up();
+        }
 
-        socket.send(xml.toString({ pretty: true }));
+        xaml = xaml.element("status", client.lastPresenceUpdate.status).up();
+
+        socket.send(xaml.toString({ pretty: true }));
       });
       break;
 
@@ -117,7 +125,7 @@ export default async function iq(
       socket.send(
         xmlbuilder
           .create("iq")
-          .attribute("to", Globals.jid)
+          .attribute("to", (socket as any).jid)
           .attribute("from", "prod.ol.epicgames.com")
           .attribute("id", rootAttributeId)
           .attribute("type", "result")

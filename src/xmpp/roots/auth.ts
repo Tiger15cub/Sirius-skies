@@ -5,6 +5,7 @@ import { Globals } from "../types/XmppTypes";
 import Users from "../../models/Users";
 import log from "../../utils/log";
 import { Saves } from "../types/Saves";
+import jwt from "jsonwebtoken";
 
 export default async function auth(
   socket: WebSocket,
@@ -19,42 +20,49 @@ export default async function auth(
   const decodedBytes = Buffer.from(document.content as string, "base64");
   const decodedContent = decodedBytes.toString("utf-8");
   const authFields = decodedContent.split("\u0000");
+  const accountId = authFields[1];
 
-  const accessToken = Globals.AccessTokens.find(
-    (token) => token.token === authFields[2]
-  );
+  const accessToken = Globals.AccessTokens.find((token) => {
+    if (!token) return false;
+    var s = jwt.decode(token.token.replace("eg1~", ""))!.sub;
+    return s === accountId;
+  })!;
 
   if (
-    !accessToken ||
-    Globals.Clients.some((client) => client.accountId === Globals.accountId)
+    /*!accessToken ||*/
+    (global as any).Clients.some(
+      (client: any) => client.accountId === accountId
+    )
   ) {
     await socket.close();
     return;
   }
 
-  const user = await Users.findOne({ accountId: accessToken.accountId }).lean();
+  const user = await Users.findOne({ accountId: accountId }).lean();
 
   if (!user || user.banned) {
     await socket.close();
-    Globals.isAuthenticated = false;
+    (socket as any).isAuthenticated = false;
     return;
   }
 
-  Globals.accountId = user.accountId;
-  Globals.token = accessToken.token;
-  Globals.displayName = user.username;
+  (socket as any).accountId = user.accountId;
+  if (accessToken) (socket as any).token = accessToken.token;
+  (socket as any).displayName = user.username;
 
   if (
     decodedContent &&
-    Globals.accountId &&
-    Globals.displayName &&
-    Globals.token &&
+    (socket as any).accountId &&
+    (socket as any).displayName &&
+    /*(socket as any).token &&*/
     authFields.length === 3
   ) {
-    Globals.isAuthenticated = true;
+    (socket as any).isAuthenticated = true;
 
     log.custom(
-      `XMPP Client with the displayName ${Globals.displayName} has logged in.`,
+      `XMPP Client with the displayName ${
+        (socket as any).displayName
+      } has logged in.`,
       "XMPP"
     );
 

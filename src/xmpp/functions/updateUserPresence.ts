@@ -7,11 +7,11 @@ export default function updateUserPresence(
   receiverId: string,
   isOffline: boolean
 ): void {
-  const sender = Globals.Clients.find(
-    (client) => client.accountId === Globals.accountId
+  const sender = (global as any).Clients.find(
+    (client: any) => client.accountId === senderId
   );
-  const client = Globals.Clients.find(
-    (client) => client.accountId === Globals.accountId
+  const client = (global as any).Clients.find(
+    (client: any) => client.accountId === receiverId
   );
 
   if (!client || !sender) return;

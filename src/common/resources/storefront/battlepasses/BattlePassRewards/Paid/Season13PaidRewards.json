@@ -1,0 +1,432 @@
+[
+  {
+    "Item": "Token:athenaseasonxpboost",
+    "Quantity": 50,
+    "Tier": 1
+  },
+  {
+    "Item": "Token:athenaseasonfriendxpboost",
+    "Quantity": 60,
+    "Tier": 1
+  },
+  {
+    "Item": "AthenaCharacter:cid_771_athena_commando_f_oceanrider",
+    "Quantity": 1,
+    "Tier": 1
+  },
+  {
+    "Item": "AthenaCharacter:cid_777_athena_commando_m_racerzero",
+    "Quantity": 1,
+    "Tier": 1
+  },
+  {
+    "Item": "ChallengeBundleSchedule:season13_buildabrella_schedule",
+    "Quantity": 1,
+    "Tier": 1
+  },
+  {
+    "Item": "ChallengeBundleSchedule:season13_styles_schedule",
+    "Quantity": 1,
+    "Tier": 1
+  },
+  {
+    "Item": "ChallengeBundleSchedule:season13_sandcastle_schedule",
+    "Quantity": 1,
+    "Tier": 1
+  },
+  {
+    "Item": "AthenaSkyDiveContrail:trails_id_092_schooloffish",
+    "Quantity": 1,
+    "Tier": 3
+  },
+  {
+    "Item": "AthenaGlider:umbrella_buildabrella",
+    "Quantity": 1,
+    "Tier": 5
+  },
+  {
+    "Item": "AthenaItemWrap:wrap_245_oceanrider",
+    "Quantity": 1,
+    "Tier": 7
+  },
+  {
+    "Item": "AthenaMusicPack:musicpack_052_s13cine",
+    "Quantity": 1,
+    "Tier": 8
+  },
+  {
+    "Item": "AthenaPickaxe:pickaxe_id_410_oceanriderfemale1h",
+    "Quantity": 1,
+    "Tier": 10
+  },
+  {
+    "Item": "BannerToken:bannertoken_049_s13_oceanrider",
+    "Quantity": 1,
+    "Tier": 11
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 12
+  },
+  {
+    "Item": "AthenaGlider:glider_id_219_oceanriderfemale",
+    "Quantity": 1,
+    "Tier": 14
+  },
+  {
+    "Item": "Token:athenatoken_brs13_umbrellaselection_01_token",
+    "Quantity": 1,
+    "Tier": 15
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_241_tacticalscuba",
+    "Quantity": 1,
+    "Tier": 16
+  },
+  {
+    "Item": "AthenaDance:spid_209_oceanrider",
+    "Quantity": 1,
+    "Tier": 17
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 19
+  },
+  {
+    "Item": "AthenaCharacter:cid_774_athena_commando_m_tacticalscuba",
+    "Quantity": 1,
+    "Tier": 20
+  },
+  {
+    "Item": "AthenaDance:eid_airguitar",
+    "Quantity": 1,
+    "Tier": 21
+  },
+  {
+    "Item": "AthenaDance:emoji_s13_tacticalscuba",
+    "Quantity": 1,
+    "Tier": 22
+  },
+  {
+    "Item": "AthenaSkyDiveContrail:trails_id_094_waterspray",
+    "Quantity": 1,
+    "Tier": 24
+  },
+  {
+    "Item": "BannerToken:bannertoken_051_s13_racerzero",
+    "Quantity": 1,
+    "Tier": 25
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 26
+  },
+  {
+    "Item": "AthenaGlider:glider_id_225_tacticalscubamale",
+    "Quantity": 1,
+    "Tier": 27
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_242_valet",
+    "Quantity": 1,
+    "Tier": 29
+  },
+  {
+    "Item": "AthenaPickaxe:pickaxe_id_414_racerzero",
+    "Quantity": 1,
+    "Tier": 30
+  },
+  {
+    "Item": "BannerToken:bannertoken_054_s13_tacticalscuba",
+    "Quantity": 1,
+    "Tier": 31
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 32
+  },
+  {
+    "Item": "AthenaDance:spid_214_seasonspray2",
+    "Quantity": 1,
+    "Tier": 34
+  },
+  {
+    "Item": "Token:athenatoken_brs13_umbrellaselection_02_token",
+    "Quantity": 1,
+    "Tier": 35
+  },
+  {
+    "Item": "AthenaGlider:glider_id_222_racerzeromale",
+    "Quantity": 1,
+    "Tier": 36
+  },
+  {
+    "Item": "AthenaDance:emoji_s13_racerzero",
+    "Quantity": 1,
+    "Tier": 37
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 39
+  },
+  {
+    "Item": "AthenaCharacter:cid_770_athena_commando_f_mechanicalengineer",
+    "Quantity": 1,
+    "Tier": 40
+  },
+  {
+    "Item": "AthenaDance:spid_208_mechanicalengineer",
+    "Quantity": 1,
+    "Tier": 41
+  },
+  {
+    "Item": "AthenaBackpack:bid_533_mechanicalengineer",
+    "Quantity": 1,
+    "Tier": 42
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_235_mechanicalengineer",
+    "Quantity": 1,
+    "Tier": 44
+  },
+  {
+    "Item": "AthenaItemWrap:wrap_244_mechanicalengineer",
+    "Quantity": 1,
+    "Tier": 45
+  },
+  {
+    "Item": "AthenaPickaxe:pickaxe_id_409_mechanicalengineer1h",
+    "Quantity": 1,
+    "Tier": 46
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 47
+  },
+  {
+    "Item": "AthenaGlider:glider_id_218_mechanicalengineerfemale",
+    "Quantity": 1,
+    "Tier": 49
+  },
+  {
+    "Item": "CosmeticVariantToken:vtid_655_razerzero_styleb",
+    "Quantity": 1,
+    "Tier": 50
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_237_professorpup",
+    "Quantity": 1,
+    "Tier": 51
+  },
+  {
+    "Item": "AthenaDance:emoji_s13_mechanicalengineer",
+    "Quantity": 1,
+    "Tier": 52
+  },
+  {
+    "Item": "AthenaDance:eid_partyjazztwinkletoes",
+    "Quantity": 1,
+    "Tier": 54
+  },
+  {
+    "Item": "Token:athenatoken_brs13_umbrellaselection_03_token",
+    "Quantity": 1,
+    "Tier": 55
+  },
+  {
+    "Item": "BannerToken:bannertoken_048_s13_mechanicalengineer",
+    "Quantity": 1,
+    "Tier": 56
+  },
+  {
+    "Item": "AthenaDance:spid_210_professorpup",
+    "Quantity": 1,
+    "Tier": 57
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 59
+  },
+  {
+    "Item": "AthenaCharacter:cid_776_athena_commando_m_professorpup",
+    "Quantity": 1,
+    "Tier": 60
+  },
+  {
+    "Item": "AthenaGlider:glider_id_220_professorpup",
+    "Quantity": 1,
+    "Tier": 61
+  },
+  {
+    "Item": "AthenaDance:emoji_s13_professorpup",
+    "Quantity": 1,
+    "Tier": 62
+  },
+  {
+    "Item": "AthenaItemWrap:wrap_246_professorpup",
+    "Quantity": 1,
+    "Tier": 64
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 65
+  },
+  {
+    "Item": "AthenaSkyDiveContrail:trails_id_093_spacewanderer",
+    "Quantity": 1,
+    "Tier": 66
+  },
+  {
+    "Item": "AthenaDance:eid_montekeyboard",
+    "Quantity": 1,
+    "Tier": 67
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_244_rollerderby",
+    "Quantity": 1,
+    "Tier": 69
+  },
+  {
+    "Item": "AthenaPickaxe:pickaxe_id_412_professorpupmale1h",
+    "Quantity": 1,
+    "Tier": 70
+  },
+  {
+    "Item": "AthenaItemWrap:wrap_249_spacewanderer",
+    "Quantity": 1,
+    "Tier": 71
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 72
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_238_racerzero",
+    "Quantity": 1,
+    "Tier": 74
+  },
+  {
+    "Item": "Token:athenatoken_brs13_umbrellaselection_04_token",
+    "Quantity": 1,
+    "Tier": 75
+  },
+  {
+    "Item": "AthenaDance:spid_211_racerzero",
+    "Quantity": 1,
+    "Tier": 76
+  },
+  {
+    "Item": "AthenaBackpack:bid_528_spacewanderer",
+    "Quantity": 1,
+    "Tier": 77
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 79
+  },
+  {
+    "Item": "AthenaCharacter:cid_765_athena_commando_f_spacewanderer",
+    "Quantity": 1,
+    "Tier": 80
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_240_spacewanderer",
+    "Quantity": 1,
+    "Tier": 81
+  },
+  {
+    "Item": "AthenaPickaxe:pickaxe_id_416_spacewandererfemale1h",
+    "Quantity": 1,
+    "Tier": 82
+  },
+  {
+    "Item": "AthenaDance:emoji_s13_blackknight",
+    "Quantity": 1,
+    "Tier": 83
+  },
+  {
+    "Item": "AthenaDance:eid_handsup",
+    "Quantity": 1,
+    "Tier": 84
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 86
+  },
+  {
+    "Item": "AthenaSkyDiveContrail:trails_id_089_blackknight",
+    "Quantity": 1,
+    "Tier": 87
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_234_blackknight",
+    "Quantity": 1,
+    "Tier": 88
+  },
+  {
+    "Item": "AthenaMusicPack:musicpack_050_billybounce",
+    "Quantity": 1,
+    "Tier": 89
+  },
+  {
+    "Item": "AthenaGlider:glider_id_224_spacewandererfemale",
+    "Quantity": 1,
+    "Tier": 90
+  },
+  {
+    "Item": "AthenaPickaxe:pickaxe_id_402_blackknightfemale1h",
+    "Quantity": 1,
+    "Tier": 91
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 93
+  },
+  {
+    "Item": "AthenaDance:eid_badmood",
+    "Quantity": 1,
+    "Tier": 94
+  },
+  {
+    "Item": "Token:athenatoken_brs13_umbrellaselection_05_token",
+    "Quantity": 1,
+    "Tier": 95
+  },
+  {
+    "Item": "AthenaGlider:glider_id_213_blackknightfemale",
+    "Quantity": 1,
+    "Tier": 96
+  },
+  {
+    "Item": "BannerToken:bannertoken_047_s13_blackknight",
+    "Quantity": 1,
+    "Tier": 97
+  },
+  {
+    "Item": "AthenaBackpack:bid_530_blackknightfemale",
+    "Quantity": 1,
+    "Tier": 98
+  },
+  {
+    "Item": "AthenaCharacter:cid_767_athena_commando_f_blackknight",
+    "Quantity": 1,
+    "Tier": 100
+  },
+  {
+    "Item": "CosmeticVariantToken:vtid_656_razerzero_stylec",
+    "Quantity": 1,
+    "Tier": 100
+  }
+]

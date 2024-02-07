@@ -100,7 +100,7 @@ export const ProcessStorefrontItems = (
           giftInfo: {
             bIsEnabled: true,
             forcedGiftBoxTemplateId: "",
-            purchaseRequirements: [],
+            purchaseRequirements: requirements,
             giftRecordIds: [],
           },
           refundable: true,
@@ -142,7 +142,7 @@ export const ProcessStorefrontItems = (
           giftInfo: {
             bIsEnabled: true,
             forcedGiftBoxTemplateId: "",
-            purchaseRequirements: [],
+            purchaseRequirements: requirements,
             giftRecordIds: [],
           },
           refundable: true,

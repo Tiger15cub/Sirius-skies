@@ -386,8 +386,8 @@ export default function initRoute(router: Router) {
         await user.updateOne({ $set: { friends: user.friends } });
         await friend.updateOne({ $set: { friends: friend.friends } });
 
-        await AccountRefresh(user.accountId, userAccount.username);
-        await AccountRefresh(friend.accountId, friendAccount.username);
+        // await AccountRefresh(user.accountId, userAccount.username);
+        // await AccountRefresh(friend.accountId, friendAccount.username);
       } else {
         user.friends.outgoing.push({
           accountId: friend.accountId,

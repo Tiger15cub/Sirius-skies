@@ -6,19 +6,6 @@ interface Stats {
   matchplayed: number;
 }
 
-interface Season {
-  seasonNumber: number;
-  book_level: number;
-  level: number;
-  bookXP: number;
-  isBookPurchased: boolean;
-  quests: { [key: string]: any }[];
-  pinnedQuests?: { [key: string]: any }[];
-  pinnedPartyQuests?: { [key: string]: any }[];
-  quest_manager: QuestManager;
-  battleStars: number;
-}
-
 interface QuestManager {
   dailyLoginInterval: string;
   dailyQuestRerolls: number;
@@ -27,13 +14,6 @@ interface QuestManager {
 const questManager: QuestManager = {
   dailyLoginInterval: new Date().toISOString(),
   dailyQuestRerolls: 1,
-};
-
-export const BanTypes = {
-  NONE: 0,
-  Matchmaking: 1,
-  Permanently: 2,
-  HWID: 3,
 };
 
 interface AccountsModel extends Document {
@@ -49,7 +29,6 @@ interface AccountsModel extends Document {
   BattleStars: number;
   gifts: any;
   banned: boolean;
-  banned_type: number;
   optOutOfPublicLeaderboards: boolean;
   accessToken: any;
   refreshToken: any;
@@ -60,7 +39,6 @@ interface AccountsModel extends Document {
     squad: Stats;
     ltm: Stats;
   };
-  Season: Season[] | any;
   profilerevision: number;
   baseRevision: number;
   RVN: number;
@@ -69,6 +47,7 @@ interface AccountsModel extends Document {
 const accountsSchema = new Schema<AccountsModel>({
   discordId: { type: String, required: true, index: true },
   accountId: { type: String, required: true, index: true },
+  banned: { type: Boolean, default: false, index: true },
   athena: { type: Object, default: {} },
   common_core: { type: Object, default: {} },
   metadata: { type: Object, default: {} },
@@ -77,12 +56,6 @@ const accountsSchema = new Schema<AccountsModel>({
   collection_book_schematics0: { type: Object, default: {} },
   collection_book_people0: { type: Object, default: {} },
   gifts: { type: Array, default: [] },
-  banned: { type: Boolean, default: false },
-  banned_type: {
-    type: Number,
-    enum: Object.values(BanTypes),
-    default: BanTypes.NONE,
-  },
   optOutOfPublicLeaderboards: { type: Boolean, default: false },
   accessToken: { type: Array, default: [] },
   refreshToken: { type: Array, default: [] },
@@ -108,22 +81,6 @@ const accountsSchema = new Schema<AccountsModel>({
       kills: { type: Number, default: 0 },
       matchplayed: { type: Number, default: 0 },
     },
-  },
-  Season: {
-    type: [
-      {
-        seasonNumber: { type: Number, default: 17 },
-        level: { type: Number, default: 1 },
-        bookLevel: { type: Number, default: 1 },
-        battleStars: { type: Number, default: 0 },
-        bookXP: { type: Number, default: 0 },
-        isBookPurchased: { type: Boolean, default: false },
-        quests: { type: Array, default: [] },
-        pinnedQuests: { type: Array, default: [] },
-        quest_manager: { type: Object, default: questManager },
-      },
-    ],
-    default: [],
   },
   profilerevision: { type: Number, default: 1 },
   baseRevision: { type: Number, default: 0 },

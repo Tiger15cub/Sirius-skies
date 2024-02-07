@@ -1,0 +1,122 @@
+[
+  {
+    "Item": "AthenaDance:spid_161_s11_standardlogo",
+    "Quantity": 1,
+    "Tier": 2
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_190_icmechateam",
+    "Quantity": 1,
+    "Tier": 4
+  },
+  {
+    "Item": "AthenaDance:eid_respectthepeace",
+    "Quantity": 1,
+    "Tier": 6
+  },
+  {
+    "Item": "BannerToken:bannertoken_012_s11_fishhook",
+    "Quantity": 1,
+    "Tier": 9
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 12
+  },
+  {
+    "Item": "AthenaDance:emoji_s11_slurpgg",
+    "Quantity": 1,
+    "Tier": 15
+  },
+  {
+    "Item": "AthenaMusicPack:musicpack_033_rockout",
+    "Quantity": 1,
+    "Tier": 18
+  },
+  {
+    "Item": "AthenaBackpack:bid_368_rockclimber",
+    "Quantity": 1,
+    "Tier": 22
+  },
+  {
+    "Item": "AthenaPickaxe:pickaxe_id_287_rockclimber1h",
+    "Quantity": 1,
+    "Tier": 26
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 31
+  },
+  {
+    "Item": "AthenaGlider:glider_id_181_rockclimber",
+    "Quantity": 1,
+    "Tier": 36
+  },
+  {
+    "Item": "AthenaDance:emoji_s11_kiss",
+    "Quantity": 1,
+    "Tier": 41
+  },
+  {
+    "Item": "BannerToken:bannertoken_013_s11_toxicmask",
+    "Quantity": 1,
+    "Tier": 46
+  },
+  {
+    "Item": "AthenaDance:spid_165_s11_alteregologo",
+    "Quantity": 1,
+    "Tier": 51
+  },
+  {
+    "Item": "AthenaSkyDiveContrail:trails_id_077_billiards",
+    "Quantity": 1,
+    "Tier": 56
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_199_smtomato",
+    "Quantity": 1,
+    "Tier": 61
+  },
+  {
+    "Item": "AthenaDance:spid_166_s11_crazyeight",
+    "Quantity": 1,
+    "Tier": 66
+  },
+  {
+    "Item": "AthenaDance:eid_fingergunsv2",
+    "Quantity": 1,
+    "Tier": 71
+  },
+  {
+    "Item": "AthenaItemWrap:wrap_151_sheath",
+    "Quantity": 1,
+    "Tier": 76
+  },
+  {
+    "Item": "Token:athena_s11_nobattlebundleoption_token",
+    "Quantity": 1,
+    "Tier": 76
+  },
+  {
+    "Item": "BannerToken:bannertoken_014_s11_waterwaves",
+    "Quantity": 1,
+    "Tier": 81
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_206_grllama",
+    "Quantity": 1,
+    "Tier": 87
+  },
+  {
+    "Item": "AthenaDance:emoji_s11_noscope",
+    "Quantity": 1,
+    "Tier": 93
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 99
+  }
+]

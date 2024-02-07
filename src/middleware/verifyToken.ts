@@ -34,7 +34,6 @@ export default async function verifyToken(
     const decodedToken = jwt.decode(token);
 
     res.locals = {
-      ...res.locals,
       user: await Users.findOne({ accountId: decodedToken?.sub }).lean(),
       account: await Accounts.findOne({ accountId: decodedToken?.sub }).lean(),
       decodedToken,
@@ -45,7 +44,7 @@ export default async function verifyToken(
       return;
     }
 
-    Globals.accountId = decodedToken?.sub as string;
+    (global as any).accountId = decodedToken?.sub as string;
 
     if (res.locals.user.banned) {
       sendErrorResponse(

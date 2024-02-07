@@ -258,6 +258,44 @@ export default function initRoute(router: Router): void {
           containerName: "playlist_info",
           contentName: "playlists",
         },
+        frontend_matchmaking_header_style: "Basic",
+        _title: "playlistinformation",
+        frontend_matchmaking_header_text: "",
+        is_tile_hidden: false,
+        show_ad_violator: false,
+        playlist_info: {
+          _type: "Playlist Information",
+          playlists: [
+            {
+              image: "https://i.imgur.com/Dr9VVLL.png",
+              playlist_name: "Playlist_ShowdownAlt_Solo",
+              hidden: false,
+              special_border: "None",
+              _type: "FortPlaylistInfo",
+            },
+            {
+              image: ":https://i.imgur.com/Wgh3h52.png",
+              playlist_name: "Playlist_ShowdownAlt_Squads",
+              hidden: false,
+              special_border: "None",
+              _type: "FortPlaylistInfo",
+            },
+            {
+              image: "https://i.imgur.com/VTvRLHM.png",
+              playlist_name: "Playlist_ShowdownAlt_Trios",
+              hidden: false,
+              special_border: "None",
+              _type: "FortPlaylistInfo",
+            },
+            {
+              image: "https://i.imgur.com/rOvlncr.jpeg",
+              playlist_name: "Playlist_ShowdownAlt_Duos",
+              hidden: false,
+              special_border: "None",
+              _type: "FortPlaylistInfo",
+            },
+          ],
+        },
       },
     });
   });

@@ -21,3 +21,5 @@ export * from "./PurchaseItem";
 export * from "./Friend";
 export * from "./Event";
 export * from "./Command";
+export * from "./BanStatus";
+export * from "./Tier";

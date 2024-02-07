@@ -17,9 +17,11 @@ export default async function SetCosmeticLockerSlot(
   res: Response
 ) {
   try {
-    const account = await Account.findOne({ accountId }).lean();
-    const user = await User.findOne({ accountId }).lean();
-    const profile = await getProfile(accountId);
+    const [account, user, profile] = await Promise.all([
+      Account.findOne({ accountId }).lean(),
+      User.findOne({ accountId }).lean(),
+      getProfile(accountId),
+    ]);
 
     if (!account || !user) {
       return res.json({ error: "Account or User not found." });
@@ -29,41 +31,64 @@ export default async function SetCosmeticLockerSlot(
     const applyProfileChanges: any[] = [];
     const variants = Array.isArray(variantUpdates);
 
-    const getMatchingItemId = (itemToSlot: string) => {
-      for (const item in profile.items) {
-        if (profile.items[item].templateId === itemToSlot) {
-          matchingItemId = item;
-          break;
-        }
+    for (const itemId in profile.items) {
+      if (profile.items[itemId].templateId === itemToSlot) {
+        matchingItemId = itemId;
+        break;
       }
-    };
-
-    if (itemToSlot) {
-      getMatchingItemId(itemToSlot);
     }
 
-    if (profile.items[itemToSlot]) {
-      const itemTemplateId = profile.items[itemToSlot].templateId;
+    const itemToSlotExists = profile.items[itemToSlot];
 
-      if (!itemTemplateId.startsWith(`Athena${category}:`))
+    if (itemToSlotExists) {
+      const itemTemplateId: string = profile.items[itemToSlot].templateId;
+
+      if (!itemTemplateId.startsWith(`Athena${category}:`)) {
         return sendErrorResponse(
           res,
           "errors.com.epicgames.fortnite.id_invalid",
           `Item ${itemTemplateId} not found to slot in cosmetic locker`
         );
+      }
 
-      if (variants) {
-        for (const variant of variantUpdates) {
-          const { channel, active } = variant;
+      const variantsData: any[] = require("../../../resources/mcp/Variants.json");
+      const lowercasedTemplateId: string = itemTemplateId.toLowerCase();
+      const variantToAdd = variantsData.find(
+        (variant: any) => variant.id.toLowerCase() === lowercasedTemplateId
+      );
 
-          const index = profile.items[itemToSlot].attributes.variants.findIndex(
-            (x: any) => x.channel === channel
-          );
+      if (variantToAdd && variantToAdd.variants) {
+        profile.items[itemToSlot].attributes.variants = variantToAdd.variants;
+      }
 
-          if (index === -1) continue;
+      if (variantUpdates.length > 0) {
+        variantUpdates.forEach((variant) => {
+          const { channel, active, owned } = variant;
+          let hasVariant: boolean = true;
 
-          profile.items[itemToSlot].attributes.variants[index].active = active;
-        }
+          if (channel === "Numeric" || channel === "JerseyColor")
+            hasVariant = false;
+
+          if (channel && active && hasVariant) {
+            const existingIndex: number = profile.items[
+              itemToSlot
+            ].attributes.variants.findIndex(
+              (x: { channel: string }) => x.channel === channel
+            );
+
+            if (existingIndex === -1) {
+              profile.items[itemToSlot].attributes.variants.push({
+                channel,
+                active,
+                owned,
+              });
+            } else {
+              profile.items[itemToSlot].attributes.variants[
+                existingIndex
+              ].active = active;
+            }
+          }
+        });
 
         applyProfileChanges.push({
           changeType: "itemAttrChanged",
@@ -74,16 +99,27 @@ export default async function SetCosmeticLockerSlot(
       }
     }
 
+    const updateFavoriteSlot = (slotName: string, items: any[]) => {
+      const slotData = profile.items[lockerItem].attributes.locker_slots_data;
+      if (slotData && slotData.slots[slotName]) {
+        slotData.slots[slotName].items = items;
+        profile.stats.attributes[`favorite_${slotName.toLowerCase()}`] =
+          matchingItemId || itemToSlot;
+        applyProfileChanges.push({
+          changeType: "itemAttrChanged",
+          itemId: lockerItem,
+          attributeName: "locker_slots_data",
+          attributeValue: slotData,
+        });
+      }
+    };
+
     const updateItemWrapSlot = () => {
       const slotData = profile.items[lockerItem].attributes.locker_slots_data;
-      const items = slotData.slots.ItemWrap.items;
-
-      for (let i = 0; i < items.length; i++) {
-        items[i] = itemToSlot;
-        profile.stats.attributes.favorite_itemwraps[i] =
-          matchingItemId || itemToSlot;
-      }
-
+      const items = slotData.slots.ItemWrap.items.fill(itemToSlot);
+      profile.stats.attributes.favorite_itemwraps = items.map(
+        () => matchingItemId || itemToSlot
+      );
       applyProfileChanges.push({
         changeType: "itemAttrChanged",
         itemId: lockerItem,
@@ -91,48 +127,27 @@ export default async function SetCosmeticLockerSlot(
         attributeValue: slotData,
       });
     };
-
-    const updateCategorySlot = () => {
-      const slotData = profile.items[lockerItem].attributes.locker_slots_data;
-      slotData.slots[category].items = [itemToSlot];
-      profile.stats.attributes[`favorite_${category.toLowerCase()}`] =
-        matchingItemId || itemToSlot;
-
-      applyProfileChanges.push({
-        changeType: "itemAttrChanged",
-        itemId: lockerItem,
-        attributeName: "locker_slots_data",
-        attributeValue: slotData,
-      });
-    };
-
-    await Account.updateOne(
-      { accountId },
-      { $set: { profilerevision: account.profilerevision + 1 } }
-    );
 
     if (category === "Dance" && slotIndex >= 0 && slotIndex <= 5) {
       const slotData = profile.items[lockerItem].attributes.locker_slots_data;
-      slotData.slots.Dance.items[slotIndex] = itemToSlot;
-      profile.stats.attributes.favorite_dance[slotIndex] =
-        matchingItemId || itemToSlot;
-
-      applyProfileChanges.push({
-        changeType: "itemAttrChanged",
-        itemId: lockerItem,
-        attributeName: "locker_slots_data",
-        attributeValue: slotData,
-      });
-    } else if (category === "ItemWrap" && slotIndex >= 0 && slotIndex <= 7) {
-      updateItemWrapSlot();
-    } else if (slotIndex === -1) {
-      updateItemWrapSlot();
+      if (slotData && slotData.slots.Dance) {
+        slotData.slots.Dance.items[slotIndex] = itemToSlot;
+        profile.stats.attributes.favorite_dance[slotIndex] =
+          matchingItemId || itemToSlot;
+        applyProfileChanges.push({
+          changeType: "itemAttrChanged",
+          itemId: lockerItem,
+          attributeName: "locker_slots_data",
+          attributeValue: slotData,
+        });
+      }
     } else {
-      if (
-        category &&
-        profile.items[lockerItem].attributes.locker_slots_data.slots[category]
-      ) {
-        updateCategorySlot();
+      if (category === "ItemWrap" && slotIndex >= 0 && slotIndex <= 7) {
+        updateItemWrapSlot();
+      } else if (slotIndex === -1) {
+        updateItemWrapSlot();
+      } else {
+        updateFavoriteSlot(category, [itemToSlot]);
       }
     }
 
@@ -140,30 +155,39 @@ export default async function SetCosmeticLockerSlot(
       profile.rvn += 1;
       profile.commandRevision += 1;
       profile.Updated = DateTime.now().toISO();
-    }
 
-    res.json({
-      profileRevision: profile.rvn || 0,
-      profileId: "athena",
-      profileChangesBaseRevision: account.baseRevision || 0,
-      profileChanges: applyProfileChanges,
-      profileCommandRevision: profile.commandRevision || 0,
-      serverTime: DateTime.now().toISO(),
-      responseVersion: 1,
-    });
-
-    if (applyProfileChanges.length > 0) {
       await Account.updateOne(
         { accountId },
         {
           $set: {
             athena: profile,
+            profilerevision: account.profilerevision + 1,
           },
         }
       );
+
+      res.json({
+        profileRevision: profile.rvn || 0,
+        profileId: "athena",
+        profileChangesBaseRevision: account.baseRevision || 0,
+        profileChanges: applyProfileChanges,
+        profileCommandRevision: profile.commandRevision || 0,
+        serverTime: DateTime.now().toISO(),
+        responseVersion: 1,
+      });
+    } else {
+      res.json({
+        profileRevision: profile.rvn || 0,
+        profileId: "athena",
+        profileChangesBaseRevision: account.baseRevision || 0,
+        profileChanges: [],
+        profileCommandRevision: profile.commandRevision || 0,
+        serverTime: DateTime.now().toISO(),
+        responseVersion: 1,
+      });
     }
   } catch (error) {
-    let err = error as Error;
-    log.error(err.message, "SetCosmeticLockerSlot");
+    log.error(`Error: ${error}`, "SetCosmeticLockerSlot");
+    res.status(500).json({ error: "Internal Server Error" });
   }
 }

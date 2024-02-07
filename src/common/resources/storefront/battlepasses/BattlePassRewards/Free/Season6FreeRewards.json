@@ -1,0 +1,92 @@
+[
+  {
+    "Item": "AthenaDance:spid_061_spiderweb",
+    "Quantity": 1,
+    "Tier": 2
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_060_cowgirl",
+    "Quantity": 1,
+    "Tier": 4
+  },
+  {
+    "Item": "AthenaDance:eid_regalwave",
+    "Quantity": 1,
+    "Tier": 6
+  },
+  {
+    "Item": "AthenaDance:emoji_battlebus",
+    "Quantity": 1,
+    "Tier": 8
+  },
+  {
+    "Item": "HomebaseBannerIcon:brseason06floatingisland",
+    "Quantity": 1,
+    "Tier": 11
+  },
+  {
+    "Item": "AthenaBackpack:bid_121_redriding",
+    "Quantity": 1,
+    "Tier": 14
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 18
+  },
+  {
+    "Item": "AthenaGlider:glider_id_081_cowboygunslinger",
+    "Quantity": 1,
+    "Tier": 22
+  },
+  {
+    "Item": "AthenaDance:spid_053_ggpotion",
+    "Quantity": 1,
+    "Tier": 26
+  },
+  {
+    "Item": "AthenaPickaxe:pickaxe_id_102_redriding",
+    "Quantity": 1,
+    "Tier": 30
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 34
+  },
+  {
+    "Item": "AthenaBackpack:bid_123_fortnitedj",
+    "Quantity": 1,
+    "Tier": 38
+  },
+  {
+    "Item": "HomebaseBannerIcon:brseason06handhorns",
+    "Quantity": 1,
+    "Tier": 42
+  },
+  {
+    "Item": "AthenaDance:eid_needtogo",
+    "Quantity": 1,
+    "Tier": 46
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_053_supplyllama",
+    "Quantity": 1,
+    "Tier": 50
+  },
+  {
+    "Item": "AthenaSkyDiveContrail:trails_id_025_jackolantern",
+    "Quantity": 1,
+    "Tier": 54
+  },
+  {
+    "Item": "AthenaDance:emoji_tp",
+    "Quantity": 1,
+    "Tier": 58
+  },
+  {
+    "Item": "AthenaDance:spid_051_gameover",
+    "Quantity": 1,
+    "Tier": 62
+  }
+]

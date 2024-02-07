@@ -9,14 +9,14 @@ import updatePresenceForClientFriend from "../functions/updatePresenceForClientF
 
 export default {
   async handleClose(socket: WebSocket) {
-    const clientIndex = Globals.Clients.find(
-      (client) => client.socket === socket
+    const clientIndex = (global as any).Clients.find(
+      (client: any) => client.socket === socket
     );
-    const client = Globals.Clients[clientIndex];
+    const client = (global as any).Clients[clientIndex];
     if (clientIndex === -1) return;
 
     updatePresenceForClientFriend(socket, "{}", false, true);
-    Globals.Clients.splice(clientIndex, 1);
+    (global as any).Clients.splice(clientIndex, 1);
 
     for (let room of Saves.JoinedMUCs) {
       // @ts-ignore
@@ -69,11 +69,9 @@ export default {
 
     const sender = client?.accountId;
 
-    for (const { accountId, jid, socket } of Globals.Clients) {
+    for (const { accountId, jid, socket } of (global as any).Clients) {
       if (sender !== accountId) {
         const id = uuid().replace(/-/g, "").toUpperCase();
-        console.log(`partyId: ${selectedPartyId}`);
-
         socket?.send(
           xmlbuilder
             .create("message")

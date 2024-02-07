@@ -1,0 +1,72 @@
+[
+  {
+    "Item": "ChallengeBundleSchedule:season4_starterchallenge_schedule",
+    "Quantity": 1,
+    "Tier": 2
+  },
+  {
+    "Item": "HomebaseBannerIcon:brseason04goo",
+    "Quantity": 1,
+    "Tier": 6
+  },
+  {
+    "Item": "AthenaBackpack:bid_045_tacticaljungle",
+    "Quantity": 1,
+    "Tier": 10
+  },
+  {
+    "Item": "AthenaDance:emoji_angel",
+    "Quantity": 1,
+    "Tier": 14
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 18
+  },
+  {
+    "Item": "AthenaDance:emoji_teamwork",
+    "Quantity": 1,
+    "Tier": 22
+  },
+  {
+    "Item": "AthenaDance:eid_goodvibes",
+    "Quantity": 1,
+    "Tier": 26
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_020_supplydrop",
+    "Quantity": 1,
+    "Tier": 30
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 34
+  },
+  {
+    "Item": "HomebaseBannerIcon:brseason04chains",
+    "Quantity": 1,
+    "Tier": 38
+  },
+  {
+    "Item": "AthenaDance:emoji_rainbow",
+    "Quantity": 1,
+    "Tier": 42
+  },
+  {
+    "Item": "AthenaPickaxe:pickaxe_id_046_candy",
+    "Quantity": 1,
+    "Tier": 46
+  },
+  {
+    "Item": "HomebaseBannerIcon:brseason04teef",
+    "Quantity": 1,
+    "Tier": 50
+  },
+  {
+    "Item": "AthenaDance:eid_kungfusalute",
+    "Quantity": 1,
+    "Tier": 54
+  }
+]

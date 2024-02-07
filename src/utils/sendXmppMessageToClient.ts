@@ -7,8 +7,8 @@ export default async function sendXmppMessageToClient(
   payload: any,
   accountId: string
 ): Promise<void> {
-  const client = Globals.Clients.find(
-    (client) => client.accountId === accountId
+  const client = (global as any).Clients.find(
+    (client: any) => client.accountId === accountId
   );
   if (!client) return;
 

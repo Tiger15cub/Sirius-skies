@@ -13,6 +13,13 @@ interface RandomQuest {
   objectives: { [key: string]: string };
 }
 
+function shuffleArray(array: any[]) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
 export default async function ClientQuestLogin(
   res: Response,
   req: Request,
@@ -87,6 +94,8 @@ export default async function ClientQuestLogin(
           !existingTemplateIds.has(quest.templateId.toLowerCase())
       );
 
+      shuffleArray(questsToAdd);
+
       const selectedQuests = questsToAdd.slice(
         0,
         Math.min(3, questsToAdd.length)
@@ -111,7 +120,7 @@ export default async function ClientQuestLogin(
             last_state_change_time: DateTime.now().toISO(),
             challenge_linked_quest_parent: "",
             max_level_bonus: 0,
-            xp: 15000,
+            xp: 500,
             quest_rarity: "uncommon",
             favorite: false,
           },

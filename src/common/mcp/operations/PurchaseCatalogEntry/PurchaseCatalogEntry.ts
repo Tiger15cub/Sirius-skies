@@ -6,6 +6,10 @@ import Accounts from "../../../../models/Accounts";
 import { getSeason } from "../../../../utils";
 import log from "../../../../utils/log";
 import { getCommonCore, getProfile } from "../../utils/getProfile";
+import { json } from "../../../../api/storefront";
+import { Tier } from "../../../../interface";
+import AccountRefresh from "../../../../utils/AccountRefresh";
+import Users from "../../../../models/Users";
 
 interface ProfileChange {
   changeType: string;
@@ -36,35 +40,77 @@ export default async function PurchaseCatalogEntry(
       "shop.json"
     );
 
-    const variantsFilePath = path.join(
-      __dirname,
-      "..",
-      "..",
-      "..",
-      "resources",
-      "mcp",
-      "Variants.json"
-    );
-    const variantsData = JSON.parse(
-      await fs.readFile(variantsFilePath, "utf8")
-    );
-
     const shop = JSON.parse(await fs.readFile(shopPath, "utf-8"));
 
-    const account = await Accounts.findOne({ accountId });
+    const battlePass = `Season${season?.season}BattlePass.json`;
+    const freeRewardsName = `Season${season?.season}FreeRewards.json`;
+    const paidRewardsName = `Season${season?.season}PaidRewards.json`;
 
-    const applyProfileChanges: Object[] = [];
+    const battlepassData = await json(
+      path.join(
+        __dirname,
+        "..",
+        "..",
+        "..",
+        "resources",
+        "storefront",
+        "battlepasses",
+        battlePass
+      )
+    );
+
+    const freeRewards = await json(
+      path.join(
+        __dirname,
+        "..",
+        "..",
+        "..",
+        "resources",
+        "storefront",
+        "battlepasses",
+        "BattlePassRewards",
+        "Free",
+        freeRewardsName
+      )
+    );
+
+    const paidRewards = await json(
+      path.join(
+        __dirname,
+        "..",
+        "..",
+        "..",
+        "resources",
+        "storefront",
+        "battlepasses",
+        "BattlePassRewards",
+        "Paid",
+        paidRewardsName
+      )
+    );
+
+    let catalogEntriesData: any = null;
+
+    for (const entry of battlepassData.catalogEntries) {
+      catalogEntriesData = entry;
+    }
+
+    const account = await Accounts.findOne({ accountId });
+    const user = await Users.findOne({ accountId });
+
+    const applyProfileChanges: any[] = [];
     const notifications: any[] = [];
     const multiUpdate: any[] = [];
 
-    if (!account) {
+    if (!account || !user) {
       return res.status(404).json({
-        errorMessage: "Account not found.",
+        errorMessage: "Account or User not found.",
       });
     }
 
-    const userProfiles: any = await getProfile(accountId);
-    const commonCore: any = await getCommonCore(accountId);
+    const userProfiles = await getProfile(accountId);
+    const commonCore = await getCommonCore(accountId);
+    let isItemOwned: boolean = false;
 
     if (currency === "MtxCurrency" && profileId === "common_core") {
       if (!offerId || offerId === null) {
@@ -83,7 +129,6 @@ export default async function PurchaseCatalogEntry(
       if (offerId.includes(":/")) {
         const id: string = offerId.split(":/")[1];
         let matchedStorefront: any = null;
-        let isItemOwned: boolean = false;
 
         for (const storefront of shop.catalogItems.BRDailyStorefront) {
           if (storefront.id === id) {
@@ -198,14 +243,17 @@ export default async function PurchaseCatalogEntry(
               quantity: 1,
             });
           }
-          for (const item in commonCore.items) {
-            commonCore.items[item].quantity -= matchedStorefront.price;
+
+          let quantity = commonCore.items["Currency:MtxPurchased"].quantity;
+
+          for (const item of commonCore.items) {
+            quantity -= matchedStorefront.price;
             const itemUUID = uuid();
 
             applyProfileChanges.push({
-              changeType: "itemQuantityChanged",
-              itemId: matchedStorefront.item,
-              quantity: commonCore.items[item].quantity,
+              changeType: "itemAttrChanged",
+              itemId: "Currency:MtxPurchased",
+              quantity,
             });
 
             commonCore.stats.attributes["mtx_purchase_history"] = {
@@ -217,6 +265,7 @@ export default async function PurchaseCatalogEntry(
                   purchaseId: uuid(),
                   offerId,
                   purchaseDate: DateTime.now().toISO(),
+                  refundDate: DateTime.now().toISO(),
                   undoTimeout: "9999-12-12T00:00:00.000Z",
                   freeRefundEligible: true,
                   fulfillments: [],
@@ -225,7 +274,7 @@ export default async function PurchaseCatalogEntry(
                       itemType: matchedStorefront.item,
                       itemGuid: itemUUID,
                       itemProfile: "athena",
-                      quantity: commonCore.items[item].quantity,
+                      quantity,
                     },
                   ],
                   totalMtxPaid: expectedTotalPrice,
@@ -251,25 +300,257 @@ export default async function PurchaseCatalogEntry(
             error: undefined,
           });
         }
-
-        if (multiUpdate.length > 0) {
-          rvn += 1;
-          userProfiles.rvn += 1;
-          userProfiles.commandRevision += 1;
-          userProfiles.Updated = DateTime.utc().toISO();
-
-          Accounts.updateOne({ accountId }, { $set: { RVN: account.RVN } });
-          Accounts.updateOne(
-            { accountId },
-            { $set: { baseRevision: account.baseRevision } }
-          );
-        }
       }
-    } else {
-      // TODO: Battle Pass
     }
 
-    if (applyProfileChanges.length > 0) {
+    // BattlePass Purchasing
+    for (const entry of battlepassData.catalogEntries) {
+      catalogEntriesData = entry;
+
+      if (offerId === catalogEntriesData.offerId) {
+        let quantity = commonCore.items["Currency:MtxPurchased"].quantity;
+
+        let book_level: number = userProfiles.stats.attributes.book_level;
+
+        const isBattleBundle =
+          catalogEntriesData.devName ===
+          `BR.Season${season?.season}.BattleBundle.01`;
+        const isSingleTier =
+          catalogEntriesData.devName ===
+          `BR.Season${season?.season}.SingleTier.01`;
+
+        let newLevel: number;
+        if (isBattleBundle) {
+          newLevel = Math.min(book_level + 25, 100);
+        } else if (isSingleTier) {
+          newLevel = Math.min(book_level + purchaseQuantity, 100);
+        } else {
+          newLevel = 1;
+        }
+
+        const EndingbookLevel = (userProfiles.stats.attributes.book_level =
+          newLevel);
+
+        if (!isSingleTier) {
+          if (quantity) {
+            quantity -= catalogEntriesData.prices[0].finalPrice;
+
+            applyProfileChanges.push({
+              changeType: "itemAttrChanged",
+              itemId: "Currency:MtxPurchased",
+              quantity,
+            });
+
+            isItemOwned = true;
+          }
+
+          if (!isItemOwned && catalogEntriesData.prices[0].finalPrice > 0) {
+            return res.status(400).json({
+              errorCode: "errors.com.epicgames.currency.mtx.insufficient",
+              errorMessage: `You can not afford this item (${catalogEntriesData.prices[0].finalPrice}).`,
+              messageVars: undefined,
+              numericErrorCode: 1040,
+              originatingService: "any",
+              intent: "prod",
+              error_description: `You can not afford this item (${catalogEntriesData.prices[0].finalPrice}).`,
+              error: undefined,
+            });
+          }
+
+          userProfiles.stats.attributes.book_purchased = true;
+          multiUpdate.push({
+            changeType: "statModified",
+            name: "book_purchased",
+            value: userProfiles.stats.attributes.book_purchased,
+          });
+        }
+
+        let finalPrice: number = 0;
+        for (let i = book_level; i < EndingbookLevel; i++) {
+          const paidTiers = paidRewards.filter(
+            (t: { Tier: number }) => t.Tier == i + 1
+          );
+          const freeTiers = freeRewards.filter(
+            (t: { Tier: number }) => t.Tier == i + 1
+          );
+
+          function GrantBattlePassTier(
+            entry: { Item: string; Quantity: number; Tier: number },
+            paid: boolean
+          ) {
+            var item = entry.Item;
+            var count = entry.Quantity;
+            var id = uuid();
+
+            if (paid) finalPrice += catalogEntriesData.prices[0].finalPrice;
+            if (
+              item.toLowerCase().startsWith("athena") ||
+              item.toLowerCase().startsWith("homebasebanner") ||
+              item.toLowerCase().startsWith("challengebundleschedule")
+            ) {
+              var exists = false;
+              for (var key in userProfiles.items) {
+                if (
+                  userProfiles.items[key].templateId.toLowerCase() ==
+                  item.toLowerCase()
+                ) {
+                  exists = true;
+                  break;
+                }
+              }
+
+              if (!exists) {
+                const newItemTemplate = item
+                  .toLowerCase()
+                  .startsWith("homebasebanner")
+                  ? {
+                      templateId: item,
+                      attributes: { itemSeen: false },
+                      quantity: 1,
+                    }
+                  : {
+                      templateId: item,
+                      attributes: {
+                        maxLevelBonus: 0,
+                        level: 1,
+                        itemSeen: false,
+                        xp: 0,
+                        variants: [],
+                        favorite: false,
+                      },
+                      quantity: count,
+                    };
+
+                userProfiles.items[id] = newItemTemplate;
+                multiUpdate.push({
+                  changeType: "itemAdded",
+                  itemId: id,
+                  item: userProfiles.items[id],
+                });
+              }
+
+              notifications.push({
+                itemType: item,
+                itemGuid: id,
+                quantity: count,
+              });
+            } else {
+              switch (item.toLowerCase()) {
+                case "token:athenaseasonxpboost":
+                  if (
+                    Number.isNaN(
+                      userProfiles.stats.attributes.season_match_boost
+                    )
+                  )
+                    userProfiles.stats.attributes.season_match_boost = 0;
+                  userProfiles.stats.attributes.season_match_boost += count;
+
+                  multiUpdate.push({
+                    changeType: "statModified",
+                    name: "season_match_boost",
+                    value: userProfiles.stats.attributes.season_match_boost,
+                  });
+                  break;
+                case "token:athenaseasonfriendxpboost":
+                  if (
+                    Number.isNaN(
+                      userProfiles.stats.attributes.season_friend_match_boost
+                    )
+                  )
+                    userProfiles.stats.attributes.season_friend_match_boost = 0;
+                  userProfiles.stats.attributes.season_friend_match_boost +=
+                    count;
+
+                  multiUpdate.push({
+                    changeType: "statModified",
+                    name: "season_friend_match_boost",
+                    value:
+                      userProfiles.stats.attributes.season_friend_match_boost,
+                  });
+                  break;
+                case "currency:mtxgiveaway":
+                  for (var key in commonCore.items) {
+                    if (
+                      String(commonCore.items[key].templateId)
+                        .toLowerCase()
+                        .startsWith("currency:mtx")
+                    ) {
+                      commonCore.items[key].quantity += count;
+
+                      applyProfileChanges.push({
+                        changeType: "itemAttrChanged",
+                        itemId: commonCore.items[key].templateId,
+                        quantity: commonCore.items[key].quantity,
+                      });
+                    }
+                  }
+                  break;
+              }
+            }
+          }
+
+          for (var itemEntry of paidTiers) {
+            GrantBattlePassTier(itemEntry, true);
+          }
+
+          for (var itemEntry of freeTiers) {
+            GrantBattlePassTier(itemEntry, false);
+          }
+
+          if (finalPrice > quantity && isSingleTier) {
+            return res.status(400).json({
+              errorCode: "errors.com.epicgames.currency.mtx.insufficient",
+              errorMessage: `You can not afford this item (${finalPrice}).`,
+              messageVars: undefined,
+              numericErrorCode: 1040,
+              originatingService: "any",
+              intent: "prod",
+              error_description: `You can not afford this item (${finalPrice}).`,
+              error: undefined,
+            });
+          }
+        }
+        if (isSingleTier)
+          commonCore.items["Currency:MtxPurchased"].quantity -= finalPrice;
+
+        applyProfileChanges.push({
+          changeType: "itemAttrChanged",
+          itemId: "Currency:MtxPurchased",
+          quantity: commonCore.items["Currency:MtxPurchased"].quantity,
+        });
+
+        multiUpdate.push({
+          changeType: "statModified",
+          name: "book_level",
+          value: EndingbookLevel,
+        });
+
+        if (season?.season! >= 11) {
+          userProfiles.stats.attributes.level = EndingbookLevel;
+          userProfiles.stats.attributes.accountLevel +=
+            userProfiles.stats.attrobt;
+        } else {
+          userProfiles.stats.attributes.accountLevel += EndingbookLevel;
+        }
+
+        if (purchaseQuantity >= 100) {
+          return res.status(400).json({
+            errorCode: "errors.com.epicgames.offer.limit_reached",
+            errorMessage:
+              "You've already unlocked all the tiers of this Battle Pass.",
+            messageVars: undefined,
+            numericErrorCode: 28000,
+            originatingService: "any",
+            intent: "prod",
+            error_description:
+              "You've already unlocked all the tiers of this Battle Pass.",
+            error: undefined,
+          });
+        }
+      }
+    }
+
+    if (applyProfileChanges.length > 0 && multiUpdate.length > 0) {
       userProfiles.rvn += 1;
       userProfiles.commandRevision += 1;
       userProfiles.Updated = DateTime.utc().toISO();
@@ -298,23 +579,20 @@ export default async function PurchaseCatalogEntry(
       multiUpdate: [
         {
           profileRevision: userProfiles.rvn,
-          profileId: "athena",
+          profileId,
           profileChangesBaseRevision: account.baseRevision,
           profileChanges: multiUpdate,
           profileCommandRevision: userProfiles.commandRevision,
         },
       ],
-      response: 1,
+      responseVersion: 1,
     });
 
-    if (applyProfileChanges.length > 0) {
-      await account.updateOne({ $set: { common_core: commonCore } });
-    }
-
-    if (applyProfileChanges.length > 0) {
+    if (applyProfileChanges.length > 0 && multiUpdate.length > 0) {
       await account.updateOne({
         $set: {
           athena: userProfiles,
+          common_core: commonCore,
         },
       });
     }

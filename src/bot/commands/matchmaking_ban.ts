@@ -119,8 +119,7 @@ export default class MatchmakingBan extends BaseCommand {
       }
     );
 
-    // broken
-    // await AccountRefresh(user.accountId, user.username);
+    await AccountRefresh(user.accountId, user.username);
 
     const embed = new EmbedBuilder()
       .setTitle("User Successfully Banned")

@@ -1,0 +1,92 @@
+[
+  {
+    "Item": "AthenaDance:spid_102_ggaztec",
+    "Quantity": 1,
+    "Tier": 2
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_099_piratetheme",
+    "Quantity": 1,
+    "Tier": 4
+  },
+  {
+    "Item": "AthenaSkyDiveContrail:trails_id_045_undertow",
+    "Quantity": 1,
+    "Tier": 6
+  },
+  {
+    "Item": "AthenaDance:emoji_sun",
+    "Quantity": 1,
+    "Tier": 8
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 11
+  },
+  {
+    "Item": "AthenaDance:eid_happywave",
+    "Quantity": 1,
+    "Tier": 14
+  },
+  {
+    "Item": "HomebaseBannerIcon:brs8jollyroger",
+    "Quantity": 1,
+    "Tier": 18
+  },
+  {
+    "Item": "AthenaBackpack:bid_215_masterkey",
+    "Quantity": 1,
+    "Tier": 22
+  },
+  {
+    "Item": "AthenaDance:spid_090_dancefloorbox",
+    "Quantity": 1,
+    "Tier": 26
+  },
+  {
+    "Item": "AthenaGlider:glider_id_129_fireelf",
+    "Quantity": 1,
+    "Tier": 30
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 34
+  },
+  {
+    "Item": "AthenaPickaxe:pickaxe_id_167_medusa",
+    "Quantity": 1,
+    "Tier": 38
+  },
+  {
+    "Item": "HomebaseBannerIcon:brs8treasurechest",
+    "Quantity": 1,
+    "Tier": 42
+  },
+  {
+    "Item": "AthenaDance:eid_youboreme",
+    "Quantity": 1,
+    "Tier": 46
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_098_dragonninja",
+    "Quantity": 1,
+    "Tier": 50
+  },
+  {
+    "Item": "AthenaMusicPack:musicpack_008_coral",
+    "Quantity": 1,
+    "Tier": 54
+  },
+  {
+    "Item": "AthenaDance:emoji_ggjellyfish",
+    "Quantity": 1,
+    "Tier": 58
+  },
+  {
+    "Item": "AthenaDance:spid_093_theend",
+    "Quantity": 1,
+    "Tier": 62
+  }
+]

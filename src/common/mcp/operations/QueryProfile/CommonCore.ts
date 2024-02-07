@@ -4,8 +4,10 @@ import Accounts from "../../../../models/Accounts";
 import Users from "../../../../models/Users";
 import { getCommonCore } from "../../utils/getProfile";
 import log from "../../../../utils/log";
+import CommonCoreData from "../../../resources/mcp/Common_Core.json";
+import { BanStatus } from "../../../../interface";
 
-const DEFAULT_BAN_STATUS = {
+const DEFAULT_BAN_STATUS: BanStatus = {
   bRequiresUserAck: false,
   banReasons: [],
   bBanHasStarted: false,
@@ -16,7 +18,7 @@ const DEFAULT_BAN_STATUS = {
   competitiveBanReason: "None",
 };
 
-async function checkBanExpiry(accountId: string) {
+async function checkBanExpiry(accountId: string): Promise<void> {
   const expiredBans = await Accounts.findOne({
     accountId,
     "common_core.stats.attributes.ban_status.bBanHasStarted": true,
@@ -101,8 +103,10 @@ export default async function ProfileCommonCore(
       },
     ];
 
-    const commonCore = require("../../../resources/mcp/Common_Core.json");
-    common_core.items = { ...common_core.items, commonCore };
+    common_core.items = {
+      ...common_core.items,
+      CommonCoreData,
+    };
 
     await Account.updateOne({ accountId }, { $set: { common_core } });
 

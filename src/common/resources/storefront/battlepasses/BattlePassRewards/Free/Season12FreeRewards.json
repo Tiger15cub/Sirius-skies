@@ -1,0 +1,107 @@
+[
+  {
+    "Item": "AthenaDance:eid_callme",
+    "Quantity": 1,
+    "Tier": 2
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 5
+  },
+  {
+    "Item": "AthenaDance:emoji_s12_skulldude",
+    "Quantity": 1,
+    "Tier": 9
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_219_alterego",
+    "Quantity": 1,
+    "Tier": 13
+  },
+  {
+    "Item": "AthenaDance:spid_189_skulldude",
+    "Quantity": 1,
+    "Tier": 18
+  },
+  {
+    "Item": "AthenaBackpack:bid_472_desertopscamo",
+    "Quantity": 1,
+    "Tier": 23
+  },
+  {
+    "Item": "AthenaItemWrap:wrap_211_tntina",
+    "Quantity": 1,
+    "Tier": 28
+  },
+  {
+    "Item": "BannerToken:bannertoken_029_s12_cowboy",
+    "Quantity": 1,
+    "Tier": 33
+  },
+  {
+    "Item": "AthenaMusicPack:musicpack_042_bunnyhop",
+    "Quantity": 1,
+    "Tier": 38
+  },
+  {
+    "Item": "AthenaPickaxe:pickaxe_id_368_bananaagent",
+    "Quantity": 1,
+    "Tier": 43
+  },
+  {
+    "Item": "AthenaDance:spid_194_dumpsterfire",
+    "Quantity": 1,
+    "Tier": 48
+  },
+  {
+    "Item": "AthenaGlider:glider_id_195_buffcatmale",
+    "Quantity": 1,
+    "Tier": 53
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_226_threemeowscles",
+    "Quantity": 1,
+    "Tier": 58
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 63
+  },
+  {
+    "Item": "AthenaDance:eid_truckerhorn",
+    "Quantity": 1,
+    "Tier": 68
+  },
+  {
+    "Item": "AthenaLoadingScreen:lsid_223_sharkisland",
+    "Quantity": 1,
+    "Tier": 73
+  },
+  {
+    "Item": "Token:athena_s12_nobattlebundleoption_token",
+    "Quantity": 1,
+    "Tier": 76
+  },
+  {
+    "Item": "AthenaItemWrap:wrap_206_photographer",
+    "Quantity": 1,
+    "Tier": 79
+  },
+  {
+    "Item": "AthenaSkyDiveContrail:trails_id_086_snowstorm",
+    "Quantity": 1,
+    "Tier": 85
+  },
+  {
+    "Item": "BannerToken:bannertoken_044_s12_bananaagent",
+    "Quantity": 1,
+    "Tier": 92
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 99
+  }
+]

@@ -8,7 +8,7 @@ import {
   ApplicationCommandOptionType,
 } from "discord.js";
 import Users from "../../models/Users";
-import Accounts, { BanTypes } from "../../models/Accounts";
+import Accounts from "../../models/Accounts";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
 import log from "../../utils/log";
@@ -128,18 +128,10 @@ export default class RegisterCommand extends BaseCommand {
         accountId,
         discordId: userId,
         banned: false,
-        banned_type: BanTypes.NONE,
-        timesinceLastUpdate: Date.now(),
         hasFL: false,
       });
 
       await newUser.save().then(async (acc) => {
-        log.log(
-          `Created user with the username ${username}`,
-          "Bot",
-          "magentaBright"
-        );
-
         const account = new Accounts({
           accountId: acc.accountId,
           discordId: acc.discordId,
@@ -159,24 +151,12 @@ export default class RegisterCommand extends BaseCommand {
           ),
         });
 
-        account.save();
-        log.log(
-          `Created account with the username ${username}`,
-          "Bot",
-          "magentaBright"
-        );
-
         const friends = new Friends({
           accountId: acc.accountId,
         });
 
+        account.save();
         friends.save();
-
-        log.log(
-          `Created friends model for user with the username ${username}`,
-          "Bot",
-          "magentaBright"
-        );
       });
 
       const embed = new EmbedBuilder()

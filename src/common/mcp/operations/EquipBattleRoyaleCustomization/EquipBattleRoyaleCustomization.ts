@@ -1,11 +1,9 @@
-import { DateTime, StringUnitLength } from "luxon";
+import { DateTime } from "luxon";
 import Account from "../../../../models/Accounts";
 import log from "../../../../utils/log";
 import { Response } from "express";
 import { getProfile } from "../../utils/getProfile";
 import { sendErrorResponse } from "../../../../utils";
-import fs from "node:fs/promises";
-import path from "node:path";
 
 interface Variant {
   channel: string;
@@ -13,122 +11,115 @@ interface Variant {
   owned?: string[];
 }
 
-const isValidVariant = (variant: any) =>
-  typeof variant === "object" && variant.channel && variant.active;
-
 export default async function EquipBattleRoyaleCustomization(
   accountId: string,
   slotName: string,
   itemToSlot: string,
   slotIndex: string,
   indexWithinSlot: number,
-  variantUpdates: any[],
+  variantUpdates: Variant[],
   lockerItem: string,
   profileId: string,
   rvn: number,
   res: Response
 ) {
   try {
-    const account = await Account.findOne({ accountId });
+    const [userProfiles, account] = await Promise.all([
+      getProfile(accountId),
+      Account.findOne({ accountId }).select("athena").lean().exec(),
+    ]);
 
     if (!account) {
       return res.status(404).json({ error: "Failed to find Account." });
     }
 
-    const userProfiles: any = await getProfile(accountId);
     const applyProfileChanges: any[] = [];
     const itemToSlotExists = userProfiles.items[itemToSlot];
 
-    if (userProfiles.items[itemToSlot]) {
-      const itemTemplateId = userProfiles.items[itemToSlot].templateId;
+    if (itemToSlotExists) {
+      const itemTemplateId: string = userProfiles.items[itemToSlot].templateId;
 
-      if (!itemTemplateId.startsWith(`Athena${slotName}:`))
+      if (!itemTemplateId.startsWith(`Athena${slotName}:`)) {
         return sendErrorResponse(
           res,
           "errors.com.epicgames.fortnite.id_invalid",
           `Item ${itemTemplateId} not found to slot in cosmetic locker`
         );
-
-      const variants = Array.isArray(variantUpdates);
-
-      try {
-        const variantsFilePath = path.join(
-          __dirname,
-          "..",
-          "..",
-          "..",
-          "resources",
-          "mcp",
-          "Variants.json"
-        );
-        const variantsData = JSON.parse(
-          await fs.readFile(variantsFilePath, "utf8")
-        );
-
-        const lowercasedTemplateId = itemTemplateId.toLowerCase();
-        const variantToAdd = variantsData.find(
-          (variant: { id: string }) =>
-            variant.id.toLowerCase() === lowercasedTemplateId
-        );
-
-        if (variantToAdd && variantToAdd.variants) {
-          userProfiles.items[itemToSlot].attributes.variants =
-            variantToAdd.variants;
-        }
-      } catch (error) {
-        log.error(
-          `Failed to update Variant: ${error}`,
-          "EquipBattleRoyaleCustomization"
-        );
       }
 
-      if (variants) {
-        for (const variant of variantUpdates) {
-          const { channel, active } = variant;
+      const variantsData: any[] = require("../../../resources/mcp/Variants.json");
+      const lowercasedTemplateId: string = itemTemplateId.toLowerCase();
+      const variantToAdd = variantsData.find(
+        (variant: any) => variant.id.toLowerCase() === lowercasedTemplateId
+      );
 
-          if (channel && active) {
-            if (userProfiles.items[itemToSlot].attributes.variants.length === 0)
-              userProfiles.items[itemToSlot].attributes.variants =
-                variantUpdates || [];
+      if (variantToAdd && variantToAdd.variants) {
+        userProfiles.items[itemToSlot].attributes.variants =
+          variantToAdd.variants;
+      }
 
-            const index = userProfiles.items[
+      if (variantUpdates.length > 0) {
+        variantUpdates.forEach((variant) => {
+          const { channel, active, owned } = variant;
+          let hasVariant: boolean = true;
+
+          if (
+            channel === "Numeric" ||
+            channel === "JerseyColor" ||
+            channel === "RichColor"
+          )
+            hasVariant = false;
+
+          /* if (!hasVariant) {
+            const existingIndex: number = userProfiles.items[
               itemToSlot
-            ].attributes.variants.findIndex((x: any) => x.channel === channel);
+            ].attributes.variants.findIndex(
+              (x: { channel: string }) => x.channel === channel
+            );
 
-            if (index === -1) {
+            if (existingIndex === -1) {
+
+            }
+          } */
+
+          if (channel && active && hasVariant) {
+            const existingIndex: number = userProfiles.items[
+              itemToSlot
+            ].attributes.variants.findIndex(
+              (x: { channel: string }) => x.channel === channel
+            );
+
+            if (existingIndex === -1) {
               userProfiles.items[itemToSlot].attributes.variants.push({
                 channel,
                 active,
-                owned: [],
+                owned,
               });
+            } else {
+              userProfiles.items[itemToSlot].attributes.variants[
+                existingIndex
+              ].active = active;
             }
-
-            const existingIndex = userProfiles.items[
-              itemToSlot
-            ].attributes.variants.findIndex((x: any) => x.channel === channel);
-            userProfiles.items[itemToSlot].attributes.variants[
-              existingIndex
-            ].active = active;
           }
+        });
 
-          applyProfileChanges.push({
-            changeType: "itemAttrChanged",
-            itemId: itemToSlot,
-            attributeName: "variants",
-            attributeValue: userProfiles.items[itemToSlot].attributes.variants,
-          });
-        }
+        applyProfileChanges.push({
+          changeType: "itemAttrChanged",
+          itemId: itemToSlot,
+          attributeName: "variants",
+          attributeValue: userProfiles.items[itemToSlot].attributes.variants,
+        });
       }
     }
 
     const activeLoadoutId =
       userProfiles.stats.attributes.loadouts[
-      userProfiles.stats.attributes.active_loadout_index
+        userProfiles.stats.attributes.active_loadout_index
       ];
     const cosmeticTemplateId =
       userProfiles.items[itemToSlot]?.templateId || itemToSlot;
 
-    const updateFavoriteSlot = (slotType: string, index: number) => {
+    const updateFavoriteSlot = async (slotType: string, index: number) => {
       userProfiles.stats.attributes[`favorite_${slotType.toLowerCase()}`] =
         itemToSlot;
 
@@ -138,38 +129,39 @@ export default async function EquipBattleRoyaleCustomization(
         const slotItems = lockerSlotsData.slots[slotType].items;
 
         if (Array.isArray(slotItems)) {
-          for (let i = 0; i < index; i++) {
-            if (i < slotItems.length) {
-              slotItems[i] = cosmeticTemplateId;
-            }
+          for (let i = 0; i < Math.min(index, slotItems.length); i++) {
+            slotItems[i] = cosmeticTemplateId;
           }
         }
       }
+
       applyProfileChanges.push({
         changeType: "itemAttrChanged",
         itemId: itemToSlot,
-        attributeName: `favorite_${slotName.toLowerCase}`,
+        attributeName: `favorite_${slotType.toLowerCase()}`,
         attributeValue:
-          userProfiles.stats.attributes[`favorite_${slotName.toLowerCase()}`],
+          userProfiles.stats.attributes[`favorite_${slotType.toLowerCase()}`],
       });
+    };
 
-      if (indexWithinSlot === -1) {
-        for (let i = 0; i < index; i++) {
-          userProfiles.stats.attributes[`favorite_${slotType.toLowerCase()}`] =
-            itemToSlot;
+    const applyChanges = async (slotName: string, indexWithinSlot: number) => {
+      if (
+        slotName === "Dance" &&
+        indexWithinSlot >= 0 &&
+        indexWithinSlot <= 5
+      ) {
+        userProfiles.stats.attributes.favorite_dance[indexWithinSlot] =
+          itemToSlot;
 
-          const activeLoadout = userProfiles.items[activeLoadoutId];
-          if (activeLoadout && activeLoadout.attributes.locker_slots_data) {
-            const lockerSlotsData = activeLoadout.attributes.locker_slots_data;
-            if (lockerSlotsData.slots[slotType]) {
-              const slotItems = lockerSlotsData.slots[slotType].items;
+        const activeLoadout = userProfiles.items[activeLoadoutId];
+        if (activeLoadout && activeLoadout.attributes.locker_slots_data) {
+          const lockerSlotsData = activeLoadout.attributes.locker_slots_data;
+          if (lockerSlotsData.slots[slotName]) {
+            const slotItems = lockerSlotsData.slots[slotName].items;
 
-              if (Array.isArray(slotItems)) {
-                for (let i = 0; i < index; i++) {
-                  if (i < slotItems.length) {
-                    slotItems[i] = cosmeticTemplateId;
-                  }
-                }
+            if (slotName === "Dance" && Array.isArray(slotItems)) {
+              if (indexWithinSlot >= 0 && indexWithinSlot < slotItems.length) {
+                slotItems[indexWithinSlot] = cosmeticTemplateId;
               }
             }
           }
@@ -179,45 +171,39 @@ export default async function EquipBattleRoyaleCustomization(
           changeType: "itemAttrChanged",
           itemId: itemToSlot,
           attributeName: `favorite_${slotName.toLowerCase}`,
-          attributeValue:
-            userProfiles.stats.attributes[`favorite_${slotName.toLowerCase()}`],
+          attributeValue: userProfiles.stats.attributes[`favorite_dance`],
         });
+      } else if (
+        slotName === "ItemWrap" &&
+        indexWithinSlot >= 0 &&
+        indexWithinSlot <= 7
+      ) {
+        await updateFavoriteSlot("ItemWrap", indexWithinSlot);
+      } else {
+        await updateFavoriteSlot(slotName, 1);
       }
     };
 
-    if (slotName === "Dance" && indexWithinSlot >= 0 && indexWithinSlot <= 5) {
-      userProfiles.stats.attributes.favorite_dance[indexWithinSlot] =
-        itemToSlot;
+    await applyChanges(slotName, indexWithinSlot);
 
-      const activeLoadout = userProfiles.items[activeLoadoutId];
-      if (activeLoadout && activeLoadout.attributes.locker_slots_data) {
-        const lockerSlotsData = activeLoadout.attributes.locker_slots_data;
-        if (lockerSlotsData.slots[slotName]) {
-          const slotItems = lockerSlotsData.slots[slotName].items;
-
-          if (slotName === "Dance" && Array.isArray(slotItems)) {
-            if (indexWithinSlot >= 0 && indexWithinSlot < slotItems.length) {
-              slotItems[indexWithinSlot] = cosmeticTemplateId;
-            }
-          }
-        }
-      }
-
-      applyProfileChanges.push({
-        changeType: "itemAttrChanged",
-        itemId: itemToSlot,
-        attributeName: `favorite_${slotName.toLowerCase}`,
-        attributeValue: userProfiles.stats.attributes[`favorite_dance`],
-      });
-    } else if (
-      slotName === "ItemWrap" &&
-      indexWithinSlot >= 0 &&
-      indexWithinSlot <= 7
-    ) {
-      updateFavoriteSlot("ItemWrap", indexWithinSlot);
-    } else {
-      updateFavoriteSlot(slotName, 1);
+    if (applyProfileChanges.length > 0) {
+      userProfiles.rvn += 1;
+      userProfiles.commandRevision += 1;
+      userProfiles.Updated = DateTime.now().toISO();
     }
+
+    const bulkUpdateOperations: any[] = [
+      {
+        updateOne: {
+          filter: { accountId: accountId },
+          update: { $set: { athena: userProfiles } },
+          upsert: true,
+        },
+      },
+    ];
+
+    const updateTimeStart = process.hrtime.bigint();
+    await Account.bulkWrite(bulkUpdateOperations);
 
     res.json({
       profileRevision: userProfiles.rvn || 0,
@@ -228,19 +214,8 @@ export default async function EquipBattleRoyaleCustomization(
       serverTime: DateTime.now().toISO(),
       responseVersion: 1,
     });
-
-    if (applyProfileChanges.length > 0) {
-      userProfiles.rvn += 1;
-      userProfiles.commandRevision += 1;
-      userProfiles.Updated = DateTime.now().toISO();
-
-      await account.updateOne(
-        { $set: { athena: userProfiles } },
-        { writeConcern: { w: 0 } }
-      );
-    }
   } catch (error) {
-    const err = error as Error;
-    log.error(err.message, "EquipBattleRoyaleCustomization");
+    log.error(`Error: ${error}`, "EquipBattleRoyaleCustomization");
+    res.status(500).json({ error: "Internal Server Error" });
   }
 }

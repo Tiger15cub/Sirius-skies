@@ -1,0 +1,62 @@
+[
+  {
+    "Item": "AthenaDance:emoji_lol",
+    "Quantity": 1,
+    "Tier": 2
+  },
+  {
+    "Item": "AthenaDance:eid_wave",
+    "Quantity": 1,
+    "Tier": 5
+  },
+  {
+    "Item": "HomebaseBannerIcon:brseason02salt",
+    "Quantity": 1,
+    "Tier": 8
+  },
+  {
+    "Item": "AthenaDance:emoji_hearthands",
+    "Quantity": 1,
+    "Tier": 11
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 14
+  },
+  {
+    "Item": "AthenaDance:emoji_bullseye",
+    "Quantity": 1,
+    "Tier": 17
+  },
+  {
+    "Item": "AthenaDance:eid_ridethepony_athena",
+    "Quantity": 1,
+    "Tier": 20
+  },
+  {
+    "Item": "AccountResource:athenaseasonalxp",
+    "Quantity": 1000,
+    "Tier": 23
+  },
+  {
+    "Item": "HomebaseBannerIcon:brseason02crosshair",
+    "Quantity": 1,
+    "Tier": 26
+  },
+  {
+    "Item": "Currency:mtxgiveaway",
+    "Quantity": 100,
+    "Tier": 29
+  },
+  {
+    "Item": "HomebaseBannerIcon:brseason02shark",
+    "Quantity": 1,
+    "Tier": 32
+  },
+  {
+    "Item": "AthenaGlider:glider_id_002_medieval",
+    "Quantity": 1,
+    "Tier": 35
+  }
+]

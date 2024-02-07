@@ -8,7 +8,8 @@ import Accounts from "../../../../models/Accounts";
 export default async function RemoveGiftBox(
   req: Request,
   res: Response,
-  accountId: string
+  accountId: string,
+  profileId: string
 ) {
   try {
     const { giftBoxItemId, giftBoxItemIds } = req.body;
@@ -54,7 +55,7 @@ export default async function RemoveGiftBox(
 
     res.json({
       profileRevision: common_core.rvn || 0,
-      profileId: "common_core",
+      profileId,
       profileChangesBaseRevision: account.baseRevision || 0,
       profileChanges: applyProfileChanges,
       profileCommandRevision: common_core.baseRevision || 0,
