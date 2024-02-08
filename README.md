@@ -79,7 +79,7 @@ To get started with `Sirius`, follow these steps:
 
    - Navigate to the `config` folder
    - Rename `.env.example` to `.env`
-   - Edit `CLIENT_SECRET` in the `.env` file and enter your backend client secret (enter a random string of number or letters must be 32 characters or more.).
+   - Edit `CLIENT_SECRET` in the `.env` file and enter your backend client secret (enter a random string of numbers or letters must be 32 characters or more.).
 
 4. **Install Dependencies:**
    Open your command prompt and run:
