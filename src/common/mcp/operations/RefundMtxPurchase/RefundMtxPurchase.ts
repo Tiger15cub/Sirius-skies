@@ -59,7 +59,7 @@ export default async function RefundMtxPurchase(
       applyProfileChanges.push({
         changeType: "statModified",
         name: "mtx_purchase_history",
-        value: common_core.stats.attributes.mtx_purchase_histroy,
+        value: common_core.stats.attributes.mtx_purchase_history,
       });
     }
 
