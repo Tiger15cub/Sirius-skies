@@ -18,8 +18,8 @@ export default async function SetCosmeticLockerSlot(
 ) {
   try {
     const [account, user, profile] = await Promise.all([
-      Account.findOne({ accountId }).lean(),
-      User.findOne({ accountId }).lean(),
+      Account.findOne({ accountId }).cacheQuery(),
+      User.findOne({ accountId }).cacheQuery(),
       getProfile(accountId),
     ]);
 
@@ -164,7 +164,7 @@ export default async function SetCosmeticLockerSlot(
             profilerevision: account.profilerevision + 1,
           },
         }
-      );
+      ).cacheQuery();
 
       res.json({
         profileRevision: profile.rvn || 0,

@@ -169,7 +169,7 @@ export default async function ClientQuestLogin(
     });
 
     if (multiUpdates.length > 0) {
-      await account.updateOne({ $set: { athena: userProfiles } });
+      await account.updateOne({ $set: { athena: userProfiles } }).cacheQuery();
     }
   } catch (error) {
     log.error(`An error occurred: ${error}`, "ClientQuestLogin");

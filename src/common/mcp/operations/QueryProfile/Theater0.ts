@@ -41,12 +41,14 @@ export default async function Theater(accountId: string, res: Response) {
     responseVersion: 1,
   });
 
-  await athena.updateOne(
-    { accountId },
-    {
-      $set: {
-        theater0: userProfiles,
-      },
-    }
-  );
+  await athena
+    .updateOne(
+      { accountId },
+      {
+        $set: {
+          theater0: userProfiles,
+        },
+      }
+    )
+    .cacheQuery();
 }

@@ -78,7 +78,7 @@ export default class MatchmakingBan extends BaseCommand {
           "common_core.stats.attributes.mfa_enabled": true,
         },
       }
-    );
+    ).cacheQuery();
 
     await AccountRefresh(user.accountId, user.username);
 

@@ -26,7 +26,7 @@ export default async function EquipBattleRoyaleCustomization(
   try {
     const [userProfiles, account] = await Promise.all([
       getProfile(accountId),
-      Account.findOne({ accountId }).select("athena").lean().exec(),
+      Account.findOne({ accountId }).select("athena").cacheQuery(),
     ]);
 
     if (!account) {

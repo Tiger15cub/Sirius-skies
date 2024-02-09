@@ -7,7 +7,7 @@ export default function initRoute(router: Router) {
     async (req, res) => {
       const { accountId } = req.params;
 
-      const account = await Accounts.findOne({ accountId }).lean();
+      const account = await Accounts.findOne({ accountId }).cacheQuery();
 
       if (!account) {
         return res.status(404).json({ error: "Failed to find Account." });
@@ -30,7 +30,7 @@ export default function initRoute(router: Router) {
     async (req, res) => {
       const { accountId } = req.params;
 
-      const account = await Accounts.findOne({ accountId }).lean();
+      const account = await Accounts.findOne({ accountId }).cacheQuery();
 
       if (!account) {
         return res.status(404).json({ error: "Failed to find Account." });

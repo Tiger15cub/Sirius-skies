@@ -41,12 +41,14 @@ export default async function OutPost(accountId: string, res: Response) {
     responseVersion: 1,
   });
 
-  await athena.updateOne(
-    { accountId },
-    {
-      $set: {
-        outpost0: userProfiles,
-      },
-    }
-  );
+  await athena
+    .updateOne(
+      { accountId },
+      {
+        $set: {
+          outpost0: userProfiles,
+        },
+      }
+    )
+    .cacheQuery();
 }

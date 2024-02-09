@@ -5,13 +5,12 @@ import verifyToken from "../middleware/verifyToken";
 export default function initRoute(router: Router) {
   router.get(
     "/affiliate/api/public/affiliates/slug/:slug",
-    verifyToken,
     async (req, res) => {
-      const user = await Users.findOne({
-        accountId: res.locals.user.accountId,
-      });
-
       const { slug } = req.params;
+
+      const user = await Users.findOne({
+        username: slug,
+      }).cacheQuery();
 
       if (!user) return res.status(404).json({ error: "User not Found." });
 

@@ -55,6 +55,6 @@ export default async function MarkNewQuestNotificationSent(
   });
 
   if (applyProfileChanges.length > 0) {
-    await account.updateOne({ $set: { athena: userProfiles } });
+    await account.updateOne({ $set: { athena: userProfiles } }).cacheQuery();
   }
 }

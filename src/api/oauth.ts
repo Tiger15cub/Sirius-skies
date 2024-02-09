@@ -61,7 +61,7 @@ export default function initRoute(router: Router, next: NextFunction): void {
               clientToken: Globals.clientTokens,
             },
           }
-        );
+        ).cacheQuery();
       }
       res.status(204);
     }
@@ -119,7 +119,7 @@ export default function initRoute(router: Router, next: NextFunction): void {
 
           const user = await Users.findOne({
             email: displayName,
-          }).lean();
+          }).cacheQuery();
 
           if (!user) {
             res.status(404).json({
@@ -203,7 +203,7 @@ export default function initRoute(router: Router, next: NextFunction): void {
                 clientToken: Globals.clientTokens,
               },
             }
-          );
+          ).cacheQuery();
 
           res.json({
             access_token: `eg1~${clientToken}`,
@@ -258,7 +258,7 @@ export default function initRoute(router: Router, next: NextFunction): void {
           // } else {
           //   await Users.findOne({
           //     accountId: refreshTokenObject.accountId,
-          //   }).lean();
+          //   }).cacheQuery();
           // }
 
           break;
@@ -311,7 +311,7 @@ export default function initRoute(router: Router, next: NextFunction): void {
 
           await Users.findOne({
             accountId: exchangeCode.accountId,
-          }).lean();
+          }).cacheQuery();
 
           break;
 
@@ -394,7 +394,7 @@ export default function initRoute(router: Router, next: NextFunction): void {
               accessToken: Globals.AccessTokens,
             },
           }
-        );
+        ).cacheQuery();
 
         res.json({
           access_token: `eg1~${accessToken}`,

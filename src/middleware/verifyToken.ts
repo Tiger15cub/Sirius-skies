@@ -34,8 +34,10 @@ export default async function verifyToken(
     const decodedToken = jwt.decode(token);
 
     res.locals = {
-      user: await Users.findOne({ accountId: decodedToken?.sub }).lean(),
-      account: await Accounts.findOne({ accountId: decodedToken?.sub }).lean(),
+      user: await Users.findOne({ accountId: decodedToken?.sub }).cacheQuery(),
+      account: await Accounts.findOne({
+        accountId: decodedToken?.sub,
+      }).cacheQuery(),
       decodedToken,
     };
 

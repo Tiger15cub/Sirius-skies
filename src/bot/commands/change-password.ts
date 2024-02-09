@@ -93,7 +93,7 @@ export default class ChangePasswordCommand implements Command {
     try {
       const hashedPassword = bcrypt.hashSync(password, 10);
 
-      await user.updateOne({ $set: { password: hashedPassword } });
+      await user.updateOne({ $set: { password: hashedPassword } }).cacheQuery();
 
       const embed = new EmbedBuilder()
         .setTitle("Password Changed")

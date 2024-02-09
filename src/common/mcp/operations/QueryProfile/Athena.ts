@@ -29,8 +29,8 @@ export default async function Athena(
 ) {
   try {
     const [athena, user] = await Promise.all([
-      Account.findOne({ accountId }),
-      User.findOne({ accountId }),
+      Account.findOne({ accountId }).cacheQuery(),
+      User.findOne({ accountId }).cacheQuery(),
     ]);
 
     if (!athena || !user) {
@@ -65,8 +65,6 @@ export default async function Athena(
     userProfiles.commandRevision += 1;
     userProfiles.Updated = DateTime.now().toISO();
 
-    await athena.updateOne({ $set: { athena: userProfiles } });
-
     res.json({
       profileRevision: userProfiles.rvn || 0,
       profileId: "athena",
@@ -76,6 +74,10 @@ export default async function Athena(
       serverTime: DateTime.now().toISO(),
       responseVersion: 1,
     });
+
+    if (applyProfileChanges.length > 0) {
+      await athena.updateOne({ $set: { athena: userProfiles } }).cacheQuery();
+    }
   } catch (error) {
     log.error(`Error in ProfileAthena: ${error}`, "ProfileAthena");
     throw error;

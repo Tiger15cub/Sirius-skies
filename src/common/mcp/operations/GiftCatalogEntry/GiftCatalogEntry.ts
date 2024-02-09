@@ -42,19 +42,6 @@ export default async function GiftCatalogEntry(
 
     const shopData = await json(shopJsonPath);
 
-    require("../../../resources/mcp/GiftBoxes.json");
-
-    const giftBoxFilePath = path.join(
-      __dirname,
-      "..",
-      "..",
-      "..",
-      "resources",
-      "mcp",
-      "GiftBoxes.json"
-    );
-    const GiftBoxes = JSON.parse(await fs.readFile(giftBoxFilePath, "utf8"));
-
     if (personalMessage.length > 100) {
       return sendErrorResponse(
         res,
@@ -63,35 +50,34 @@ export default async function GiftCatalogEntry(
       );
     }
 
-    if (!GiftBoxes.includes(giftWrapTemplateId)) {
-      return sendErrorResponse(
-        res,
-        "errors.com.epicgames.giftbox.invalid",
-        "Invalid GiftBox. Please provide a valid GiftBox."
-      );
-    }
-
     let offerItem = null;
     let isOfferFound = false;
     const itemID = uuid();
 
-    for (const section of shopData.catalogEntries) {
-      for (const item of shopData.catalogEntries[section]) {
-        if (item.id === offerId) {
+    const cleanedOfferId = offerId.replace("v2:/", "");
+
+    for (const section in shopData.catalogItems) {
+      for (const item of shopData.catalogItems[section]) {
+        if (item.id === cleanedOfferId) {
           isOfferFound = true;
           offerItem = item;
           break;
         }
       }
+
       if (isOfferFound) break;
     }
 
     if (!isOfferFound) {
       return res.status(400).json({
         errorCode: "errors.com.epicgames.fortnite.id_invalid",
-        errorMessage: `Offer ID (${offerId}) not found.`,
+        errorMessage: `Offer ID (${cleanedOfferId}) not found.`,
+        messageVars: undefined,
         numericErrorCode: 1040,
-        error_description: `Offer ID (${offerId}) not found.`,
+        originatingService: "any",
+        intent: "prod",
+        error_description: `Offer ID (${cleanedOfferId}) not found.`,
+        error: undefined,
       });
     }
 
@@ -101,15 +87,6 @@ export default async function GiftCatalogEntry(
 
     for (const itemId in common_core.items) {
       const quantity = common_core.items[itemId].quantity;
-
-      if (quantity < price) {
-        return res.status(400).json({
-          errorCode: "errors.com.epicgames.currency.mtx.insufficient",
-          errorMessage: `You can not afford this item (${price}).`,
-          numericErrorCode: 1040,
-          error_description: `You can not afford this item (${price}).`,
-        });
-      }
 
       common_core.items[itemId].quantity -= price;
 
@@ -250,17 +227,6 @@ export default async function GiftCatalogEntry(
         });
       }
 
-      receiverAthena.rvn += 1;
-      receiverAthena.commandRevision += 1;
-      receiverAthena.Updated = DateTime.now().toISO();
-
-      receiverCommonCore.rvn += 1;
-      receiverCommonCore.commandRevision += 1;
-      receiverCommonCore.Updated = DateTime.now().toISO();
-
-      await receiver.updateOne({ $set: { athena: receiverAthena } });
-      await receiver.updateOne({ $set: { common_core: receiverCommonCore } });
-
       GiftGlobals.GiftsReceived[receiverAccountId] = true;
 
       const client = (global as any).Clients.find(
@@ -311,8 +277,9 @@ export default async function GiftCatalogEntry(
       applyProfileChanges.length > 0 &&
       !receiverAccountIds.includes(accountId)
     ) {
-      await account.updateOne({ $set: { athena: userProfiles } });
-      await account.updateOne({ $set: { common_core } });
+      await account
+        .updateOne({ $set: { athena: userProfiles, common_core } })
+        .cacheQuery();
     }
   } catch (error) {
     log.error(`An error occurred: ${error}`, "GiftCatalogEntry");

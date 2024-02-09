@@ -3,7 +3,7 @@ import path from "node:path";
 import Accounts from "../../../models/Accounts";
 
 export async function getProfile(accountId: string) {
-  const existingProfile = await Accounts.findOne({ accountId }).lean();
+  const existingProfile = await Accounts.findOne({ accountId }).cacheQuery();
 
   if (!existingProfile) {
     return { error: "not found" };
@@ -13,7 +13,7 @@ export async function getProfile(accountId: string) {
 }
 
 export async function getCommonCore(accountId: string) {
-  const existingProfile = await Accounts.findOne({ accountId }).lean();
+  const existingProfile = await Accounts.findOne({ accountId }).cacheQuery();
 
   if (!existingProfile) {
     return { error: "not found" };
@@ -23,7 +23,7 @@ export async function getCommonCore(accountId: string) {
 }
 
 export async function getMeta(accountId: string) {
-  const existingProfile = await Accounts.findOne({ accountId }).lean();
+  const existingProfile = await Accounts.findOne({ accountId }).cacheQuery();
 
   if (!existingProfile) {
     return { error: "not found" };
@@ -33,7 +33,7 @@ export async function getMeta(accountId: string) {
 }
 
 export async function getOupost(accountId: string) {
-  const existingProfile = await Accounts.findOne({ accountId }).lean();
+  const existingProfile = await Accounts.findOne({ accountId }).cacheQuery();
 
   if (!existingProfile) {
     return { error: "not found" };
@@ -43,7 +43,7 @@ export async function getOupost(accountId: string) {
 }
 
 export async function getTheater(accountId: string) {
-  const existingProfile = await Accounts.findOne({ accountId }).lean();
+  const existingProfile = await Accounts.findOne({ accountId }).cacheQuery();
 
   if (!existingProfile) {
     return { error: "not found" };
@@ -53,7 +53,7 @@ export async function getTheater(accountId: string) {
 }
 
 export async function getBook(type: string, accountId: string) {
-  const existingProfile = await Accounts.findOne({ accountId }).lean();
+  const existingProfile = await Accounts.findOne({ accountId }).cacheQuery();
 
   if (!existingProfile) {
     return { error: "not found" };

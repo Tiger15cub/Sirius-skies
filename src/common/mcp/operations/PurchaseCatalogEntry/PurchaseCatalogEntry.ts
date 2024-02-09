@@ -10,6 +10,7 @@ import { json } from "../../../../api/storefront";
 import { Tier } from "../../../../interface";
 import AccountRefresh from "../../../../utils/AccountRefresh";
 import Users from "../../../../models/Users";
+import addItemToProfile from "../../../../utils/addItemToProfile";
 
 interface ProfileChange {
   changeType: string;
@@ -129,6 +130,7 @@ export default async function PurchaseCatalogEntry(
       if (offerId.includes(":/")) {
         const id: string = offerId.split(":/")[1];
         let matchedStorefront: any = null;
+        let isItemOwned: boolean = false;
 
         for (const storefront of shop.catalogItems.BRDailyStorefront) {
           if (storefront.id === id) {
@@ -198,62 +200,34 @@ export default async function PurchaseCatalogEntry(
                 });
               }
 
-              userProfiles.items[item.item] = {
-                templateId: item.item,
-                attributes: {
-                  item_seen: false,
-                  variants: [],
-                },
-                quantity: 1,
-              };
-
-              multiUpdate.push({
-                changeType: "itemAdded",
-                itemId: itemUUID,
-                item: userProfiles.items[item.item],
-              });
-
-              notifications.push({
-                itemType: item.item,
-                itemGuid: itemUUID,
-                itemProfile: "athena",
-                quantity: 1,
-              });
+              addItemToProfile(
+                item,
+                itemUUID,
+                userProfiles,
+                multiUpdate,
+                notifications
+              );
             }
 
-            userProfiles.items[matchedStorefront.item] = {
-              templateId: matchedStorefront.item,
-              attributes: {
-                item_seen: false,
-                variants: [],
-              },
-              quantity: 1,
-            };
-
-            multiUpdate.push({
-              changeType: "itemAdded",
-              itemId: itemUUID,
-              item: userProfiles.items[matchedStorefront.item],
-            });
-
-            notifications.push({
-              itemType: matchedStorefront.item,
-              itemGuid: itemUUID,
-              itemProfile: "athena",
-              quantity: 1,
-            });
+            addItemToProfile(
+              matchedStorefront,
+              itemUUID,
+              userProfiles,
+              multiUpdate,
+              notifications
+            );
           }
+          for (const item in commonCore.items) {
+            if (!commonCore.items[item].templateId.startsWith("Currency:Mtx"))
+              continue;
 
-          let quantity = commonCore.items["Currency:MtxPurchased"].quantity;
-
-          for (const item of commonCore.items) {
-            quantity -= matchedStorefront.price;
+            commonCore.items[item].quantity -= matchedStorefront.price;
             const itemUUID = uuid();
 
             applyProfileChanges.push({
-              changeType: "itemAttrChanged",
-              itemId: "Currency:MtxPurchased",
-              quantity,
+              changeType: "itemQuantityChanged",
+              itemId: item,
+              quantity: commonCore.items[item].quantity,
             });
 
             commonCore.stats.attributes["mtx_purchase_history"] = {
@@ -265,7 +239,6 @@ export default async function PurchaseCatalogEntry(
                   purchaseId: uuid(),
                   offerId,
                   purchaseDate: DateTime.now().toISO(),
-                  refundDate: DateTime.now().toISO(),
                   undoTimeout: "9999-12-12T00:00:00.000Z",
                   freeRefundEligible: true,
                   fulfillments: [],
@@ -274,7 +247,7 @@ export default async function PurchaseCatalogEntry(
                       itemType: matchedStorefront.item,
                       itemGuid: itemUUID,
                       itemProfile: "athena",
-                      quantity,
+                      quantity: commonCore.items[item].quantity,
                     },
                   ],
                   totalMtxPaid: expectedTotalPrice,
@@ -285,6 +258,7 @@ export default async function PurchaseCatalogEntry(
             };
 
             isItemOwned = true;
+            break;
           }
         }
 
@@ -332,16 +306,19 @@ export default async function PurchaseCatalogEntry(
           newLevel);
 
         if (!isSingleTier) {
-          if (quantity) {
-            quantity -= catalogEntriesData.prices[0].finalPrice;
+          for (const item in commonCore.items) {
+            commonCore.items[item].quantity -=
+              catalogEntriesData.prices[0].finalPrice;
+            const itemUUID = uuid();
 
             applyProfileChanges.push({
-              changeType: "itemAttrChanged",
-              itemId: "Currency:MtxPurchased",
-              quantity,
+              changeType: "itemQuantityChanged",
+              itemId: item,
+              quantity: commonCore.items[item].quantity,
             });
 
             isItemOwned = true;
+            break;
           }
 
           if (!isItemOwned && catalogEntriesData.prices[0].finalPrice > 0) {
@@ -589,12 +566,14 @@ export default async function PurchaseCatalogEntry(
     });
 
     if (applyProfileChanges.length > 0 && multiUpdate.length > 0) {
-      await account.updateOne({
-        $set: {
-          athena: userProfiles,
-          common_core: commonCore,
-        },
-      });
+      await account
+        .updateOne({
+          $set: {
+            athena: userProfiles,
+            common_core: commonCore,
+          },
+        })
+        .cacheQuery();
     }
   } catch (error) {
     log.error(`${error}`, "PurchaseCatalogEntry");

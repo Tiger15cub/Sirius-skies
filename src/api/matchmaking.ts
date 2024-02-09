@@ -46,7 +46,7 @@ export default function initRoute(router: Router): void {
         const { accountId } = req.params;
         const bucketId = req.query.bucketId as string;
 
-        const account = await Accounts.findOne({ accountId }).lean();
+        const account = await Accounts.findOne({ accountId }).cacheQuery();
         const accessToken = req.headers.authorization
           ?.split("bearer ")[1]
           ?.replace("eg1~", "");

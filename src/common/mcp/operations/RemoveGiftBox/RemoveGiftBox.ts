@@ -64,7 +64,7 @@ export default async function RemoveGiftBox(
     });
 
     if (applyProfileChanges.length > 0) {
-      await account.updateOne({ common_core });
+      await account.updateOne({ common_core }).cacheQuery();
     }
   } catch (error) {
     log.error(`Error in RemoveGiftBox: ${error}`, "RemoveGiftBox");

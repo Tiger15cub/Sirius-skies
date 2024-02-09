@@ -110,7 +110,7 @@ export default async function UpdateQuestClientObjectives(
         {
           athena: profile,
         }
-      );
+      ).cacheQuery();
     }
   } catch (error) {
     log.error(`An Error occurred: ${error}`, "UpdateQuestClientObjectives");

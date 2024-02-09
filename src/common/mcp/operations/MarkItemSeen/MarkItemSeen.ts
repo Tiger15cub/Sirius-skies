@@ -16,7 +16,7 @@ export default async function MarkItemSeen(
   const userAgent = req.headers["user-agent"];
   let season = getSeason(userAgent);
 
-  const account = await Accounts.findOne({ accountId }).lean();
+  const account = await Accounts.findOne({ accountId }).cacheQuery();
 
   if (!account) return { errorMessage: "Failed to find account." };
 
@@ -49,7 +49,7 @@ export default async function MarkItemSeen(
     Accounts.updateOne(
       { accountId },
       { $set: { RVN: parseInt(account.baseRevision.toString() ?? "0") + 1 } }
-    );
+    ).cacheQuery();
 
     Accounts.updateOne(
       { accountId },
@@ -58,7 +58,7 @@ export default async function MarkItemSeen(
           baseRevision: parseInt(account.baseRevision.toString() ?? "0") + 1,
         },
       }
-    );
+    ).cacheQuery();
   }
 
   res.json({
@@ -79,6 +79,6 @@ export default async function MarkItemSeen(
           athena: userProfiles,
         },
       }
-    );
+    ).cacheQuery();
   }
 }

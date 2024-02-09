@@ -172,7 +172,9 @@ export default function initRoute(router: Router): void {
         commonCore.commandRevision += 1;
         commonCore.Updated = DateTime.now().toISO();
 
-        await receiver.updateOne({ $set: { athena, common_core: commonCore } });
+        await receiver
+          .updateOne({ $set: { athena, common_core: commonCore } })
+          .cacheQuery();
 
         GiftGlobals.GiftsReceived[sender] = true;
 
@@ -190,7 +192,9 @@ export default function initRoute(router: Router): void {
           commonCore.commandRevision += 1;
           commonCore.Updated = DateTime.now().toISO();
 
-          await receiver.updateOne({ $set: { common_core: commonCore } });
+          await receiver
+            .updateOne({ $set: { common_core: commonCore } })
+            .cacheQuery();
         }
 
         res.json({
@@ -224,6 +228,10 @@ export default function initRoute(router: Router): void {
       let season = getSeason(userAgent);
 
       const userProfiles: any = await getProfile(accountId);
+
+      const user = await Users.findOne({ accountId }).cacheQuery();
+
+      if (!user) return res.status(404).json({ error: "Failed to find User." });
 
       try {
         switch (command) {
@@ -268,18 +276,19 @@ export default function initRoute(router: Router): void {
                 break;
 
               case "theater0":
-                const theater0Profile = await Theater(accountId, res);
-                res.json(theater0Profile);
+                await Theater(accountId, res);
                 break;
 
               case "outpost0":
-                const outpost0Profile = await OutPost(accountId, res);
-                res.json(outpost0Profile);
+                await OutPost(accountId, res);
                 break;
 
               case "metadata":
-                const metaDataProfile = await MetaData(accountId, res);
-                res.json(metaDataProfile);
+                await MetaData(accountId, res);
+                break;
+
+              case "collections":
+                res.json(createDefaultResponse([], profileId, rvn as any));
                 break;
 
               default:
@@ -387,7 +396,7 @@ export default function initRoute(router: Router): void {
             break;
 
           case "SetAffiliateName":
-            await SetAffiliateName(req, res, accountId);
+            await SetAffiliateName(req, res, accountId, user.username);
             break;
 
           default:
