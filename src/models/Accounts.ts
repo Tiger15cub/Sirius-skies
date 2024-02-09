@@ -1,4 +1,5 @@
 import { Document, Schema, model } from "mongoose";
+import { SpeedGooseCacheAutoCleaner } from "speedgoose";
 
 interface Stats {
   wins: number;
@@ -26,7 +27,6 @@ interface AccountsModel extends Document {
   theater0: any;
   collection_book_schematics0: any;
   collection_book_people0: any;
-  BattleStars: number;
   gifts: any;
   banned: boolean;
   optOutOfPublicLeaderboards: boolean;
@@ -86,6 +86,8 @@ const accountsSchema = new Schema<AccountsModel>({
   baseRevision: { type: Number, default: 0 },
   RVN: { type: Number, default: 1 },
 });
+
+accountsSchema.plugin(SpeedGooseCacheAutoCleaner);
 
 const Accounts = model<AccountsModel>("Accounts", accountsSchema);
 

@@ -1,4 +1,5 @@
 import { Schema, model, Document } from "mongoose";
+import { SpeedGooseCacheAutoCleaner } from "speedgoose";
 
 export interface IUser extends Document {
   discordId: string;
@@ -19,5 +20,7 @@ const UserSchema = new Schema<IUser>({
   banned: { type: Boolean, default: false },
   hasFL: { type: Boolean, default: false },
 });
+
+UserSchema.plugin(SpeedGooseCacheAutoCleaner);
 
 export default model<IUser>("Users", UserSchema);

@@ -90,13 +90,13 @@ export default class VbucksCommand extends BaseCommand {
       return await interaction.editReply({ embeds: [embed] });
     }
 
-    await account.updateOne({
-      $inc: {
-        "common_core.items.Currency:MtxPurchased.quantity": vbucksAmount,
-      },
-    });
-
-    await AccountRefresh(user.accountId, user.username);
+    await account
+      .updateOne({
+        $inc: {
+          "common_core.items.Currency:MtxPurchased.quantity": vbucksAmount,
+        },
+      })
+      .cacheQuery();
 
     const embed = new EmbedBuilder()
       .setTitle("Vbucks Changed")

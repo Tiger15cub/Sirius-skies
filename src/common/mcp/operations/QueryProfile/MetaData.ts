@@ -41,12 +41,14 @@ export default async function MetaData(accountId: string, res: Response) {
     responseVersion: 1,
   });
 
-  await athena.updateOne(
-    { accountId },
-    {
-      $set: {
-        metadata: userProfiles,
-      },
-    }
-  );
+  await athena
+    .updateOne(
+      { accountId },
+      {
+        $set: {
+          metadata: userProfiles,
+        },
+      }
+    )
+    .cacheQuery();
 }

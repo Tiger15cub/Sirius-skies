@@ -81,7 +81,7 @@ export default async function iq(
 
       const user = await Friends.findOne({
         accountId: (socket as any).accountId,
-      }).lean();
+      }).cacheQuery();
 
       if (!user) {
         await socket.close();

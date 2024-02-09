@@ -7,22 +7,25 @@ import Accounts from "../../../../models/Accounts";
 export default async function SetAffiliateName(
   req: Request,
   res: Response,
-  accountId: string
+  accountId: string,
+  username: string
 ) {
   try {
     const { affiliateName } = req.body;
 
     const common_core = await getCommonCore(accountId);
-    const account = await Accounts.findOne({ accountId });
+    const account = await Accounts.findOne({ accountId }).cacheQuery();
 
     const applyProfileChanges: any[] = [];
 
     if (!account)
       return res.status(404).json({ error: "Failed to find Account." });
 
-    common_core.stats.attributes.mtx_affiliate = affiliateName;
-    common_core.stats.attributes.mtx_affiliate_set_time =
-      DateTime.now().toISO();
+    if (affiliateName === username) {
+      common_core.stats.attributes.mtx_affiliate = affiliateName;
+      common_core.stats.attributes.mtx_affiliate_set_time =
+        DateTime.now().toISO();
+    }
 
     applyProfileChanges.push({
       changeType: "statModified",
@@ -36,12 +39,6 @@ export default async function SetAffiliateName(
       value: common_core.stats.attributes.mtx_affiliate_set_time,
     });
 
-    if (applyProfileChanges.length > 0) {
-      common_core.rvn += 1;
-      common_core.commandRevision += 1;
-      common_core.Updated = DateTime.now().toISO();
-    }
-
     res.json({
       profileRevision: common_core.rvn || 0,
       profileId: "common_core",
@@ -53,10 +50,14 @@ export default async function SetAffiliateName(
     });
 
     if (applyProfileChanges.length > 0) {
-      await account.updateOne({ $set: { common_core } });
+      common_core.rvn += 1;
+      common_core.commandRevision += 1;
+      common_core.Updated = DateTime.now().toISO();
+
+      await account.updateOne({ $set: { common_core } }).cacheQuery();
     }
   } catch (error) {
-    log.error(`Error in RefundMtxPurchase: ${error}`, "RefundMtxPurchase");
+    log.error(`Error in SetAffiliateName: ${error}`, "SetAffiliateName");
     return res.status(500).json({ error: "Internal server error." });
   }
 }

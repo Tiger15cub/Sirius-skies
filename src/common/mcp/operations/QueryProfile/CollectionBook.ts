@@ -46,22 +46,26 @@ export default async function CollectionBook(
   });
 
   if (type === "collection_book_people0") {
-    await athena.updateOne(
-      { accountId },
-      {
-        $set: {
-          collection_book_people0: userProfiles,
-        },
-      }
-    );
+    await athena
+      .updateOne(
+        { accountId },
+        {
+          $set: {
+            collection_book_people0: userProfiles,
+          },
+        }
+      )
+      .cacheQuery();
   } else if (type === "collection_book_schematics0") {
-    await athena.updateOne(
-      { accountId },
-      {
-        $set: {
-          collection_book_schematics0: userProfiles,
-        },
-      }
-    );
+    await athena
+      .updateOne(
+        { accountId },
+        {
+          $set: {
+            collection_book_schematics0: userProfiles,
+          },
+        }
+      )
+      .cacheQuery();
   }
 }

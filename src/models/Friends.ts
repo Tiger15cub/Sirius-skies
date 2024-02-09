@@ -1,4 +1,5 @@
 import { DateTime } from "luxon";
+import { SpeedGooseCacheAutoCleaner } from "speedgoose";
 import { Schema, model, Document } from "mongoose";
 
 interface Friend {
@@ -39,5 +40,7 @@ const FriendsSchema = new Schema<IFriends>({
     },
   },
 });
+
+FriendsSchema.plugin(SpeedGooseCacheAutoCleaner);
 
 export default model<IFriends>("Friends", FriendsSchema);

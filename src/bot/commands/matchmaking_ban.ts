@@ -117,7 +117,7 @@ export default class MatchmakingBan extends BaseCommand {
             "None",
         },
       }
-    );
+    ).cacheQuery();
 
     await AccountRefresh(user.accountId, user.username);
 

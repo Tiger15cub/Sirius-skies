@@ -11,8 +11,12 @@ export default function initRoute(router: Router) {
     async (req, res) => {
       const { reporterId, offenderId } = req.params;
 
-      const reporter = await Users.findOne({ accountId: reporterId }).lean();
-      const offender = await Users.findOne({ accountId: offenderId }).lean();
+      const reporter = await Users.findOne({
+        accountId: reporterId,
+      }).cacheQuery();
+      const offender = await Users.findOne({
+        accountId: offenderId,
+      }).cacheQuery();
 
       const { reason, playlistName, details, gameSessionId } = req.body;
 

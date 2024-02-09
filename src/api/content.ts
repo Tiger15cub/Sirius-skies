@@ -299,4 +299,31 @@ export default function initRoute(router: Router): void {
       },
     });
   });
+
+  router.get("/api/v1/fortnite-br/surfaces/motd/target", async (req, res) => {
+    res.json({
+      contentType: "collection",
+      contentId: "motd-default-collection",
+      tcId: uuid(),
+      contentItems: [
+        {
+          contentType: "content-item",
+          contentId: uuid(),
+          tcId: uuid(),
+          contentFields: {
+            tabTitleOverride: "Welcome To Sirius\nMade by Skies",
+            tileImage: [
+              {
+                width: 1024,
+                height: 512,
+                url: "https://i.ibb.co/bPRgX2K/Sirius-Banner.png",
+              },
+            ],
+            title: "Welcome To Sirius\nMade by Skies",
+          },
+          contentSchemaName: "MotdNavigateToChallenge",
+        },
+      ],
+    });
+  });
 }

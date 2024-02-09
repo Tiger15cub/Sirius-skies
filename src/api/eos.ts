@@ -8,7 +8,7 @@ export default function initRoute(router: Router) {
   router.get("/epic/id/v2/sdk/accounts", async (req, res) => {
     const { accountId } = req.query;
 
-    const user = await Users.findOne({ accountId }).lean();
+    const user = await Users.findOne({ accountId }).cacheQuery();
 
     if (!user) {
       return res.status(404).json({ error: "User does not exist." });
@@ -27,7 +27,7 @@ export default function initRoute(router: Router) {
   router.get("/epic/friends/v1/:accountId/blocklist", async (req, res) => {
     const { accountId } = req.params;
 
-    const user = await Users.findOne({ accountId }).lean();
+    const user = await Users.findOne({ accountId }).cacheQuery();
 
     if (!user) {
       return res.status(404).json({ error: "User does not exist." });
@@ -87,7 +87,7 @@ export default function initRoute(router: Router) {
     async (req, res) => {
       const { accountId } = req.params;
 
-      const user = await Users.findOne({ accountId }).lean();
+      const user = await Users.findOne({ accountId }).cacheQuery();
 
       if (!user) {
         return res.status(404).json({ error: "User does not exist." });

@@ -85,6 +85,7 @@ const missingUrls: Set<string> = new Set<string>();
           originatingService: "any",
           intent: "prod",
         });
+        logger.info(`MISSING URL ${fullUrl}`);
       }
 
       next();

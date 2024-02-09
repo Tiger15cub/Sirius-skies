@@ -94,7 +94,9 @@ export default class ChangeUsernameCommand implements Command {
     }
 
     try {
-      await user.updateOne({ $set: { username: options.username } });
+      await user
+        .updateOne({ $set: { username: options.username } })
+        .cacheQuery();
 
       const embed = new EmbedBuilder()
         .setTitle("Username Changed")

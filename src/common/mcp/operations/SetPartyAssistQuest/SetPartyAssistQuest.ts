@@ -47,7 +47,7 @@ export default async function SetPartyAssistQuest(
     });
 
     if (applyProfileChanges.length > 0) {
-      await account.updateOne({ $set: { athena: userProfiles } });
+      await account.updateOne({ $set: { athena: userProfiles } }).cacheQuery();
     }
   } catch (error) {
     log.error(`Error in SetPartyAssistQuest: ${error}`, "SetPartyAssistQuest");

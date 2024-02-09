@@ -54,6 +54,7 @@
     "discord.js": "^14.14.1",
     "luxon": "^3.4.4",
     "node-cron": "^3.0.3",
+    "speedgoose": "^2.0.7",
     "xmlbuilder": "^15.1.1"
   }
 }

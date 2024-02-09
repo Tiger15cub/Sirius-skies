@@ -10,7 +10,7 @@ export default function initRoute(router: Router): void {
     verifyToken,
     async (req, res) => {
       const { accountId } = req.params;
-      const user = await Users.findOne({ accountId }).lean();
+      const user = await Users.findOne({ accountId }).cacheQuery();
 
       try {
         if (!user) {
@@ -65,7 +65,7 @@ export default function initRoute(router: Router): void {
         const accountIds: string[] = accountIdQuery.split(",");
 
         for (const accountId of accountIds) {
-          const user = await Users.findOne({ accountId }).lean();
+          const user = await Users.findOne({ accountId }).cacheQuery();
 
           if (!user) {
             return res.status(404).json({ error: "User not found." });
@@ -78,7 +78,9 @@ export default function initRoute(router: Router): void {
           });
         }
       } else {
-        const user = await Users.findOne({ accountId: accountIdQuery }).lean();
+        const user = await Users.findOne({
+          accountId: accountIdQuery,
+        }).cacheQuery();
 
         if (!user) {
           return res.status(404).json({ error: "User not found." });
@@ -139,7 +141,7 @@ export default function initRoute(router: Router): void {
       const { displayName } = req.params;
       const user = await Users.findOne({
         username: displayName,
-      }).lean();
+      }).cacheQuery();
 
       if (!user) {
         return res.status(404).json({

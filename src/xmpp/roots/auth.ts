@@ -38,7 +38,7 @@ export default async function auth(
     return;
   }
 
-  const user = await Users.findOne({ accountId: accountId }).lean();
+  const user = await Users.findOne({ accountId: accountId }).cacheQuery();
 
   if (!user || user.banned) {
     await socket.close();

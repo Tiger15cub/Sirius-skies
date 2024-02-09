@@ -12,7 +12,7 @@ export default function initRoute(router: Router) {
       const { collection } = req.query;
       const { appId, startDate, endDate, owners, stats } = req.body;
 
-      const account = await Accounts.findOne().lean();
+      const account = await Accounts.findOne().cacheQuery();
 
       if (!account) {
         return res.status(404).json({ error: "Account does not exist." });
@@ -71,7 +71,7 @@ export default function initRoute(router: Router) {
       const mode =
         leaderboardTypeToMode[leaderboardName] || leaderboardTypeToMode.default;
 
-      const account = await Accounts.findOne().lean();
+      const account = await Accounts.findOne().cacheQuery();
       const entries: any[] = [];
 
       if (!account) {
@@ -104,7 +104,7 @@ export default function initRoute(router: Router) {
         const { accountId } = req.params;
         const { startTime, endTime } = req.query;
 
-        const account = await Accounts.findOne({ accountId }).lean();
+        const account = await Accounts.findOne({ accountId }).cacheQuery();
 
         if (!account) {
           return res.status(404).json({

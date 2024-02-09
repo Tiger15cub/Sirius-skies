@@ -14,7 +14,7 @@ import Users from "../models/Users";
 export default function initRoute(router: Router) {
   router.get("/friends/api/public/friends/:accountId", async (req, res) => {
     const { accountId } = req.params;
-    const user = await Friends.findOne({ accountId }).lean();
+    const user = await Friends.findOne({ accountId }).cacheQuery();
 
     if (!user) {
       return res.status(404).json({ error: "Failed to find User." });
@@ -83,7 +83,7 @@ export default function initRoute(router: Router) {
       },
     };
     const { accountId } = req.params;
-    const user = await Friends.findOne({ accountId }).lean();
+    const user = await Friends.findOne({ accountId }).cacheQuery();
 
     if (!user) {
       return res.status(404).json({ error: "Failed to find User." });
@@ -212,7 +212,7 @@ export default function initRoute(router: Router) {
     async (req, res) => {
       const { accountId } = req.params;
 
-      const user = await Friends.findOne({ accountId }).lean();
+      const user = await Friends.findOne({ accountId }).cacheQuery();
 
       if (!user) {
         return res.status(404).json({ error: "Failed to find user." });
@@ -239,7 +239,7 @@ export default function initRoute(router: Router) {
     async (req, res) => {
       const { accountId } = req.params;
 
-      const user = await Friends.findOne({ accountId }).lean();
+      const user = await Friends.findOne({ accountId }).cacheQuery();
 
       if (!user) {
         return res.status(404).json({ error: "Failed to find user." });
@@ -383,11 +383,13 @@ export default function initRoute(router: Router) {
         updateUserPresence(user.accountId, friend.accountId, false);
         updateUserPresence(friend.accountId, user.accountId, false);
 
-        await user.updateOne({ $set: { friends: user.friends } });
-        await friend.updateOne({ $set: { friends: friend.friends } });
+        await user.updateOne({ $set: { friends: user.friends } }).cacheQuery();
+        await friend
+          .updateOne({ $set: { friends: friend.friends } })
+          .cacheQuery();
 
-        // await AccountRefresh(user.accountId, userAccount.username);
-        // await AccountRefresh(friend.accountId, friendAccount.username);
+        await AccountRefresh(user.accountId, userAccount.username);
+        await AccountRefresh(friend.accountId, friendAccount.username);
       } else {
         user.friends.outgoing.push({
           accountId: friend.accountId,
@@ -429,8 +431,10 @@ export default function initRoute(router: Router) {
           createdAt: DateTime.now().toISO(),
         });
 
-        await user.updateOne({ $set: { friends: user.friends } });
-        await friend.updateOne({ $set: { friends: friend.friends } });
+        await user.updateOne({ $set: { friends: user.friends } }).cacheQuery();
+        await friend
+          .updateOne({ $set: { friends: friend.friends } })
+          .cacheQuery();
 
         await AccountRefresh(user.accountId, userAccount.username);
         await AccountRefresh(friend.accountId, friendAccount.username);
