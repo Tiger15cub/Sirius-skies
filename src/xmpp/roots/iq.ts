@@ -95,10 +95,7 @@ export default async function iq(
           (client: any) => client.accountId === friend.accountId
         );
 
-        if (!client) {
-          console.error("Your shit doesnt work ploosh");
-          return;
-        }
+        if (!client) return;
 
         let xaml = xmlbuilder
           .create("message")

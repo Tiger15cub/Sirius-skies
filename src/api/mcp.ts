@@ -179,11 +179,11 @@ export default function initRoute(router: Router): void {
         GiftGlobals.GiftsReceived[sender] = true;
 
         sendXmppMessageToClient(
-          JSON.stringify({
+          {
             type: "com.epicgames.gift.received",
             payload: {},
             timestamp: DateTime.now().toISO(),
-          }),
+          },
           sender
         );
 
@@ -392,7 +392,7 @@ export default function initRoute(router: Router): void {
             break;
 
           case "RefundMtxPurchase":
-            await RefundMtxPurchase(req, res, accountId);
+            await RefundMtxPurchase(req, res, accountId, profileId as string);
             break;
 
           case "SetAffiliateName":

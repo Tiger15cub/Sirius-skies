@@ -1,5 +1,4 @@
 import { Response, Request } from "express";
-import { sendErrorResponse } from "../../../../utils";
 import { getCommonCore, getProfile } from "../../utils/getProfile";
 import log from "../../../../utils/log";
 import { DateTime } from "luxon";
@@ -8,7 +7,8 @@ import Accounts from "../../../../models/Accounts";
 export default async function RefundMtxPurchase(
   req: Request,
   res: Response,
-  accountId: string
+  accountId: string,
+  profileId: string
 ) {
   try {
     const { purchaseId } = req.body;
@@ -65,10 +65,10 @@ export default async function RefundMtxPurchase(
 
     res.json({
       profileRevision: common_core.rvn || 0,
-      profileId: "athena",
+      profileId,
       profileChangesBaseRevision: account.baseRevision || 0,
       profileChanges: applyProfileChanges,
-      profileCommandRevision: common_core.baseRevision || 0,
+      profileCommandRevision: common_core.commandRevision || 0,
       serverTime: DateTime.now().toISO(),
       responseVersion: 1,
     });

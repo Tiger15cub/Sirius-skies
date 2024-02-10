@@ -7,16 +7,6 @@ interface Stats {
   matchplayed: number;
 }
 
-interface QuestManager {
-  dailyLoginInterval: string;
-  dailyQuestRerolls: number;
-}
-
-const questManager: QuestManager = {
-  dailyLoginInterval: new Date().toISOString(),
-  dailyQuestRerolls: 1,
-};
-
 interface AccountsModel extends Document {
   discordId: string;
   accountId: string;
@@ -27,7 +17,6 @@ interface AccountsModel extends Document {
   theater0: any;
   collection_book_schematics0: any;
   collection_book_people0: any;
-  gifts: any;
   banned: boolean;
   optOutOfPublicLeaderboards: boolean;
   accessToken: any;
@@ -55,7 +44,6 @@ const accountsSchema = new Schema<AccountsModel>({
   outpost0: { type: Object, default: {} },
   collection_book_schematics0: { type: Object, default: {} },
   collection_book_people0: { type: Object, default: {} },
-  gifts: { type: Array, default: [] },
   optOutOfPublicLeaderboards: { type: Boolean, default: false },
   accessToken: { type: Array, default: [] },
   refreshToken: { type: Array, default: [] },

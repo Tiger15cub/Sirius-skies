@@ -14,7 +14,6 @@ export default async function MarkItemSeen(
   req: Request
 ) {
   const userAgent = req.headers["user-agent"];
-  let season = getSeason(userAgent);
 
   const account = await Accounts.findOne({ accountId }).cacheQuery();
 
@@ -25,6 +24,7 @@ export default async function MarkItemSeen(
   const { itemIds } = req.body;
 
   const userProfiles: any = await getProfile(accountId);
+
   for (let item in itemIds) {
     const itemId = itemIds[item];
 
@@ -43,22 +43,6 @@ export default async function MarkItemSeen(
     userProfiles.rvn += 1;
     userProfiles.commandRevision += 1;
     userProfiles.Updated = DateTime.utc().toISO();
-    account.RVN += 1;
-    account.baseRevision += 1;
-
-    Accounts.updateOne(
-      { accountId },
-      { $set: { RVN: parseInt(account.baseRevision.toString() ?? "0") + 1 } }
-    ).cacheQuery();
-
-    Accounts.updateOne(
-      { accountId },
-      {
-        $set: {
-          baseRevision: parseInt(account.baseRevision.toString() ?? "0") + 1,
-        },
-      }
-    ).cacheQuery();
   }
 
   res.json({
@@ -72,13 +56,15 @@ export default async function MarkItemSeen(
   });
 
   if (applyProfileChanges.length > 0) {
-    await Accounts.updateOne(
-      { accountId },
-      {
-        $set: {
-          athena: userProfiles,
-        },
-      }
-    ).cacheQuery();
+    await account
+      .updateOne(
+        { accountId },
+        {
+          $set: {
+            athena: userProfiles,
+          },
+        }
+      )
+      .cacheQuery();
   }
 }

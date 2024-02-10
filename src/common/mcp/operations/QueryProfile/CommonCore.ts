@@ -6,6 +6,7 @@ import { getCommonCore } from "../../utils/getProfile";
 import log from "../../../../utils/log";
 import CommonCoreData from "../../../resources/mcp/Common_Core.json";
 import { BanStatus } from "../../../../interface";
+import { getSeason } from "../../../../utils";
 
 const DEFAULT_BAN_STATUS: BanStatus = {
   bRequiresUserAck: false,
@@ -16,33 +17,6 @@ const DEFAULT_BAN_STATUS: BanStatus = {
   additionalInfo: "",
   exploitProgramName: "",
   competitiveBanReason: "None",
-};
-
-const attributes = {
-  survey_data: {},
-  personal_offers: {},
-  intro_game_played: true,
-  import_friends_claimed: {},
-  mtx_purchase_history: {
-    refundsUsed: 0,
-    refundCredits: 3,
-    purchases: [],
-  },
-  undo_cooldowns: [],
-  mtx_affiliate_set_time: "",
-  inventory_limit_bonus: 0,
-  current_mtx_platform: "EpicPC",
-  mtx_affiliate: "",
-  forced_intro_played: "Coconut",
-  weekly_purchases: {},
-  daily_purchases: {},
-  ban_history: {},
-  in_app_purchases: {},
-  permissions: [],
-  undo_timeout: "min",
-  monthly_purchases: {},
-  gift_history: {},
-  ban_status: DEFAULT_BAN_STATUS,
 };
 
 async function checkBanExpiry(accountId: string): Promise<void> {
@@ -85,7 +59,7 @@ export default async function ProfileCommonCore(
   profileId: string,
   res: Response,
   req: Request
-): Promise<void> {
+) {
   try {
     await checkBanExpiry(accountId);
 
@@ -94,49 +68,44 @@ export default async function ProfileCommonCore(
       Users.findOne({ accountId }).cacheQuery(),
     ]);
 
-    let common_core = await getCommonCore(accountId);
+    const applyProfileChanges: any[] = [];
+    const common_core = await getCommonCore(accountId);
 
-    if (!account || !user) {
-      common_core.stats.attributes = {};
-    }
+    getSeason(req.headers["user-agent"]);
 
-    const commonCoreAttributes = common_core.stats.attributes || {};
-    for (const key in attributes) {
-      if (!commonCoreAttributes.hasOwnProperty(key)) {
-        // @ts-ignore
-        commonCoreAttributes[key] = attributes[key];
-      }
-    }
-
-    common_core.stats.attributes = commonCoreAttributes;
-
-    const applyProfileChanges = [
-      {
-        changeType: "fullProfileUpdate",
-        _id: "RANDOM",
-        profile: { ...common_core },
-      },
-    ];
+    if (!account || !user)
+      return res.status(404).json({ error: "Failed to find User." });
 
     common_core.items = {
       ...common_core.items,
       CommonCoreData,
     };
 
-    await Account.updateOne(
-      { accountId },
-      { $set: { common_core } }
-    ).cacheQuery();
+    applyProfileChanges.push({
+      changeType: "fullProfileUpdate",
+      _id: "RANDOM",
+      profile: { ...common_core },
+    });
+
+    if (applyProfileChanges.length > 0) {
+      common_core.rvn += 1;
+      common_core.commandRevision += 1;
+      common_core.Updated = DateTime.now().toISO();
+    }
 
     res.json({
-      profileRevision: account.profilerevision || 0,
+      profileRevision: common_core.rvn || 0,
       profileId: "common_core",
       profileChangesBaseRevision: account.BaseRevision || 0,
       profileChanges: applyProfileChanges,
       serverTime: DateTime.now().toISO(),
-      profileCommandRevision: account.profilerevision,
+      profileCommandRevision: common_core.commandRevision,
       responseVersion: 1,
     });
+
+    if (applyProfileChanges.length > 0) {
+      await account.updateOne({ $set: { common_core } }).cacheQuery();
+    }
   } catch (error) {
     log.error(`Error in ProfileCommonCore: ${error}`, "CommonCore");
     throw error;

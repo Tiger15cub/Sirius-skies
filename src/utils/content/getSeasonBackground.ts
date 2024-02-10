@@ -34,5 +34,20 @@ export default function getSeasonBackground(
         },
       ]);
       break;
+
+    case "14.60":
+      backgrounds.push([
+        {
+          stage: "season14",
+          _type: "DynamicBackground",
+          key: "lobby",
+        },
+        {
+          stage: "season14",
+          _type: "DynamicBackground",
+          key: "vault",
+        },
+      ]);
+      break;
   }
 }

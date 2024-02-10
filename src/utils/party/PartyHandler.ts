@@ -62,8 +62,10 @@ export default class PartyHandler {
     const member = Saves.members.find((m) => m.account_id === accountId);
     PartyHandler.revision += 1;
 
+    console.log(member);
+
     const client = (global as any).Clients.find(
-      (clien: any) => client.accountId === accountId
+      (client: any) => client.accountId === accountId
     );
 
     if (!client) {
