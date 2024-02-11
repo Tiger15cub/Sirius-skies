@@ -70,6 +70,7 @@ const missingUrls: Set<string> = new Set<string>();
     await Route.initializeRoutes(app);
     await Database.connect();
     import("./xmpp/xmpp");
+    import("./xmpp/matchmaker/matchmaker");
 
     app.use((req, res, next) => {
       res.setHeader("Content-Type", "application/json");

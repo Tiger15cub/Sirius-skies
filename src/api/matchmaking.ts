@@ -25,7 +25,7 @@ function encryptAES256(data: string, key: Buffer): string {
   return iv.toString("hex") + encrypted;
 }
 
-function decryptAES256(encryptedData: string, key: Buffer): string {
+export function decryptAES256(encryptedData: string, key: Buffer): string {
   const iv = Buffer.from(encryptedData.slice(0, 32), "hex");
   const encryptedText = encryptedData.slice(32);
 

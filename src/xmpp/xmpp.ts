@@ -39,13 +39,11 @@ wss.on("connection", async (socket, request: express.Request) => {
 
 app.use("/clients", async (req, res) => {
   if (!res.locals.hasWebSocket) {
-    const clients = (global as any).Clients.map(
-      (client: any) => client.displayName || ""
-    );
-
     res.send({
-      connectedClients: clients.length,
-      clients: clients,
+      connectedClients: (global as any).Clients.length,
+      clients: (global as any).Clients.map(
+        (client: { displayName: string }) => client.displayName
+      ),
     });
   } else {
     res.status(400).json({ error: "BadRequest" });

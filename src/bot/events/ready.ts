@@ -13,7 +13,7 @@ export default class ReadyEvent {
       "greenBright"
     );
     client.user?.setActivity({
-      name: `${Saves.ConnectedClients.size} players.`,
+      name: `${(global as any).Clients.length} players.`,
       type: ActivityType.Playing,
     });
   }
