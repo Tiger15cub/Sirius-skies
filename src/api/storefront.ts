@@ -8,6 +8,7 @@ import verifyToken from "../middleware/verifyToken";
 import { getSeason } from "../utils";
 import Friends from "../models/Friends";
 import { getProfile } from "../common/mcp/utils/getProfile";
+import Cache from "../middleware/Cache";
 
 export async function json(filePath: string): Promise<any> {
   const fileContent = await fs.readFile(filePath, "utf8");
@@ -17,6 +18,7 @@ export async function json(filePath: string): Promise<any> {
 export default function initRoute(router: Router) {
   router.get(
     "/fortnite/api/storefront/v2/catalog",
+    Cache,
     verifyToken,
     async (req, res) => {
       const shop = path.join(
@@ -111,6 +113,7 @@ export default function initRoute(router: Router) {
 
   router.get(
     "/fortnite/api/storefront/v2/gift/check_eligibility/recipient/:friendId/offer/:offerId",
+    Cache,
     verifyToken,
     async (req, res) => {
       const { offerId, friendId } = req.params;

@@ -12,16 +12,25 @@ export default {
   async handleAuth(
     socket: WebSocket,
     headers: IncomingHttpHeaders
-  ): Promise<AuthorizationPayload | null> {
+  ): Promise<any> {
     try {
+      if (
+        !headers.authorization ||
+        !headers.authorization.includes("Epic-Signed") ||
+        !headers.authorization.includes("mms-player")
+      )
+        return socket.close(3000);
+
       if (headers.authorization) {
         const authorizationHeader = headers.authorization.toString();
-        const authorizationHeaderParts = authorizationHeader.split(" ");
-        const tokenIndex: number = 3;
 
-        if (authorizationHeaderParts.length >= tokenIndex + 1) {
-          const authorizationToken: string =
-            authorizationHeaderParts[tokenIndex];
+        const base64Regex =
+          /([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)/g;
+        const base64Matches = authorizationHeader.match(base64Regex);
+
+        if (base64Matches && base64Matches.length > 0) {
+          const authorizationToken: string = base64Matches[0];
+
           const decryptedToken: string = decryptAES256(
             authorizationToken,
             getEnv("CLIENT_SECRET")
@@ -56,26 +65,27 @@ export default {
               currentUtcTime.diff(tokenTimestamp).milliseconds <=
               tokenLifetimeThreshold
             ) {
-              // works for now
-              if (account.accessToken.token.includes(payload.accessToken)) {
+              if (account.accessToken.includes(payload.accessToken)) {
                 return payload;
               }
+              return payload;
             } else {
               log.info(
                 `${user.username}'s token has expired. Disconnecting...`,
-                "Matchmaker"
+                "HandleAuth"
               );
+              return socket.terminate();
             }
           }
+
+          return payload;
         }
       }
-
-      socket.terminate();
       return null;
     } catch (error) {
       log.error(
         `An error occured when trying to HandleAuth: ${error}`,
-        "Matchmaker"
+        "HandleAuth"
       );
       socket.terminate();
       return null;

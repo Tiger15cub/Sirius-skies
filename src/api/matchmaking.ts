@@ -1,45 +1,57 @@
 import { Router } from "express";
 import log from "../utils/log";
-import { createCipheriv, randomBytes, createDecipheriv } from "crypto";
+import crypto, { createCipheriv, randomBytes, createDecipheriv } from "crypto";
 import Accounts from "../models/Accounts";
 import { getEnv } from "../utils";
 import path from "node:path";
 import { v4 as uuid } from "uuid";
 import fs from "node:fs/promises";
 import verifyToken from "../middleware/verifyToken";
+import Cache from "../middleware/Cache";
+import Server, { IServer } from "../models/Servers";
 
-function generateRandomKey(): Buffer {
-  const prefix = "matchmaking";
-  const remainingBytes = 32 - prefix.length;
-  const randomPart = randomBytes(remainingBytes);
-  return Buffer.concat([Buffer.from(prefix), randomPart]);
+function encryptAES256(input: string, key: string): string {
+  const keyBytes: Buffer = Buffer.from(key, "utf8");
+  const inputBytes: Buffer = Buffer.from(input, "utf8");
+
+  const sha256 = crypto.createHash("sha256");
+  const hashedKeyBytes = sha256.update(keyBytes).digest();
+
+  const iv = crypto.randomBytes(16);
+  const aes = crypto.createCipheriv("aes-256-cbc", hashedKeyBytes, iv);
+  aes.setAutoPadding(true);
+
+  const encryptedData = Buffer.concat([aes.update(inputBytes), aes.final()]);
+
+  const combinedData = Buffer.concat([iv, encryptedData]);
+
+  const encryptedBase64: string = combinedData.toString("base64");
+  return encryptedBase64;
 }
 
-function encryptAES256(data: string, key: Buffer): string {
-  const iv = randomBytes(16);
-  const cipher = createCipheriv("aes-256-ctr", key, iv);
+export function decryptAES256(encryptedBase64: string, key: string): string {
+  const keyBytes: Buffer = Buffer.from(key, "utf8");
+  const sha256 = crypto.createHash("sha256");
+  const hashedKeyBytes = sha256.update(keyBytes).digest();
 
-  let encrypted = cipher.update(data, "utf8", "hex");
-  encrypted += cipher.final("hex");
+  const encryptedData: Buffer = Buffer.from(encryptedBase64, "base64");
 
-  return iv.toString("hex") + encrypted;
-}
+  const iv = encryptedData.slice(0, 16);
+  const encryptedText = encryptedData.slice(16);
 
-export function decryptAES256(encryptedData: string, key: Buffer): string {
-  const iv = Buffer.from(encryptedData.slice(0, 32), "hex");
-  const encryptedText = encryptedData.slice(32);
+  const aes = crypto.createDecipheriv("aes-256-cbc", hashedKeyBytes, iv);
+  aes.setAutoPadding(true);
 
-  const decipher = createDecipheriv("aes-256-ctr", key, iv);
+  let decryptedData = aes.update(encryptedText);
+  decryptedData = Buffer.concat([decryptedData, aes.final()]);
 
-  let decrypted = decipher.update(encryptedText, "hex", "utf8");
-  decrypted += decipher.final("utf8");
-
-  return decrypted;
+  return decryptedData.toString("utf8");
 }
 
 export default function initRoute(router: Router): void {
   router.get(
     "/fortnite/api/game/v2/matchmakingservice/ticket/player/:accountId",
+    Cache,
     verifyToken,
     async (req, res) => {
       try {
@@ -54,15 +66,6 @@ export default function initRoute(router: Router): void {
         if (!account) {
           return res.status(404).json({ error: "Account not found." });
         }
-
-        const serversPath = path.join(
-          __dirname,
-          "..",
-          "..",
-          "servers",
-          "Servers.json"
-        );
-        const servers = require(serversPath);
 
         if (account.banned) {
           return res.status(200).json({});
@@ -106,11 +109,13 @@ export default function initRoute(router: Router): void {
           // TODO: Do custom key
         }
 
-        servers.forEach((server: any) => {
-          if (playlist.toLowerCase() === server.playlist.toLowerCase()) {
-            isPlaylistValid = true;
-          }
+        const servers: IServer[] = await Server.find({
+          playlist: playlist.toLowerCase(),
         });
+
+        if (servers.length > 0) {
+          isPlaylistValid = true;
+        }
 
         if (!isPlaylistValid) {
           return res.status(401).json({
@@ -119,10 +124,8 @@ export default function initRoute(router: Router): void {
           });
         }
 
-        const encryptionKey = generateRandomKey();
-
         return res.status(200).json({
-          serviceUrl: "ws://127.0.0.1",
+          serviceUrl: `ws://127.0.0.1:${getEnv("MATCHMAKER_PORT")}`,
           ticketType: "mms-player",
           payload: JSON.stringify({
             playerId: accountId,
@@ -151,7 +154,7 @@ export default function initRoute(router: Router): void {
               accessToken,
               timestamp: new Date().toISOString(),
             }),
-            encryptionKey
+            getEnv("CLIENT_SECRET")
           ),
         });
       } catch (error) {
@@ -200,109 +203,46 @@ export default function initRoute(router: Router): void {
   );
 
   router.get(
-    "/fortnite/api/matchmaking/session",
-    verifyToken,
-    async (req, res) => {
-      const { sessionId } = req.params;
-
-      const serversPath = path.join(
-        __dirname,
-        "..",
-        "..",
-        "servers",
-        "Servers.json"
-      );
-      const servers = require(serversPath);
-
-      let serverAddress: string = "";
-      let serverPort: number = Number("");
-
-      try {
-        const playlist = req.cookies["playlist"];
-        const region = req.cookies["region"];
-
-        let matchingServerFound: boolean = false;
-
-        servers.forEach((server: any) => {
-          if (
-            playlist.toLowerCase() === server.playlist.toLowerCase() &&
-            region.toLowerCase() === server.region.toLowerCase()
-          ) {
-            serverAddress = server.serverAddress;
-            serverPort = Number(server.serverPort);
-            matchingServerFound = true;
-          }
-        });
-
-        if (!matchingServerFound) {
-          log.error(
-            "Server not found for the given playlist and region.",
-            "Matchmaking"
-          );
-        }
-      } catch (error) {
-        let err: Error = error as Error;
-        log.error(`An error occured: ${err.message}`, "Matchmaking");
-        return res.status(500).json({ error: "Internal Server Error" });
-      }
-
-      res.json({
-        id: "sirius",
-        ownerId: "sirius",
-        ownerName: "sirius",
-        serverName: "sirius",
-        openPrivatePlayers: 0,
-        openPublicPlayers: 200,
-        isDedicated: true,
-        maxPublicPlayers: 200,
-        maxPrivatePlayers: 0,
-        shouldAdvertise: false,
-        allowJoinInProgress: false,
-        usesStats: false,
-        allowInvites: false,
-        usesPresence: false,
-        allowJoinViaPresence: false,
-        allowJoinViaPresenceFriendsOnly: false,
-        buildUniqueId: req.cookies["currentbuildUniqueId"] || "0",
-        attributes: {},
-      });
-    }
-  );
-
-  router.get(
     "/fortnite/api/matchmaking/session/:sessionId",
     verifyToken,
     async (req, res) => {
       const { sessionId } = req.params;
 
-      const serversPath = path.join(
-        __dirname,
-        "..",
-        "..",
-        "servers",
-        "Servers.json"
-      );
-      const servers = require(serversPath);
-
       let serverAddress: string = "";
       let serverPort: number = Number("");
 
       try {
         const playlist = req.cookies["playlist"];
         const region = req.cookies["region"];
+        const buildId = req.cookies["currentBuildUniqueId"];
+
+        const server: IServer | null = await Server.findOne({
+          playlist: playlist.toLowerCase(),
+          region,
+          buildId,
+        });
 
         let matchingServerFound: boolean = false;
 
-        servers.forEach((server: any) => {
-          if (
-            playlist.toLowerCase() === server.playlist.toLowerCase() &&
-            region.toLowerCase() === server.region.toLowerCase()
-          ) {
-            serverAddress = server.serverAddress;
-            serverPort = Number(server.serverPort);
-            matchingServerFound = true;
+        if (server) {
+          serverAddress = server.serverAddress;
+          serverPort = Number(server.serverPort);
+
+          switch (region) {
+            case "EU":
+              server.sessionId = sessionId;
+              break;
+            case "NAE":
+              server.sessionId = sessionId;
+              break;
+            default:
+              console.error(`No Servers Available for ${region}`);
+              break;
           }
-        });
+
+          await server.save();
+          matchingServerFound = true;
+        }
 
         if (!matchingServerFound) {
           log.error(

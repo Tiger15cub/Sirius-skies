@@ -33,6 +33,7 @@ import RefundMtxPurchase from "../common/mcp/operations/RefundMtxPurchase/Refund
 import SetAffiliateName from "../common/mcp/operations/SetAffiliateName/SetAffiliateName";
 import { profile } from "winston";
 import sendXmppMessageToClient from "../utils/sendXmppMessageToClient";
+import Cache from "../middleware/Cache";
 
 export default function initRoute(router: Router): void {
   router.post(
@@ -220,6 +221,7 @@ export default function initRoute(router: Router): void {
 
   router.post(
     "/fortnite/api/game/v2/profile/:accountId/client/:command",
+    Cache,
     verifyToken,
     async (req, res) => {
       const { accountId, command } = req.params;

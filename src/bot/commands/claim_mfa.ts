@@ -14,6 +14,7 @@ import Accounts from "../../models/Accounts";
 import { DateTime } from "luxon";
 import { getCommonCore } from "../../common/mcp/utils/getProfile";
 import AccountRefresh from "../../utils/AccountRefresh";
+import sendXmppMessageToClient from "../../utils/sendXmppMessageToClient";
 
 export default class MatchmakingBan extends BaseCommand {
   data = {
@@ -80,7 +81,20 @@ export default class MatchmakingBan extends BaseCommand {
       }
     ).cacheQuery();
 
-    await AccountRefresh(user.accountId, user.username);
+    const client = (global as any).Clients.find(
+      (client: { accountId: string }) => client.accountId === user.accountId
+    );
+
+    if (client) {
+      sendXmppMessageToClient(
+        {
+          payload: {},
+          timestamp: DateTime.now().toISO(),
+          type: "com.epicgames.gift.received",
+        },
+        user.accountId
+      );
+    }
 
     const embed = new EmbedBuilder()
       .setTitle("Successfully Claimed MFA")

@@ -12,6 +12,8 @@ import Users from "../../models/Users";
 import { getEnv } from "../../utils";
 import Accounts from "../../models/Accounts";
 import AccountRefresh from "../../utils/AccountRefresh";
+import sendXmppMessageToClient from "../../utils/sendXmppMessageToClient";
+import { DateTime } from "luxon";
 
 interface VbucksOptions extends CommandInteractionOptionResolver<CacheType> {
   getUser(name: "user"): any;
@@ -97,6 +99,21 @@ export default class VbucksCommand extends BaseCommand {
         },
       })
       .cacheQuery();
+
+    const client = (global as any).Clients.find(
+      (client: { accountId: string }) => client.accountId === user.accountId
+    );
+
+    if (client) {
+      sendXmppMessageToClient(
+        {
+          payload: {},
+          timestamp: DateTime.now().toISO(),
+          type: "com.epicgames.gift.received",
+        },
+        user.accountId
+      );
+    }
 
     const embed = new EmbedBuilder()
       .setTitle("Vbucks Changed")

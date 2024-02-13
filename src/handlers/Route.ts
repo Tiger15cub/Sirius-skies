@@ -28,9 +28,7 @@ export default {
               typeof RouteModule.default === "function"
             ) {
               try {
-                RouteModule.default(app, (next: NextFunction) => {
-                  return next();
-                });
+                RouteModule.default(app);
               } catch (error) {
                 let err = error as Error;
                 log.error(

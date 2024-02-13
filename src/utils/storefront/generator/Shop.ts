@@ -228,7 +228,7 @@ export default class Shop {
         throw new Error("Invalid category or rarity");
       }
     } catch (error) {
-      log.error(`Error getting item price: ${error}`, "GenerateShopItem");
+      log.error(`Error getting item price for ${randomShopItem.Name}: ${error}`, "GenerateShopItem");
     }
 
     shopFields.push({

@@ -4,6 +4,7 @@ import log from "../../utils/log";
 import chalk from "chalk";
 import { getEnv } from "../../utils";
 import HandleConnection from "./helpers/HandleConnection";
+import http from "http";
 
 const app = express();
 chalk.level = 3;
@@ -24,15 +25,13 @@ wss.on("listening", () => {
 });
 
 wss.on("connection", async (socket, request: express.Request) => {
-  console.log(JSON.stringify(request.headers));
-
   await HandleConnection.handleConnection(socket, request, request.headers);
 });
 
 app.use("/clients", async (req, res) => {
   if (!res.locals.hasWebSocket) {
     res.send({
-      connectedClients: (global as any).MMClients,
+      connectedClients: (global as any).MMClients.length,
       clients: (global as any).MMUser.map(
         (client: { accountId: string }) => client.accountId
       ),

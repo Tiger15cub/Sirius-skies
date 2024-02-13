@@ -21,8 +21,7 @@ export default async function PurchaseCatalogEntry(
   res: any
 ) {
   try {
-    const { currency, offerId, purchaseQuantity, expectedTotalPrice } =
-      req.body;
+    const { currency, offerId, purchaseQuantity } = req.body;
     const userAgent = req.headers["user-agent"];
     const season = getSeason(userAgent);
 
@@ -583,14 +582,12 @@ export default async function PurchaseCatalogEntry(
     });
 
     if (applyProfileChanges.length > 0) {
-      await account
-        .updateOne({
-          $set: {
-            athena: userProfiles,
-            /* common_core: commonCore */
-          },
-        })
-        .cacheQuery();
+      await account.updateOne({
+        $set: {
+          athena: userProfiles,
+          common_core: commonCore,
+        },
+      });
     }
   } catch (error) {
     log.error(`${error}`, "PurchaseCatalogEntry");

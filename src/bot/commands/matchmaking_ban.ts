@@ -14,6 +14,7 @@ import Accounts from "../../models/Accounts";
 import { DateTime } from "luxon";
 import { getCommonCore } from "../../common/mcp/utils/getProfile";
 import AccountRefresh from "../../utils/AccountRefresh";
+import sendXmppMessageToClient from "../../utils/sendXmppMessageToClient";
 
 export default class MatchmakingBan extends BaseCommand {
   data = {
@@ -98,28 +99,43 @@ export default class MatchmakingBan extends BaseCommand {
       return await interaction.editReply({ embeds: [embed] });
     }
 
-    await Accounts.updateOne(
-      { accountId: user.accountId },
-      {
-        $push: {
-          "common_core.stats.attributes.ban_status.banReasons": "Exploiting",
-        },
-        $set: {
-          "common_core.stats.attributes.ban_status.bRequiresUserAck": true,
-          "common_core.stats.attributes.ban_status.bBanHasStarted": true,
-          "common_core.stats.attributes.ban_status.banStartTimeUtc":
-            DateTime.now().toISO(),
-          "common_core.stats.attributes.ban_status.banDurationDays":
-            banDuration,
-          "common_core.stats.attributes.ban_status.additionalInfo": "",
-          "common_core.stats.attributes.ban_status.exploitProgramName": "",
-          "common_core.stats.attributes.ban_status.competitiveBanReason":
-            "None",
-        },
-      }
-    ).cacheQuery();
+    await account
+      .updateOne(
+        { accountId: user.accountId },
+        {
+          $push: {
+            "common_core.stats.attributes.ban_status.banReasons": "Exploiting",
+          },
+          $set: {
+            "common_core.stats.attributes.ban_status.bRequiresUserAck": true,
+            "common_core.stats.attributes.ban_status.bBanHasStarted": true,
+            "common_core.stats.attributes.ban_status.banStartTimeUtc":
+              DateTime.now().toISO(),
+            "common_core.stats.attributes.ban_status.banDurationDays":
+              banDuration,
+            "common_core.stats.attributes.ban_status.additionalInfo": "",
+            "common_core.stats.attributes.ban_status.exploitProgramName": "",
+            "common_core.stats.attributes.ban_status.competitiveBanReason":
+              "None",
+          },
+        }
+      )
+      .cacheQuery();
 
-    await AccountRefresh(user.accountId, user.username);
+    const client = (global as any).Clients.find(
+      (client: { accountId: string }) => client.accountId === user.accountId
+    );
+
+    if (client) {
+      sendXmppMessageToClient(
+        {
+          payload: {},
+          timestamp: DateTime.now().toISO(),
+          type: "com.epicgames.gift.received",
+        },
+        user.accountId
+      );
+    }
 
     const embed = new EmbedBuilder()
       .setTitle("User Successfully Banned")

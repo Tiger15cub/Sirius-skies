@@ -1,25 +1,39 @@
-import fs from "node:fs/promises";
-import path from "node:path";
 import Accounts from "../../../models/Accounts";
 
 export async function getProfile(accountId: string) {
-  const existingProfile = await Accounts.findOne({ accountId }).cacheQuery();
+  try {
+    const existingProfile = await Accounts.findOne({
+      accountId,
+    }).cacheQuery();
 
-  if (!existingProfile) {
-    return { error: "not found" };
+    if (!existingProfile) {
+      throw new Error("Profile not found");
+    }
+
+    Promise.resolve(existingProfile.athena);
+    return existingProfile.athena;
+  } catch (error) {
+    console.error(`Error in getProfile: ${error}`);
+    Promise.resolve({ error: "not found" });
   }
-
-  return existingProfile.athena;
 }
 
-export async function getCommonCore(accountId: string) {
-  const existingProfile = await Accounts.findOne({ accountId }).cacheQuery();
+export async function getCommonCore(accountId: string): Promise<any> {
+  try {
+    const existingProfile = await Accounts.findOne({
+      accountId,
+    }).cacheQuery();
 
-  if (!existingProfile) {
-    return { error: "not found" };
+    if (!existingProfile) {
+      throw new Error("Profile not found");
+    }
+
+    Promise.resolve(existingProfile.common_core);
+    return existingProfile.common_core;
+  } catch (error) {
+    console.error(`Error in getProfile: ${error}`);
+    Promise.resolve({ error: "not found" });
   }
-
-  return existingProfile.common_core;
 }
 
 export async function getMeta(accountId: string) {

@@ -4,10 +4,12 @@ import { getEnv } from "../utils";
 import PartyHandler from "../utils/party/PartyHandler";
 import verifyToken from "../middleware/verifyToken";
 import log from "../utils/log";
+import Cache from "../middleware/Cache";
 
 export default function initRoute(router: Router) {
   router.post(
     "/fortnite/api/game/v2/voice/:accountId/createLoginToken",
+    Cache,
     verifyToken,
     async (req, res) => {
       try {
@@ -40,6 +42,7 @@ export default function initRoute(router: Router) {
   // idk
   router.post(
     "/fortnite/api/game/v2/voice/:accountId/createJoinToken",
+    Cache,
     verifyToken,
     async (req, res) => {
       try {

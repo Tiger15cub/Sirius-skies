@@ -6,6 +6,7 @@ import log from "../utils/log";
 import verifyToken from "../middleware/verifyToken";
 import { getSeason } from "../utils";
 import crypto from "node:crypto";
+import Cache from "../middleware/Cache";
 
 interface Custom extends Request {
   rawBody?: any;
@@ -112,6 +113,7 @@ export default function initRoute(router: Router): void {
 
   router.get(
     "/fortnite/api/cloudstorage/user/:accountId/:file",
+    Cache,
     verifyToken,
     async (req, res) => {
       const clientSettings = path.join(
@@ -153,6 +155,7 @@ export default function initRoute(router: Router): void {
 
   router.get(
     "/fortnite/api/cloudstorage/user/:accountId",
+    Cache,
     verifyToken,
     async (req, res) => {
       const clientSettings = path.join(
@@ -196,6 +199,7 @@ export default function initRoute(router: Router): void {
 
   router.put(
     "/fortnite/api/cloudstorage/user/:accountId/:file",
+    Cache,
     verifyToken,
     getRequestBody,
     async (req: Custom, res) => {

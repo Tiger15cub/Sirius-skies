@@ -3,10 +3,12 @@ import Users from "../models/Users";
 import log from "../utils/log";
 import verifyToken from "../middleware/verifyToken";
 import { DateTime } from "luxon";
+import Cache from "../middleware/Cache";
 
 export default function initRoute(router: Router): void {
   router.get(
     "/account/api/public/account/:accountId",
+    Cache,
     verifyToken,
     async (req, res) => {
       const { accountId } = req.params;
@@ -51,21 +53,40 @@ export default function initRoute(router: Router): void {
     }
   );
 
-  router.get("/account/api/public/account", async (req, res) => {
-    try {
-      const accountIdQuery = req.query.accountId?.toString();
+  router.get(
+    "/account/api/public/account",
+    Cache,
+    verifyToken,
+    async (req, res) => {
+      try {
+        const accountIdQuery = req.query.accountId?.toString();
 
-      if (!accountIdQuery) {
-        return res.status(404).json([]);
-      }
+        if (!accountIdQuery) {
+          return res.status(404).json([]);
+        }
 
-      const response: any[] = [];
+        const response: any[] = [];
 
-      if (accountIdQuery!.includes(",")) {
-        const accountIds: string[] = accountIdQuery.split(",");
+        if (accountIdQuery!.includes(",")) {
+          const accountIds: string[] = accountIdQuery.split(",");
 
-        for (const accountId of accountIds) {
-          const user = await Users.findOne({ accountId }).cacheQuery();
+          for (const accountId of accountIds) {
+            const user = await Users.findOne({ accountId }).cacheQuery();
+
+            if (!user) {
+              return res.status(404).json({ error: "User not found." });
+            }
+
+            response.push({
+              id: user.accountId,
+              displayName: user.username,
+              externalAuth: {},
+            });
+          }
+        } else {
+          const user = await Users.findOne({
+            accountId: accountIdQuery,
+          }).cacheQuery();
 
           if (!user) {
             return res.status(404).json({ error: "User not found." });
@@ -73,38 +94,24 @@ export default function initRoute(router: Router): void {
 
           response.push({
             id: user.accountId,
+            links: {},
             displayName: user.username,
+            cabinedMode: false,
             externalAuth: {},
           });
         }
-      } else {
-        const user = await Users.findOne({
-          accountId: accountIdQuery,
-        }).cacheQuery();
 
-        if (!user) {
-          return res.status(404).json({ error: "User not found." });
-        }
-
-        response.push({
-          id: user.accountId,
-          links: {},
-          displayName: user.username,
-          cabinedMode: false,
-          externalAuth: {},
-        });
+        return res.json(response);
+      } catch (error) {
+        const err: Error = error as Error;
+        log.error(
+          `Error while fetching public account information: ${err.message}`,
+          "Account"
+        );
+        res.status(500).json({ error: "Internal Server Error" });
       }
-
-      return res.json(response);
-    } catch (error) {
-      const err: Error = error as Error;
-      log.error(
-        `Error while fetching public account information: ${err.message}`,
-        "Account"
-      );
-      res.status(500).json({ error: "Internal Server Error" });
     }
-  });
+  );
 
   router.get("/fortnite/api/game/v2/world/info", async (req, res) => {
     // why does this crash ????
@@ -113,6 +120,7 @@ export default function initRoute(router: Router): void {
 
   router.post(
     "/fortnite/api/game/v2/tryPlayOnPlatform/account/*",
+    Cache,
     verifyToken,
     async (req, res) => {
       res.setHeader("Content-Type", "text/plain").send(true).end();
@@ -121,6 +129,7 @@ export default function initRoute(router: Router): void {
 
   router.get(
     "/fortnite/api/game/v2/enabled_features",
+    Cache,
     verifyToken,
     async (req, res) => {
       res.json([]);
@@ -129,6 +138,7 @@ export default function initRoute(router: Router): void {
 
   router.get(
     "/account/api/public/account/:accountId/externalAuths",
+    Cache,
     verifyToken,
     async (req, res) => {
       res.json([]);
@@ -137,6 +147,8 @@ export default function initRoute(router: Router): void {
 
   router.get(
     "/account/api/public/account/displayName/:displayName",
+    Cache,
+    verifyToken,
     async (req, res) => {
       const { displayName } = req.params;
       const user = await Users.findOne({

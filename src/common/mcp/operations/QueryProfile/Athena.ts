@@ -1,11 +1,9 @@
 import log from "../../../../utils/log";
-import { SeasonData } from "../../../../interface";
 import { v4 as uuid } from "uuid";
 import { getProfile } from "../../utils/getProfile";
 import Accounts from "../../../../models/Accounts";
 import { Response } from "express";
 import { DateTime } from "luxon";
-import AccountRefresh from "../../../../utils/AccountRefresh";
 
 let cachedAthenaCosmetics: any = null;
 let cachedBasicAthena: any = null;
@@ -34,14 +32,13 @@ export default async function Athena(
     ]);
 
     if (!athena || !user) {
-      return res.status(404).json({
-        errorCode:
-          "errors.com.sirius.backend.common.mcp.account_or_user.not_found",
+      return Promise.reject({
+        status: 404,
         message: "Account or User not found.",
       });
     }
 
-    const userProfiles = await getProfile(accountId);
+    const [userProfiles] = await Promise.all([getProfile(accountId)]);
 
     const cosmeticToMerge = user.hasFL
       ? cachedAthenaCosmetics
@@ -50,10 +47,9 @@ export default async function Athena(
       : cachedBasicAthena;
 
     userProfiles.items = { ...userProfiles.items, ...cosmeticToMerge };
-
     userProfiles.stats.attributes.season_num = season as number;
 
-    const applyProfileChanges: any[] = [
+    const applyProfileChanges = [
       {
         changeType: "fullProfileUpdate",
         _id: uuid(),
@@ -75,11 +71,22 @@ export default async function Athena(
       responseVersion: 1,
     });
 
-    if (applyProfileChanges.length > 0) {
-      await athena.updateOne({ $set: { athena: userProfiles } }).cacheQuery();
-    }
+    await athena.updateOne({ $set: { athena: userProfiles } }).cacheQuery();
+
+    return Promise.resolve({
+      profileRevision: userProfiles.rvn || 0,
+      profileId: "athena",
+      profileChangesBaseRevision: athena.baseRevision || 0,
+      profileChanges: applyProfileChanges,
+      profileCommandRevision: userProfiles.commandRevision,
+      serverTime: DateTime.now().toISO(),
+      responseVersion: 1,
+    });
   } catch (error) {
     log.error(`Error in ProfileAthena: ${error}`, "ProfileAthena");
-    throw error;
+    return Promise.reject({
+      status: 500,
+      message: "Internal server error",
+    });
   }
 }

@@ -12,6 +12,7 @@ import verifyToken from "../middleware/verifyToken";
 import { DateTime } from "luxon";
 import { v4 as uuid } from "uuid";
 import ExchangeCodes from "../models/ExchangeCodes";
+import Cache from "../middleware/Cache";
 
 export default function initRoute(router: Router, next: NextFunction): void {
   router.delete("/account/api/oauth/sessions/kill", (req, res) => {
@@ -83,8 +84,7 @@ export default function initRoute(router: Router, next: NextFunction): void {
       const exchange_code = req.body.exchange_code;
       let accountId: string = "";
 
-      let responseSent = false; // Flag to track if a response has been sent
-
+      let responseSent = false;
       if (!clientId) {
         res.status(400).json({
           errorCode: "errors.com.epicgames.common.oauth.invalid_client",
@@ -221,46 +221,6 @@ export default function initRoute(router: Router, next: NextFunction): void {
           break;
 
         case "refresh_token":
-          // if (!refresh_token) {
-          //   res.status(400).json({
-          //     errorCode: "errors.com.epicgames.common.oauth.invalid_request",
-          //     errorMessage: "RefreshToken is required.",
-          //     messageVars: undefined,
-          //     numericErrorCode: 1013,
-          //     originatingService: "any",
-          //     intent: "prod",
-          //     error_description: "RefreshToken is required.",
-          //     error: "invalid_request",
-          //   });
-          //   responseSent = true;
-          // }
-
-          // const refreshTokenObject =
-          //   Globals.refreshTokens[
-          //     Globals.refreshTokens.findIndex(
-          //       (token) => token.token === refresh_token
-          //     )
-          //   ];
-
-          // if (refreshTokenObject === undefined) {
-          //   res.status(400).json({
-          //     errorCode:
-          //       "errors.com.epicgames.account.auth_token.invalid_refresh_token",
-          //     errorMessage: `Sorry the refresh token '${refresh_token}' is invalid`,
-          //     messageVars: undefined,
-          //     numericErrorCode: 18036,
-          //     originatingService: "any",
-          //     intent: "prod",
-          //     error_description: `Sorry the refresh token '${refresh_token}' is invalid`,
-          //     error: "invalid_refresh_token",
-          //   });
-          //   responseSent = true;
-          // } else {
-          //   await Users.findOne({
-          //     accountId: refreshTokenObject.accountId,
-          //   }).cacheQuery();
-          // }
-
           break;
 
         case "exchange_code":
@@ -461,67 +421,4 @@ export default function initRoute(router: Router, next: NextFunction): void {
 
     res.json(verificationResponse).status(200);
   });
-
-  // router.get("/account/api/oauth/exchange", verifyToken, async (req, res) => {
-  //   const existingExchangeCode = Globals.exchangeCodes.find(
-  //     (item) => item.accountId === res.locals.accountId
-  //   );
-
-  //   if (existingExchangeCode) {
-  //     const remainingExpiresInSeconds = Math.round(
-  //       existingExchangeCode.expiresAt.diffNow().as("seconds")
-  //     );
-
-  //     res.json({
-  //       expiresInSeconds: remainingExpiresInSeconds,
-  //       code: existingExchangeCode.exchange_code,
-  //       creatingClientId: existingExchangeCode.creatingClientId,
-  //     });
-
-  //     return;
-  //   }
-
-  //   const randomExchangeCode = uuid().replace(/-/g, "");
-
-  //   const createdAt = DateTime.local();
-  //   const expiresAt = DateTime.local().plus({ minutes: 5 });
-
-  //   const expiresInSeconds = Math.round(
-  //     expiresAt.diff(createdAt).as("seconds")
-  //   );
-
-  //   Globals.exchangeCodes.push({
-  //     accountId: res.locals.user.accountId,
-  //     exchange_code: randomExchangeCode,
-  //     creatingClientId: getEnv("CLIENT_SECRET"),
-  //     expiresAt: expiresAt,
-  //   });
-
-  //   await ExchangeCodes.create({
-  //     accountId: res.locals.user.accountId,
-  //     exchange_code: randomExchangeCode,
-  //     creatingClientId: getEnv("CLIENT_SECRET"),
-  //     expiresAt: expiresAt,
-  //   });
-
-  //   setTimeout(() => {
-  //     const index = Globals.exchangeCodes.findIndex(
-  //       (item) => item.exchange_code === randomExchangeCode
-  //     );
-
-  //     if (index !== -1) {
-  //       Globals.exchangeCodes.splice(index, 1);
-  //       log.custom(
-  //         `Exchange code '${randomExchangeCode}' removed successfully.`,
-  //         "ExchangeCodes"
-  //       );
-  //     }
-  //   }, 300000);
-
-  //   res.json({
-  //     expiresInSeconds,
-  //     code: randomExchangeCode,
-  //     creatingClientId: getEnv("CLIENT_SECRET"),
-  //   });
-  // });
 }

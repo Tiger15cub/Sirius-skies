@@ -1,42 +1,53 @@
+import { DateTime } from "luxon";
 import { AuthorizationPayload } from "../../../interface";
-import { v4 as uuid } from "uuid";
+import crypto from "node:crypto";
+import WebSocket from "ws";
 
-export default function QueuedState(): string {
-  const user = (global as any).MMUser;
-  const ticket = uuid().replace(/-/g, "");
+(global as any).queuedPlayers = 0;
 
-  user.forEach((userData: AuthorizationPayload) => {
-    const etaAndQueuedPlayers = (global as any).MMUser.reduce(
-      (count: number, data: AuthorizationPayload) => {
-        if (
-          data.playlist === userData.playlist &&
-          data.region === userData.region &&
-          data.customKey === userData.customKey &&
-          data.buildId === userData.buildId
-        ) {
-          return count + 1;
-        } else {
-          return count;
-        }
-      },
-      0
-    );
+export default async function QueuedState(socket: WebSocket): Promise<string> {
+  const users: AuthorizationPayload[] = (global as any).MMUser;
+  const ticket: string = crypto
+    .createHash("md5")
+    .update(`1${DateTime.now()}`)
+    .digest("hex");
 
-    if (userData.customKey !== "NONE") {
-      // TODO
-    }
+  const userMap = new Map<string, number>();
 
-    return JSON.stringify({
-      payload: {
-        ticketId: ticket,
-        queuedPlayers: etaAndQueuedPlayers,
-        estimatedWaitSec: etaAndQueuedPlayers * 2,
-        status: etaAndQueuedPlayers === 0 ? 2 : 3,
-        state: "Queued",
-      },
-      name: "StatusUpdate",
-    });
+  users.forEach((userData) => {
+    const key = `${userData.playlist}-${userData.region}-${userData.customKey}-${userData.buildId}`;
+    const count = userMap.get(key) || 0;
+    userMap.set(key, count + 1);
   });
 
+  users.map((userData) => {
+    const key = `${userData.playlist}-${userData.region}-${userData.customKey}-${userData.buildId}`;
+    const matches = userMap.get(key) || 0;
+    const estimatedWaitSec = matches * 2;
+
+    (global as any).queuedPlayers += matches;
+
+    if ((global as any).queuedPlayers >= 100) return socket.terminate();
+
+    setTimeout(() => {
+      return {
+        payload: {
+          ticketId: ticket,
+          queuedPlayers: matches,
+          estimatedWaitSec: estimatedWaitSec,
+          status: {},
+          state: "Queued",
+        },
+        name: "StatusUpdate",
+      };
+    }, 2000);
+  });
+
+  await sleep(2000);
+
   return "";
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

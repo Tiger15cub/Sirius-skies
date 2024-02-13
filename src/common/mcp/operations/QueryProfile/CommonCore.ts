@@ -8,17 +8,6 @@ import CommonCoreData from "../../../resources/mcp/Common_Core.json";
 import { BanStatus } from "../../../../interface";
 import { getSeason } from "../../../../utils";
 
-const DEFAULT_BAN_STATUS: BanStatus = {
-  bRequiresUserAck: false,
-  banReasons: [],
-  bBanHasStarted: false,
-  banStartTimeUtc: "2024-01-23T17:59:20.387-07:00",
-  banDurationDays: 0,
-  additionalInfo: "",
-  exploitProgramName: "",
-  competitiveBanReason: "None",
-};
-
 async function checkBanExpiry(accountId: string): Promise<void> {
   try {
     const expiredBans = await Accounts.findOne({
@@ -87,11 +76,9 @@ export default async function ProfileCommonCore(
       profile: { ...common_core },
     });
 
-    if (applyProfileChanges.length > 0) {
-      common_core.rvn += 1;
-      common_core.commandRevision += 1;
-      common_core.Updated = DateTime.now().toISO();
-    }
+    common_core.rvn += 1;
+    common_core.commandRevision += 1;
+    common_core.Updated = DateTime.now().toISO();
 
     res.json({
       profileRevision: common_core.rvn || 0,
@@ -103,9 +90,7 @@ export default async function ProfileCommonCore(
       responseVersion: 1,
     });
 
-    if (applyProfileChanges.length > 0) {
-      await account.updateOne({ $set: { common_core } }).cacheQuery();
-    }
+    await account.updateOne({ $set: { common_core } }).cacheQuery();
   } catch (error) {
     log.error(`Error in ProfileCommonCore: ${error}`, "CommonCore");
     throw error;

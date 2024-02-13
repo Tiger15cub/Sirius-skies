@@ -9,7 +9,9 @@ import {
 } from "discord.js";
 import Users from "../../models/Users";
 import Accounts from "../../models/Accounts";
-import AccountRefresh from "../../utils/AccountRefresh";
+import socket from "ws";
+import sendXmppMessageToClient from "../../utils/sendXmppMessageToClient";
+import { DateTime } from "luxon";
 
 interface FullLockerOptions {
   user: User;
@@ -94,11 +96,24 @@ export default class FullLockerCommand extends BaseCommand {
       return await interaction.editReply({ embeds: [embed] });
     }
 
-    await Users.updateOne(
-      { discordId: interaction.user.id },
-      { hasFL: true }
-    ).cacheQuery();
-    await AccountRefresh(user.accountId, user.username);
+    await user
+      .updateOne({ discordId: interaction.user.id }, { hasFL: true })
+      .cacheQuery();
+
+    const client = (global as any).Clients.find(
+      (client: { accountId: string }) => client.accountId === user.accountId
+    );
+
+    if (client) {
+      sendXmppMessageToClient(
+        {
+          payload: {},
+          timestamp: DateTime.now().toISO(),
+          type: "com.epicgames.gift.received",
+        },
+        user.accountId
+      );
+    }
 
     const successMessage = `Successfully added a full locker to ${interaction.user.username}'s account.`;
     const successEmbed = await createEmbed(

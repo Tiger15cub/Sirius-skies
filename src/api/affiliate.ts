@@ -1,10 +1,12 @@
 import { Router } from "express";
 import Users from "../models/Users";
 import verifyToken from "../middleware/verifyToken";
+import Cache from "../middleware/Cache";
 
 export default function initRoute(router: Router) {
   router.get(
     "/affiliate/api/public/affiliates/slug/:slug",
+    Cache,
     async (req, res) => {
       const { slug } = req.params;
 

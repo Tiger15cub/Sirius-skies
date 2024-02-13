@@ -24,3 +24,4 @@ export * from "./Command";
 export * from "./BanStatus";
 export * from "./Tier";
 export * from "./AuthorizationPayload";
+export * from "./CacheItem";
